@@ -2,599 +2,385 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Infinite Relic - 装備完成版</title>
-
+<title>Infinite Relic</title>
 <style>
 
 body{
-background:#111;
-color:white;
+background:#000;
+color:#fff;
 font-family:sans-serif;
-margin:0;
-}
-
-#header{
-background:#222;
-padding:10px;
 text-align:center;
-font-size:22px;
-}
-
-#tabs{
-display:flex;
-}
-
-.tabbtn{
-flex:1;
-padding:10px;
-font-size:18px;
-}
-
-.tab{
-display:none;
-padding:10px;
-}
-
-.active{
-display:block;
 }
 
 button{
-font-size:16px;
-margin:2px;
-padding:6px;
+font-size:18px;
+margin:5px;
 }
 
-.barbg{
-background:#333;
-height:16px;
+.tab{
+margin-top:10px;
+}
+
+.hidden{
+display:none;
 }
 
 .bar{
-background:#00e676;
+width:90%;
+height:20px;
+background:#333;
+margin:auto;
+}
+
+.fill{
 height:100%;
-}
-
-.enemy{
-background:#ff5252;
-}
-
-.exp{
-background:#40c4ff;
-}
-
-.common{color:white}
-.uncommon{color:#00e676}
-.rare{color:#00b0ff}
-.epic{color:#aa00ff}
-.legend{color:#ffd600}
-
-.lock{
-color:red;
-}
-
-.equipMark{
-color:gold;
+background:red;
 }
 
 </style>
-
 </head>
-
 <body>
 
-<div id="header">
+<h1>Infinite Relic</h1>
 
-Infinite Relic
+階層: <span id="floor">1</span><br><br>
+
+<button onclick="attack()">攻撃</button>
+<button onclick="toggleAuto()" id="autoBtn">AUTO OFF</button>
+
+<h2>プレイヤー</h2>
+
+LV <span id="lv"></span><br>
+
+HP
+<span id="hp"></span>
+<div class="bar">
+<div id="hpBar" class="fill"></div>
+</div>
+
+EXP
+<span id="exp"></span>
+
+<h2>敵</h2>
+
+<span id="enemyName"></span>
+
+HP
+<span id="enemyHp"></span>
+
+<div class="bar">
+<div id="enemyBar" class="fill"></div>
+</div>
 
 <br>
 
-階層 <span id="floor"></span>
-
-</div>
-
-<div id="tabs">
-
-<button onclick="openTab('battle')" class="tabbtn">戦闘</button>
-
-<button onclick="openTab('equip')" class="tabbtn">装備</button>
-
-<button onclick="openTab('job')" class="tabbtn">ジョブ</button>
-
-</div>
-
-
-<!-- 戦闘 -->
-
-<div id="battle" class="tab active">
-
-<button onclick="attack()">攻撃</button>
-
-<button onclick="autoToggle()" id="autoBtn">AUTO OFF</button>
-
-<div id="player"></div>
-
-<div class="barbg">
-<div id="hpbar" class="bar"></div>
-</div>
-
-<div class="barbg">
-<div id="expbar" class="bar exp"></div>
-</div>
-
-<div id="enemy"></div>
-
-<div class="barbg">
-<div id="enemybar" class="bar enemy"></div>
-</div>
-
-<input id="moveInput" placeholder="階層">
-
+<input type="number" id="moveInput">
 <button onclick="move()">移動</button>
 
+<br><br>
+
+<button onclick="openTab('job')">ジョブ</button>
+<button onclick="openTab('equip')">装備</button>
+
+<div id="jobTab" class="tab hidden">
+<h3>ジョブ</h3>
+<div id="jobList"></div>
 </div>
 
+<div id="equipTab" class="tab hidden">
+<h3>装備</h3>
 
-<!-- 装備 -->
-
-<div id="equip" class="tab">
-
-装備中
-
+装備中:
 <div id="equipped"></div>
 
+<hr>
+
+所持武器:
+<div id="weaponList"></div>
+
 <button onclick="discardAll()">
-
-装備中以外を全て捨てる
-
+装備以外を全て捨てる
 </button>
 
-<hr>
-
-所持品
-
-<div id="inventory"></div>
-
 </div>
 
+<br>
 
-<!-- ジョブ -->
-
-<div id="job" class="tab">
-
-現在のジョブ
-
-<div id="currentJob"></div>
-
-<hr>
-
-<div id="jobList"></div>
-
-</div>
-
-
+<button onclick="save()">セーブ</button>
+<button onclick="load()">ロード</button>
 
 <script>
 
+const jobs=[
 
-////////////////
-// セーブ
-////////////////
+{name:"戦士",atk:2,hp:20},
+
+{name:"騎士",atk:1,hp:40},
+
+{name:"盗賊",atk:3,hp:10}
+
+]
+
+const weaponMaster=[
+
+{name:"錆びた剣",atk:2},
+
+{name:"騎士の剣",atk:5},
+
+{name:"英雄の剣",atk:10},
+
+{name:"王者の剣",atk:20},
+
+{name:"神話の剣",atk:50}
+
+]
+
+let player={
+
+lv:1,
+
+hp:100,
+
+maxHp:100,
+
+atk:5,
+
+exp:0,
+
+job:0,
+
+weapons:[0],
+
+equip:0
+
+}
+
+let floor=1
+
+let enemy
+
+let auto=false
+
+function newEnemy(){
+
+enemy={
+
+name:["スライム","ゴブリン","オーク","ドラゴン"][Math.min(3,Math.floor(floor/10))],
+
+hp:30+floor*5,
+
+maxHp:30+floor*5,
+
+atk:3+floor
+
+}
+
+}
+
+function totalAtk(){
+
+return player.atk
++jobs[player.job].atk
++weaponMaster[player.equip].atk
+
+}
+
+function attack(){
+
+enemy.hp-=totalAtk()
+
+if(enemy.hp<=0){
+
+player.exp+=10
+
+if(player.exp>=player.lv*10){
+
+player.exp=0
+player.lv++
+
+player.maxHp+=10
+player.hp=player.maxHp
+
+player.weapons.push(
+Math.floor(Math.random()*weaponMaster.length)
+)
+
+}
+
+newEnemy()
+
+}
+
+player.hp-=enemy.atk
+
+if(player.hp<=0){
+
+player.hp=player.maxHp
+
+}
+
+update()
+
+}
+
+function toggleAuto(){
+
+auto=!auto
+
+document.getElementById("autoBtn").innerText=
+auto?"AUTO ON":"AUTO OFF"
+
+}
+
+setInterval(()=>{
+
+if(auto)attack()
+
+},1000)
+
+function move(){
+
+floor=parseInt(
+document.getElementById("moveInput").value
+)
+
+newEnemy()
+
+update()
+
+}
+
+function openTab(name){
+
+document.getElementById("jobTab").classList.add("hidden")
+document.getElementById("equipTab").classList.add("hidden")
+
+document.getElementById(name+"Tab").classList.remove("hidden")
+
+}
+
+function changeJob(i){
+
+player.job=i
+update()
+
+}
+
+function equip(i){
+
+player.equip=i
+update()
+
+}
+
+function discardAll(){
+
+player.weapons=
+[player.equip]
+
+update()
+
+}
+
+function update(){
+
+floorText.innerText=floor
+
+lv.innerText=player.lv
+
+hp.innerText=
+Math.floor(player.hp)
++"/"+
+Math.floor(player.maxHp)
+
+exp.innerText=
+Math.floor(player.exp)
++"/"+
+player.lv*10
+
+hpBar.style.width=
+(player.hp/player.maxHp*100)+"%"
+
+enemyName.innerText=enemy.name
+
+enemyHp.innerText=
+Math.floor(enemy.hp)
++"/"+
+Math.floor(enemy.maxHp)
+
+enemyBar.style.width=
+(enemy.hp/enemy.maxHp*100)+"%"
+
+jobList.innerHTML=""
+
+jobs.forEach((j,i)=>{
+
+jobList.innerHTML+=
+
+`
+<button onclick="changeJob(${i})">
+
+${j.name}
+
+</button>
+
+`
+
+})
+
+equipped.innerText=
+weaponMaster[player.equip].name
+
+weaponList.innerHTML=""
+
+player.weapons.forEach(i=>{
+
+weaponList.innerHTML+=
+
+`
+<div>
+
+${weaponMaster[i].name}
+
+<button onclick="equip(${i})">
+
+装備
+
+</button>
+
+</div>
+
+`
+
+})
+
+}
 
 function save(){
 
-localStorage.save=JSON.stringify(game)
+localStorage.save=
+JSON.stringify({
+player,floor
+})
 
 }
 
 function load(){
 
-let s=localStorage.save
+let s=
+JSON.parse(localStorage.save)
 
-if(s) game=JSON.parse(s)
+player=s.player
 
-}
+floor=s.floor
 
-
-
-////////////////
-// 初期
-////////////////
-
-let rarityList=["common","uncommon","rare","epic","legend"]
-
-
-let game={
-
-floor:1,
-
-player:{
-
-level:1,
-exp:0,
-expMax:10,
-
-hp:100,
-maxHp:100,
-
-atk:10,
-def:5,
-
-job:"戦士",
-
-weapon:null,
-armor:null
-
-},
-
-enemy:null,
-
-auto:false,
-
-inventory:[]
-
-}
-
-load()
-
-
-////////////////
-// 装備生成
-////////////////
-
-function createItem(){
-
-return{
-
-name:"武器"+rand(1,100),
-
-atk:rand(1,10),
-
-def:rand(0,5),
-
-rarity:rarityList[rand(0,4)],
-
-lock:false
-
-}
-
-}
-
-
-////////////////
-// 敵
-////////////////
-
-function spawn(){
-
-game.enemy={
-
-name:"敵"+game.floor,
-
-hp:50+game.floor*10,
-
-maxHp:50+game.floor*10,
-
-atk:5+game.floor*2
-
-}
-
-}
-
-
-
-////////////////
-// 戦闘
-////////////////
-
-function attack(){
-
-game.enemy.hp-=game.player.atk
-
-if(game.enemy.hp<=0){
-
-win()
-return
-
-}
-
-game.player.hp-=game.enemy.atk
-
-if(game.player.hp<=0){
-
-game.player.hp=game.player.maxHp
-
-game.floor=1
-
-spawn()
-
-}
+newEnemy()
 
 update()
-save()
 
 }
 
-
-function win(){
-
-game.floor++
-
-game.player.exp++
-
-if(game.player.exp>=game.player.expMax){
-
-game.player.exp=0
-game.player.level++
-
-game.player.maxHp+=10
-game.player.atk+=2
-game.player.def+=1
-
-}
-
-game.inventory.push(createItem())
-
-spawn()
-
-update()
-save()
-
-}
-
-
-
-////////////////
-// AUTO
-////////////////
-
-function autoToggle(){
-
-game.auto=!game.auto
-
-autoBtn.innerText=
-
-game.auto?"AUTO ON":"AUTO OFF"
-
-save()
-
-}
-
-
-setInterval(()=>{
-
-if(game.auto)attack()
-
-},800)
-
-
-
-////////////////
-// 装備
-////////////////
-
-function equip(i){
-
-let item=game.inventory[i]
-
-game.player.weapon=item
-
-update()
-save()
-
-}
-
-
-
-function unequip(){
-
-game.player.weapon=null
-
-update()
-save()
-
-}
-
-
-
-////////////////
-// ロック
-////////////////
-
-function lockItem(i){
-
-game.inventory[i].lock=
-
-!game.inventory[i].lock
-
-update()
-save()
-
-}
-
-
-
-////////////////
-// 個別破棄
-////////////////
-
-function discard(i){
-
-let item=game.inventory[i]
-
-if(item.lock) return
-
-if(item==game.player.weapon) return
-
-game.inventory.splice(i,1)
-
-update()
-save()
-
-}
-
-
-
-////////////////
-// 一括破棄
-////////////////
-
-function discardAll(){
-
-game.inventory=
-
-game.inventory.filter(item=>
-
-item.lock ||
-item==game.player.weapon
-
-)
-
-update()
-save()
-
-}
-
-
-
-////////////////
-// 移動
-////////////////
-
-function move(){
-
-let f=parseInt(moveInput.value)
-
-if(!f)return
-
-game.floor=f
-
-spawn()
-
-update()
-save()
-
-}
-
-
-
-////////////////
-// UI
-////////////////
-
-function update(){
-
-
-floor.innerText=game.floor
-
-
-player.innerHTML=
-
-"LV "+game.player.level+
-"<br>HP "+game.player.hp+"/"+game.player.maxHp+
-"<br>ATK "+game.player.atk+
-"<br>DEF "+game.player.def
-
-
-
-enemy.innerHTML=
-
-game.enemy.name+
-"<br>HP "+game.enemy.hp+"/"+game.enemy.maxHp
-
-
-
-hpbar.style.width=
-
-(game.player.hp/game.player.maxHp*100)+"%"
-
-
-enemybar.style.width=
-
-(game.enemy.hp/game.enemy.maxHp*100)+"%"
-
-
-expbar.style.width=
-
-(game.player.exp/game.player.expMax*100)+"%"
-
-
-
-equipped.innerHTML=
-
-"武器:"+
-
-(game.player.weapon?
-
-game.player.weapon.name+
-
-"<button onclick='unequip()'>外す</button>"
-
-:"なし")
-
-
-
-inventory.innerHTML=
-
-game.inventory.map((it,i)=>
-
-"<div class='"+it.rarity+"'>"+
-
-(it==game.player.weapon?"E ":"")+
-
-it.name+
-
-" ATK"+it.atk+
-
-(it.lock?" 🔒":"")+
-
-"<button onclick='equip("+i+")'>装備</button>"+
-
-"<button onclick='lockItem("+i+")'>ロック</button>"+
-
-"<button onclick='discard("+i+")'>捨てる</button>"+
-
-"</div>"
-
-).join("")
-
-}
-
-
-
-////////////////
-// タブ
-////////////////
-
-function openTab(id){
-
-document.querySelectorAll(".tab")
-
-.forEach(t=>t.classList.remove("active"))
-
-document.getElementById(id)
-
-.classList.add("active")
-
-}
-
-
-
-////////////////
-// util
-////////////////
-
-function rand(a,b){
-
-return Math.floor(Math.random()*(b-a+1))+a
-
-}
-
-
-
-spawn()
+newEnemy()
 
 update()
 
