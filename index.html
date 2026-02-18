@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>Haxla RPG Ultimate Complete</title>
+<style>
+
+body{
+background:#111;
+color:#fff;
+font-family:sans-serif;
+margin:0;
+}
+
+.panel{
+background:#222;
+padding:10px;
+margin:5px;
+border-radius:10px;
+}
+
+button{
+padding:10px;
+margin:3px;
+font-size:16px;
+}
+
+.bar{
+height:20px;
+background:#444;
+margin:5px 0;
+}
+
+.fill{
+height:100%;
+background:#0f0;
+}
+
+.enemyfill{
+background:#f00;
+}
+
+.item{
+border:1px solid #555;
+margin:3px;
+padding:5px;
+}
+
+.equip{
+color:#0ff;
+}
+
+</style>
+</head>
+<body>
+
+<div class="panel">
+
+<h2>階層 <span id="floor"></span></h2>
+
+Lv <span id="level"></span>
+
+<div class="bar">
+<div id="hpbar" class="fill"></div>
+</div>
+
+HP
+<span id="hp"></span>
+/
+<span id="maxhp"></span>
+
+<br>
+
+転生Pt
+<span id="rp"></span>
+
+<br>
+
+攻撃
+<span id="atk"></span>
+
+防御
+<span id="def"></span>
+
+</div>
+
+
+<div class="panel">
+
+<button onclick="battle()">戦闘</button>
+
+<button onclick="openEquip()">装備</button>
+
+<button onclick="openJob()">ジョブ</button>
+
+<button onclick="move()">移動</button>
+
+<button onclick="openRebirth()">転生</button>
+
+<button onclick="openSkill()">スキル</button>
+
+</div>
+
+
+<div class="panel">
+
+敵
+
+<div class="bar">
+<div id="enemybar" class="enemyfill fill"></div>
+</div>
+
+<span id="enemyhp"></span>
+
+</div>
+
+
+<div class="panel" id="main">
+
+</div>
+
+
+
+<script>
+
+player={
+floor:1,
+level:1,
+exp:0,
+
+hp:100,
+maxhp:100,
+
+atk:10,
+def:5,
+
+rp:0,
+
+weapon:null,
+
+job:"戦士",
+
+inventory:[],
+passive:[],
+active:["強撃"]
+}
+
+
+enemy=null
+
+
+jobs={
+
+戦士:{
+atk:5,
+def:5,
+desc:"攻守バランス"
+},
+
+魔法使い:{
+atk:10,
+def:0,
+desc:"高火力"
+},
+
+守護者:{
+atk:0,
+def:10,
+desc:"防御特化"
+}
+
+}
+
+
+
+function update(){
+
+floor.innerText=player.floor
+level.innerText=player.level
+
+hp.innerText=Math.floor(player.hp)
+maxhp.innerText=Math.floor(player.maxhp)
+
+rp.innerText=player.rp
+
+atk.innerText=Math.floor(player.atk)
+def.innerText=Math.floor(player.def)
+
+
+hpbar.style.width=(player.hp/player.maxhp*100)+"%"
+
+
+if(enemy){
+
+enemyhp.innerText=Math.floor(enemy.hp)
+
+enemybar.style.width=(enemy.hp/enemy.maxhp*100)+"%"
+
+}else{
+
+enemyhp.innerText=""
+
+enemybar.style.width="0%"
+
+}
+
+}
+
+
+function battle(){
+
+enemy={
+hp:50+player.floor*10,
+maxhp:50+player.floor*10,
+atk:5+player.floor
+}
+
+fight()
+
+}
+
+
+function fight(){
+
+if(!enemy)return
+
+
+enemy.hp-=Math.max(1,player.atk)
+
+
+if(enemy.hp<=0){
+
+win()
+
+return
+
+}
+
+
+player.hp-=Math.max(1,enemy.atk-player.def)
+
+
+if(player.hp<=0){
+
+player.hp=player.maxhp
+
+player.floor=Math.max(1,player.floor-5)
+
+alert("敗北")
+
+}
+
+
+update()
+
+setTimeout(fight,500)
+
+}
+
+
+
+function win(){
+
+player.floor++
+
+player.exp+=10
+
+drop()
+
+enemy=null
+
+update()
+
+}
+
+
+
+function drop(){
+
+let w={
+
+name:"武器"+Math.floor(Math.random()*100),
+
+atk:Math.floor(Math.random()*10)
+
+}
+
+player.inventory.push(w)
+
+}
+
+
+
+function openEquip(){
+
+main.innerHTML=""
+
+player.inventory.forEach((w,i)=>{
+
+let d=document.createElement("div")
+
+d.className="item"
+
+d.innerHTML=
+
+w.name+
+
+" ATK+"+w.atk+
+
+(player.weapon==w?" <span class='equip'>装備中</span>":"")+
+
+"<br>"+
+
+"<button onclick='equip("+i+")'>装備</button>"+
+
+"<button onclick='discard("+i+")'>捨てる</button>"
+
+main.appendChild(d)
+
+})
+
+}
+
+
+
+function equip(i){
+
+let w=player.inventory[i]
+
+player.weapon=w
+
+player.atk=10+w.atk
+
+update()
+
+openEquip()
+
+}
+
+
+
+function discard(i){
+
+player.inventory.splice(i,1)
+
+openEquip()
+
+}
+
+
+
+function openJob(){
+
+main.innerHTML=""
+
+for(let j in jobs){
+
+let d=document.createElement("div")
+
+d.className="item"
+
+d.innerHTML=
+
+j+
+
+"<br>"+
+
+jobs[j].desc+
+
+"<br>"+
+
+"<button onclick='setJob(\""+j+"\")'>変更</button>"
+
+main.appendChild(d)
+
+}
+
+}
+
+
+
+function setJob(j){
+
+player.job=j
+
+player.atk+=jobs[j].atk
+
+player.def+=jobs[j].def
+
+update()
+
+}
+
+
+
+function move(){
+
+let f=prompt("移動階層")
+
+player.floor=parseInt(f)
+
+update()
+
+}
+
+
+
+function openRebirth(){
+
+main.innerHTML=
+
+"転生すると<br>"+
+
+"攻撃防御が永久上昇<br>"+
+
+"転生Pt獲得<br>"+
+
+"<button onclick='rebirth()'>転生</button>"
+
+}
+
+
+
+function rebirth(){
+
+player.rp+=player.floor
+
+player.floor=1
+
+player.atk+=player.rp
+
+player.def+=player.rp
+
+update()
+
+}
+
+
+
+function openSkill(){
+
+main.innerHTML=
+
+"パッシブ<br>"+
+
+player.passive.join("<br>")+
+
+"<br><br>"+
+
+"アクティブ<br>"+
+
+player.active.join("<br>")
+
+}
+
+
+
+update()
+
+</script>
+
+
+</body>
+</html>
