@@ -11,8 +11,8 @@ body{
 background:#111;
 color:white;
 font-family:sans-serif;
-margin:0;
 font-size:18px;
+margin:0;
 }
 
 #top{
@@ -25,98 +25,92 @@ top:0;
 button{
 font-size:18px;
 padding:10px;
-margin:4px;
-border-radius:8px;
+margin:3px;
 border:none;
+border-radius:8px;
 }
 
 #auto.on{background:#00c853;}
 #auto.off{background:#444;}
 
 .bar{
-height:20px;
+height:18px;
 background:#333;
 border-radius:5px;
-margin:5px 0;
 }
 
 .fill{
 height:100%;
 background:#00e676;
-border-radius:5px;
 }
 
-.enemyfill{
-background:#ff5252;
-}
-
-.expfill{
-background:#40c4ff;
-}
+.enemyfill{background:#ff5252;}
+.expfill{background:#40c4ff;}
 
 .tab{display:none;padding:10px;}
 .active{display:block;}
 
-.log{
-height:150px;
-overflow:auto;
-background:#000;
+.item{
+border-bottom:1px solid #333;
 padding:5px;
 }
+
+.common{color:white;}
+.uncommon{color:#00e676;}
+.rare{color:#00b0ff;}
+.epic{color:#aa00ff;}
+.legend{color:#ffd600;}
 
 </style>
 </head>
 <body>
 
+
 <div id="top">
 
-<div id="playerStats"></div>
+<div id="stats"></div>
 
-<div class="bar">
-<div id="hpbar" class="fill"></div>
-</div>
+HP
+<div class="bar"><div id="hpbar" class="fill"></div></div>
 
 EXP
-<div class="bar">
-<div id="expbar" class="fill expfill"></div>
-</div>
+<div class="bar"><div id="expbar" class="fill expfill"></div></div>
 
 <button onclick="attack()">攻撃</button>
-<button id="auto" class="off" onclick="toggleAuto()">AUTO</button>
+<button id="auto" class="off" onclick="autoToggle()">AUTO</button>
 
 <br>
 
 <button onclick="tab('battle')">戦闘</button>
-<button onclick="tab('job')">ジョブ</button>
-<button onclick="tab('move')">移動</button>
+<button onclick="tab('equip')">装備</button>
 
 </div>
 
 
 <div id="battle" class="tab active">
 
-<div id="enemyStats"></div>
+<div id="enemy"></div>
 
 <div class="bar">
-<div id="enemyhp" class="fill enemyfill"></div>
+<div id="enemybar" class="fill enemyfill"></div>
 </div>
 
-<div id="log" class="log"></div>
-
-</div>
-
-
-<div id="job" class="tab">
-
-<div id="jobList"></div>
+<div id="log"></div>
 
 </div>
 
 
-<div id="move" class="tab">
+<div id="equip" class="tab">
 
-<input id="floorInput" type="number">
-<button onclick="moveFloor()">移動</button>
+装備中<br>
+
+<div id="equipped"></div>
+
+<hr>
+
+所持品
+
+<div id="inv"></div>
 
 </div>
 
@@ -124,12 +118,35 @@ EXP
 <script>
 
 
+// ===== セーブ =====
+
+function save(){
+
+localStorage.haxla=JSON.stringify(player)
+
+}
+
+function load(){
+
+if(localStorage.haxla){
+
+player=JSON.parse(localStorage.haxla)
+
+}
+
+}
+
+
 // ===== プレイヤー =====
 
 let player={
 
+floor:1,
+
 level:1,
+
 exp:0,
+
 expMax:50,
 
 hp:100,
@@ -138,83 +155,66 @@ maxhp:100,
 atk:10,
 def:5,
 
-floor:1,
+auto:false,
 
-job:"剣士",
+weapon:null,
+armor:null,
 
-auto:false
-
-}
-
-
-// ===== ジョブ =====
-
-let jobs={
-
-剣士:{
-desc:"バランス型",
-atk:1.2,
-def:1,
-skill:"強撃：150％ダメージ"
-},
-
-ナイト:{
-desc:"防御特化",
-atk:1,
-def:1.4,
-skill:"鉄壁：被ダメ20％減"
-},
-
-アサシン:{
-desc:"高火力",
-atk:1.5,
-def:0.8,
-skill:"致命撃：20％で2倍"
-}
+inventory:[]
 
 }
+
+load()
+
+
+// ===== 装備 =====
+
+let weaponNames=[
+"折れた剣","鉄の剣","騎士剣","聖剣","魔剣","神剣"
+]
+
+let armorNames=[
+"布","革鎧","鎖鎧","騎士鎧","聖鎧","神鎧"
+]
+
+let rar=["common","uncommon","rare","epic","legend"]
 
 
 // ===== 敵 =====
 
 let enemy
 
+
 function createEnemy(){
 
 let f=player.floor
 
-if(f==1000){
+let name=""
+
+if(f<50)name=["スライム","ウルフ","ゴブリン"][rand(0,2)]
+
+else if(f<100)name=["スケルトン","ゾンビ","ガーゴイル"][rand(0,2)]
+
+else if(f<200)name=["オーク","トロール"][rand(0,1)]
+
+else if(f<400)name=["デーモン","魔騎士"][rand(0,1)]
+
+else if(f<700)name=["堕天使","深淵竜"][rand(0,1)]
+
+else if(f<1000)name=["神兵","天使"][rand(0,1)]
+
+else name="塔の管理者"
+
 
 enemy={
-name:"塔の管理者",
-hp:50000,
-atk:800,
-def:400,
-boss:true
-}
 
-}
+name,
 
-else if(f%100==0){
+hp:80+f*25,
 
-enemy={
-name:"階層ボス",
-hp:1000*f,
-atk:50*f,
-def:30*f,
-boss:true
-}
+atk:8+f*4,
 
-}
-
-else{
-
-enemy={
-name:getEnemyName(f),
-hp:100+f*30,
-atk:10+f*5,
-def:5+f*3
-}
+def:4+f*2
 
 }
 
@@ -223,33 +223,15 @@ enemy.maxhp=enemy.hp
 }
 
 
-// ===== 敵名 =====
-
-function getEnemyName(f){
-
-if(f<100)return"スライム"
-if(f<300)return"ゴブリン"
-if(f<500)return"オーク"
-if(f<700)return"ドラゴン"
-if(f<900)return"魔王軍"
-return"神獣"
-
-}
-
-
 // ===== 戦闘 =====
 
 function attack(){
 
-let job=jobs[player.job]
-
-let atk=player.atk*job.atk
-
-let dmg=Math.max(1,Math.floor(atk-enemy.def))
+let dmg=Math.max(1,player.atk-enemy.def)
 
 enemy.hp-=dmg
 
-log("攻撃 "+dmg)
+log("→"+dmg)
 
 
 if(enemy.hp<=0){
@@ -269,16 +251,11 @@ update()
 
 function enemyAttack(){
 
-let job=jobs[player.job]
-
-let def=player.def*job.def
-
-let dmg=Math.max(1,Math.floor(enemy.atk-def))
+let dmg=Math.max(1,enemy.atk-player.def)
 
 player.hp-=dmg
 
-log("被ダメ "+dmg)
-
+log("被"+dmg)
 
 if(player.hp<=0){
 
@@ -286,33 +263,31 @@ player.hp=player.maxhp
 
 player.floor--
 
-createEnemy()
-
 }
 
 }
 
-
-// ===== 勝利 =====
 
 function win(){
 
 log("撃破")
 
-player.exp+=20
+player.exp+=15
 
 player.floor++
 
-if(player.floor>1000)player.floor=1000
+drop()
 
 levelup()
 
 createEnemy()
 
+save()
+
 }
 
 
-// ===== レベルアップ =====
+// ===== レベル =====
 
 function levelup(){
 
@@ -322,28 +297,177 @@ player.exp-=player.expMax
 
 player.level++
 
-player.expMax=Math.floor(player.expMax*1.3)
+player.expMax*=1.25
 
-let hp=20
-let atk=5
-let def=3
-
-player.maxhp+=hp
-player.atk+=atk
-player.def+=def
+player.maxhp+=25
+player.atk+=6
+player.def+=4
 
 player.hp=player.maxhp
 
-log("LvUP HP+"+hp+" ATK+"+atk+" DEF+"+def)
+log("LvUP")
 
 }
+
+}
+
+
+// ===== ドロップ =====
+
+function drop(){
+
+if(Math.random()<0.6){
+
+let type=Math.random()<0.5?"weapon":"armor"
+
+let name=(type=="weapon"?weaponNames:armorNames)[rand(0,5)]
+
+let r=rar[rand(0,4)]
+
+let item={
+
+type,
+name,
+
+atk:rand(2,10),
+def:rand(2,10),
+
+rarity:r
+
+}
+
+player.inventory.push(item)
+
+updateInv()
+
+}
+
+}
+
+
+// ===== 装備 =====
+
+function equip(i){
+
+let item=player.inventory[i]
+
+if(item.type=="weapon")player.weapon=item
+else player.armor=item
+
+recalc()
+
+updateInv()
+
+save()
+
+}
+
+
+function discard(i){
+
+player.inventory.splice(i,1)
+
+updateInv()
+
+save()
+
+}
+
+
+function recalc(){
+
+player.atk=10+player.level*3
+player.def=5+player.level*2
+
+if(player.weapon){
+
+player.atk+=player.weapon.atk
+
+}
+
+if(player.armor){
+
+player.def+=player.armor.def
+
+}
+
+}
+
+
+// ===== UI =====
+
+function update(){
+
+stats.innerHTML=
+
+`
+階:${player.floor}
+
+Lv:${player.level}
+
+HP:${player.hp}/${player.maxhp}
+
+ATK:${player.atk}
+
+DEF:${player.def}
+`
+
+enemy.innerHTML=
+
+`
+${enemy.name}
+
+HP:${enemy.hp}/${enemy.maxhp}
+`
+
+hpbar.style.width=(player.hp/player.maxhp*100)+"%"
+
+enemybar.style.width=(enemy.hp/enemy.maxhp*100)+"%"
+
+expbar.style.width=(player.exp/player.expMax*100)+"%"
+
+updateInv()
+
+}
+
+
+function updateInv(){
+
+equipped.innerHTML=
+
+`
+武器:${player.weapon?player.weapon.name:"なし"}
+
+防具:${player.armor?player.armor.name:"なし"}
+`
+
+let html=""
+
+player.inventory.forEach((i,x)=>{
+
+html+=`
+
+<div class="item ${i.rarity}">
+
+${i.name}
+
+<button onclick="equip(${x})">装備</button>
+
+<button onclick="discard(${x})">捨てる</button>
+
+</div>
+`
+
+})
+
+inv.innerHTML=html
 
 }
 
 
 // ===== AUTO =====
 
-function toggleAuto(){
+function autoToggle(){
 
 player.auto=!player.auto
 
@@ -353,129 +477,14 @@ loop()
 
 }
 
+
 function loop(){
 
 if(!player.auto)return
 
 attack()
 
-setTimeout(loop,800)
-
-}
-
-
-// ===== UI更新 =====
-
-function update(){
-
-playerStats.innerHTML=`
-
-階層:${player.floor}<br>
-
-Lv:${player.level}<br>
-
-HP:${player.hp}/${player.maxhp}<br>
-
-ATK:${player.atk}<br>
-
-DEF:${player.def}<br>
-
-JOB:${player.job}
-
-`
-
-
-enemyStats.innerHTML=`
-
-${enemy.name}<br>
-
-HP:${enemy.hp}/${enemy.maxhp}<br>
-
-ATK:${enemy.atk}<br>
-
-DEF:${enemy.def}
-
-`
-
-
-hpbar.style.width=(player.hp/player.maxhp*100)+"%"
-
-enemyhp.style.width=(enemy.hp/enemy.maxhp*100)+"%"
-
-expbar.style.width=(player.exp/player.expMax*100)+"%"
-
-}
-
-
-// ===== ジョブUI =====
-
-function loadJobs(){
-
-let html=""
-
-for(let j in jobs){
-
-let job=jobs[j]
-
-html+=`
-
-<div>
-
-<b>${j}</b><br>
-
-${job.desc}<br>
-
-${job.skill}<br>
-
-<button onclick="changeJob('${j}')">変更</button>
-
-<hr>
-
-</div>
-
-`
-
-}
-
-jobList.innerHTML=html
-
-}
-
-
-function changeJob(j){
-
-player.job=j
-
-update()
-
-}
-
-
-// ===== 移動 =====
-
-function moveFloor(){
-
-let f=parseInt(floorInput.value)
-
-if(isNaN(f))return
-
-if(f<1)f=1
-if(f>1000)f=1000
-
-player.floor=f
-
-createEnemy()
-
-update()
-
-}
-
-
-// ===== ログ =====
-
-function log(t){
-
-log.innerHTML=t+"<br>"+log.innerHTML
+setTimeout(loop,350)
 
 }
 
@@ -491,11 +500,27 @@ document.getElementById(t).classList.add("active")
 }
 
 
+// ===== その他 =====
+
+function log(t){
+
+log.innerHTML=t+"<br>"+log.innerHTML
+
+}
+
+
+function rand(a,b){
+
+return Math.floor(Math.random()*(b-a+1))+a
+
+}
+
+
 // ===== 起動 =====
 
-createEnemy()
+recalc()
 
-loadJobs()
+createEnemy()
 
 update()
 
