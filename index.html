@@ -6,74 +6,27 @@
 <title>Haxla Tower</title>
 
 <style>
-
-body{
-background:#111;
-color:#fff;
-font-family:sans-serif;
-margin:0;
-font-size:18px;
-}
-
-#top{
-background:#1a1a1a;
-padding:10px;
-position:sticky;
-top:0;
-}
-
-button{
-font-size:18px;
-padding:10px;
-margin:3px;
-border:none;
-border-radius:8px;
-}
-
+body{background:#111;color:#fff;font-family:sans-serif;margin:0;font-size:18px}
+#top{background:#1a1a1a;padding:10px;position:sticky;top:0}
+button{font-size:18px;padding:10px;margin:3px;border:none;border-radius:8px}
 #auto.on{background:#00c853}
 #auto.off{background:#444}
-
-.bar{
-height:18px;
-background:#333;
-border-radius:5px;
-margin:4px 0;
-}
-
-.fill{
-height:100%;
-background:#00e676;
-border-radius:5px;
-}
-
+.bar{height:18px;background:#333;border-radius:5px;margin:4px 0}
+.fill{height:100%;background:#00e676;border-radius:5px}
 .enemyfill{background:#ff5252}
 .expfill{background:#40c4ff}
-
 .tab{display:none;padding:10px}
 .active{display:block}
-
-.item{
-border-bottom:1px solid #333;
-padding:5px;
-}
-
-.equipMark{
-color:#ffd600;
-font-weight:bold;
-}
-
+.item{border-bottom:1px solid #333;padding:5px}
 .common{color:#fff}
 .uncommon{color:#00e676}
 .rare{color:#00b0ff}
 .epic{color:#aa00ff}
 .legend{color:#ffd600}
-
-.currentJob{
-color:#ffd600;
-}
-
+.equipMark{color:#ffd600;font-weight:bold}
 </style>
 </head>
+
 <body>
 
 <div id="top">
@@ -81,13 +34,19 @@ color:#ffd600;
 <div id="playerStats"></div>
 
 HP
-<div class="bar"><div id="hpbar" class="fill"></div></div>
+<div class="bar">
+<div id="hpbar" class="fill"></div>
+</div>
 
 EXP
 <div id="exptext"></div>
-<div class="bar"><div id="expbar" class="fill expfill"></div></div>
+
+<div class="bar">
+<div id="expbar" class="fill expfill"></div>
+</div>
 
 <button onclick="attack()">攻撃</button>
+
 <button id="auto" class="off" onclick="toggleAuto()">AUTO OFF</button>
 
 <br>
@@ -130,9 +89,8 @@ EXP
 
 <div id="job" class="tab">
 
-<b>
-現在のジョブ:
-<span id="currentJob" class="currentJob"></span>
+<b>現在のジョブ:
+<span id="currentJob"></span>
 </b>
 
 <hr>
@@ -153,12 +111,15 @@ EXP
 
 <script>
 
+
 // ===== セーブ =====
 
 let player
 
 function save(){
+
 localStorage.haxla=JSON.stringify(player)
+
 }
 
 function load(){
@@ -204,24 +165,37 @@ auto:false
 load()
 
 
-
 // ===== ジョブ =====
 
 const jobs={
 
 剣士:{atk:1.2,def:1,desc:"バランス型"},
 
-ナイト:{atk:1,def:1.5,desc:"防御特化"},
+ナイト:{atk:1,def:1.6,desc:"防御特化"},
 
-アサシン:{atk:1.5,def:0.8,desc:"高火力"},
+アサシン:{atk:1.6,def:0.8,desc:"高火力"},
 
-魔法使い:{atk:1.7,def:0.7,desc:"超火力"}
+魔法使い:{atk:1.8,def:0.6,desc:"超火力"}
 
 }
 
 
-
 // ===== 敵 =====
+
+const enemyNames=[
+
+"スライム","ウルフ","ゴブリン",
+
+"オーク","トロール","ガーゴイル",
+
+"デーモン","魔騎士","死神",
+
+"天使","神兵","神獣",
+
+"ドラゴン","リッチ","巨人"
+
+]
+
 
 let enemy
 
@@ -230,70 +204,25 @@ function createEnemy(){
 
 let f=player.floor
 
-let name
+let name=enemyNames[rand(0,enemyNames.length-1)]
 
 let pow=f
-
-
-if(f==1000){
-
-name="塔の管理者"
-
-pow*=20
-
-}
-
-else if(f%100==0){
-
-name="階層ボス"
-
-pow*=10
-
-}
-
-else if(f<50){
-
-name=["スライム","ウルフ","ゴブリン"][rand(0,2)]
-
-}
-
-else if(f<200){
-
-name=["オーク","トロール","ガーゴイル"][rand(0,2)]
-
-}
-
-else if(f<500){
-
-name=["デーモン","魔騎士","死神"][rand(0,2)]
-
-}
-
-else{
-
-name=["天使","神兵","神獣"][rand(0,2)]
-
-}
-
-
 
 enemy={
 
 name,
 
-hp:80+pow*25,
+hp:40+pow*12,
 
-atk:8+pow*4,
+atk:6+pow*3,
 
-def:4+pow*2
+def:3+pow*2
 
 }
-
 
 enemy.maxhp=enemy.hp
 
 }
-
 
 
 // ===== ステ計算 =====
@@ -332,27 +261,17 @@ player.def=Math.floor(player.def*job.def)
 }
 
 
-
 // ===== 戦闘 =====
 
 function attack(){
 
-if(player.hp<=0)return
-
-
-let crit=Math.random()<0.1
-
+if(!enemy)createEnemy()
 
 let dmg=Math.max(1,player.atk-enemy.def)
 
-
-if(crit)dmg*=2
-
-
 enemy.hp-=dmg
 
-
-log("→ "+enemy.name+" に "+dmg+(crit?" クリティカル!":""))
+log("→ "+enemy.name+" "+dmg)
 
 
 if(enemy.hp<=0){
@@ -371,26 +290,11 @@ updateUI()
 }
 
 
-
 function enemyAttack(){
-
-let dodge=Math.random()<0.05
-
-
-if(dodge){
-
-log("← 回避!")
-
-return
-
-}
-
 
 let dmg=Math.max(1,enemy.atk-player.def)
 
-
 player.hp-=dmg
-
 
 log("← "+dmg)
 
@@ -408,91 +312,44 @@ createEnemy()
 }
 
 
-
 // ===== 勝利 =====
 
 function win(){
 
 log(enemy.name+" 撃破")
 
-
 player.exp+=20
-
 
 player.floor++
 
-
-drop()
-
-
-levelup()
-
-
 createEnemy()
-
 
 save()
 
 }
 
 
+// ===== 移動（修正済み） =====
 
-// ===== レベル =====
+function moveFloor(){
 
-function levelup(){
+let val=document.getElementById("floorInput").value
 
-while(player.exp>=player.expMax){
+if(val==="")return
 
-player.exp-=player.expMax
+let f=parseInt(val)
 
-player.level++
+if(isNaN(f))return
 
-player.expMax=Math.floor(player.expMax*1.25)
+player.floor=Math.max(1,Math.min(1000,f))
 
-player.maxhp+=25
+createEnemy()
 
-player.baseAtk+=2
+updateUI()
 
-player.baseDef+=2
-
-player.hp=player.maxhp
-
-log("LvUP!")
+save()
 
 }
-
-recalc()
-
-}
-
-
-
-// ===== ドロップ =====
-
-function drop(){
-
-if(Math.random()<0.6){
-
-let item={
-
-type:Math.random()<0.5?"weapon":"armor",
-
-name:["神剣","聖剣","魔剣","竜剣"][rand(0,3)],
-
-atk:rand(1,10),
-
-def:rand(1,10),
-
-rarity:["common","uncommon","rare","epic","legend"][rand(0,4)]
-
-}
-
-player.inventory.push(item)
-
-}
-
-}
-
 
 
 // ===== AUTO =====
@@ -504,160 +361,84 @@ function toggleAuto(){
 
 player.auto=!player.auto
 
+let btn=document.getElementById("auto")
+
 
 if(player.auto){
 
-auto.className="on"
+btn.className="on"
 
-auto.innerText="AUTO ON"
+btn.innerText="AUTO ON"
 
-autoLoop()
+autoTimer=setInterval(attack,300)
 
-}
+}else{
 
-else{
+btn.className="off"
 
-auto.className="off"
+btn.innerText="AUTO OFF"
 
-auto.innerText="AUTO OFF"
-
-clearTimeout(autoTimer)
+clearInterval(autoTimer)
 
 }
 
 }
-
-
-
-function autoLoop(){
-
-if(!player.auto)return
-
-
-attack()
-
-
-autoTimer=setTimeout(autoLoop,300)
-
-}
-
 
 
 // ===== UI =====
 
 function updateUI(){
 
+playerStats.innerHTML=
 
-playerStats.innerHTML=`
-
-階:${player.floor}
-
+`階:${player.floor}
 Lv:${player.level}
-
 HP:${player.hp}/${player.maxhp}
-
 ATK:${player.atk}
-
 DEF:${player.def}
-
-JOB:${player.job}
-
-`
-
-
-exptext.innerHTML=
-
-player.exp+"/"+player.expMax
+JOB:${player.job}`
 
 
 enemyStats.innerHTML=
 
-`
+`${enemy.name}
+HP:${enemy.hp}/${enemy.maxhp}`
 
-${enemy.name}
 
-HP:${Math.max(0,enemy.hp)}/${enemy.maxhp}
+exptext.innerText=
 
-ATK:${enemy.atk}
-
-DEF:${enemy.def}
-
-`
+player.exp+"/"+player.expMax
 
 
 hpbar.style.width=(player.hp/player.maxhp*100)+"%"
 
-enemyhp.style.width=(Math.max(0,enemy.hp)/enemy.maxhp*100)+"%"
+enemyhp.style.width=(enemy.hp/enemy.maxhp*100)+"%"
 
 expbar.style.width=(player.exp/player.expMax*100)+"%"
 
-
-currentJob.innerText=player.job
-
-
-inventory.innerHTML=player.inventory.map((it,i)=>{
-
-let eq=(player.weapon==it||player.armor==it)
-
-return`
-
-<div class="item ${it.rarity}">
-
-${eq?"<span class='equipMark'>[E]</span>":""}
-
-${it.name}
-
-ATK:${it.atk}
-
-DEF:${it.def}
-
-<button onclick="equip(${i})">装備</button>
-
-<button onclick="discard(${i})">捨てる</button>
-
-</div>`
-
-}).join("")
-
-
-jobList.innerHTML=
-
-Object.keys(jobs).map(j=>
-
-`<div>
-
-${j}
-
-ATK×${jobs[j].atk}
-
-DEF×${jobs[j].def}
-
-<button onclick="changeJob('${j}')">変更</button>
-
-</div><hr>`
-
-).join("")
-
-
 }
 
 
-
-// ===== その他 =====
+// ===== log（修正済み） =====
 
 function log(t){
 
-logDiv.innerHTML=t+"<br>"+logDiv.innerHTML
+document.getElementById("log").innerHTML=
+
+t+"<br>"+
+
+document.getElementById("log").innerHTML
 
 }
 
+
+// ===== その他 =====
 
 function rand(a,b){
 
 return Math.floor(Math.random()*(b-a+1))+a
 
 }
-
 
 function showTab(id){
 
@@ -666,7 +447,6 @@ document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"))
 document.getElementById(id).classList.add("active")
 
 }
-
 
 
 // ===== 起動 =====
@@ -678,6 +458,7 @@ createEnemy()
 updateUI()
 
 </script>
+
 
 </body>
 </html>
