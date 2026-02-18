@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>Infinite Relic</title>
+<title>Infinite Relic - Ultimate</title>
 <style>
 
 body{
@@ -10,11 +10,31 @@ background:#000;
 color:#fff;
 font-family:sans-serif;
 text-align:center;
+margin:0;
+padding:0;
+}
+
+h1{
+margin:10px;
 }
 
 button{
 font-size:18px;
-margin:5px;
+margin:4px;
+padding:6px 12px;
+}
+
+.bar{
+width:90%;
+height:18px;
+background:#333;
+margin:auto;
+margin-bottom:5px;
+}
+
+.fill{
+height:100%;
+background:red;
 }
 
 .tab{
@@ -25,16 +45,10 @@ margin-top:10px;
 display:none;
 }
 
-.bar{
-width:90%;
-height:20px;
-background:#333;
-margin:auto;
-}
-
-.fill{
-height:100%;
-background:red;
+.panel{
+border-top:1px solid #555;
+margin-top:10px;
+padding-top:10px;
 }
 
 </style>
@@ -43,111 +57,197 @@ background:red;
 
 <h1>Infinite Relic</h1>
 
-階層: <span id="floor">1</span><br><br>
+階層: <span id="floorText"></span>
+
+<div class="panel">
 
 <button onclick="attack()">攻撃</button>
-<button onclick="toggleAuto()" id="autoBtn">AUTO OFF</button>
 
-<h2>プレイヤー</h2>
+<button onclick="toggleAuto()" id="autoBtn">
+AUTO OFF
+</button>
 
-LV <span id="lv"></span><br>
+<button onclick="moveFloor()">
+次の階へ
+</button>
 
-HP
-<span id="hp"></span>
+</div>
+
+<div class="panel">
+
+<h3>プレイヤー</h3>
+
+LV <span id="lvText"></span>
+
+<br>
+
+<span id="jobText"></span>
+
+<br>
+
+HP <span id="hpText"></span>
+
 <div class="bar">
 <div id="hpBar" class="fill"></div>
 </div>
 
-EXP
-<span id="exp"></span>
+EXP <span id="expText"></span>
 
-<h2>敵</h2>
+</div>
+
+<div class="panel">
+
+<h3>敵</h3>
 
 <span id="enemyName"></span>
 
-HP
-<span id="enemyHp"></span>
+<br>
+
+HP <span id="enemyHp"></span>
 
 <div class="bar">
 <div id="enemyBar" class="fill"></div>
 </div>
 
-<br>
-
-<input type="number" id="moveInput">
-<button onclick="move()">移動</button>
-
-<br><br>
-
-<button onclick="openTab('job')">ジョブ</button>
-<button onclick="openTab('equip')">装備</button>
-
-<div id="jobTab" class="tab hidden">
-<h3>ジョブ</h3>
-<div id="jobList"></div>
 </div>
 
-<div id="equipTab" class="tab hidden">
+<div class="panel">
+
+<button onclick="openTab('job')">ジョブ</button>
+
+<button onclick="openTab('equip')">装備</button>
+
+<button onclick="openTab('save')">セーブ</button>
+
+</div>
+
+
+<div id="jobTab" class="tab hidden panel">
+
+<h3>ジョブ変更</h3>
+
+<div id="jobList"></div>
+
+</div>
+
+
+<div id="equipTab" class="tab hidden panel">
+
 <h3>装備</h3>
 
 装備中:
-<div id="equipped"></div>
+
+<div id="equipName"></div>
 
 <hr>
 
-所持武器:
+所持:
+
 <div id="weaponList"></div>
 
 <button onclick="discardAll()">
-装備以外を全て捨てる
+装備以外を全て破棄
 </button>
 
 </div>
 
-<br>
 
-<button onclick="save()">セーブ</button>
-<button onclick="load()">ロード</button>
+<div id="saveTab" class="tab hidden panel">
+
+<button onclick="save()">
+セーブ
+</button>
+
+<button onclick="load()">
+ロード
+</button>
+
+</div>
+
 
 <script>
 
-const jobs=[
+////////////////////////////////////////////////////
+// マスター
+////////////////////////////////////////////////////
 
-{name:"戦士",atk:2,hp:20},
+const JOBS=[
 
-{name:"騎士",atk:1,hp:40},
+{name:"戦士",atk:3,hp:30},
 
-{name:"盗賊",atk:3,hp:10}
+{name:"騎士",atk:2,hp:60},
+
+{name:"盗賊",atk:5,hp:10},
+
+{name:"聖騎士",atk:4,hp:80},
+
+{name:"魔剣士",atk:8,hp:20}
 
 ]
 
-const weaponMaster=[
+
+const WEAPONS=[
 
 {name:"錆びた剣",atk:2},
 
-{name:"騎士の剣",atk:5},
+{name:"鉄の剣",atk:4},
 
-{name:"英雄の剣",atk:10},
+{name:"騎士の剣",atk:7},
 
-{name:"王者の剣",atk:20},
+{name:"王国剣",atk:12},
 
-{name:"神話の剣",atk:50}
+{name:"英雄の剣",atk:20},
+
+{name:"神話の剣",atk:35},
+
+{name:"聖剣",atk:60},
+
+{name:"終焉の剣",atk:100}
 
 ]
+
+
+const ENEMIES=[
+
+{name:"スライム",hp:30,atk:3},
+
+{name:"ゴブリン",hp:50,atk:5},
+
+{name:"オーク",hp:80,atk:8},
+
+{name:"悪魔",hp:120,atk:12},
+
+{name:"ドラゴン",hp:200,atk:18}
+
+]
+
+
+const BOSSES=[
+
+{name:"階層の守護者",hp:300,atk:20},
+
+{name:"深淵の王",hp:600,atk:30},
+
+{name:"無限の神",hp:1200,atk:50}
+
+]
+
+
+////////////////////////////////////////////////////
+// セーブデータ
+////////////////////////////////////////////////////
 
 let player={
 
 lv:1,
-
-hp:100,
-
-maxHp:100,
-
-atk:5,
-
 exp:0,
 
+baseAtk:5,
+
 job:0,
+
+hp:100,
+maxHp:100,
 
 weapons:[0],
 
@@ -157,33 +257,70 @@ equip:0
 
 let floor=1
 
-let enemy
+let enemy=null
 
 let auto=false
 
-function newEnemy(){
 
-enemy={
-
-name:["スライム","ゴブリン","オーク","ドラゴン"][Math.min(3,Math.floor(floor/10))],
-
-hp:30+floor*5,
-
-maxHp:30+floor*5,
-
-atk:3+floor
-
-}
-
-}
+////////////////////////////////////////////////////
+// 計算
+////////////////////////////////////////////////////
 
 function totalAtk(){
 
-return player.atk
-+jobs[player.job].atk
-+weaponMaster[player.equip].atk
+return player.baseAtk
++JOBS[player.job].atk
++WEAPONS[player.equip].atk
 
 }
+
+
+////////////////////////////////////////////////////
+// 敵生成
+////////////////////////////////////////////////////
+
+function createEnemy(){
+
+if(floor%10==0){
+
+let b=BOSSES[Math.min(
+BOSSES.length-1,
+floor/10-1)]
+
+enemy={
+name:b.name,
+hp:b.hp+floor*5,
+maxHp:b.hp+floor*5,
+atk:b.atk+floor
+}
+
+return
+
+}
+
+let base=ENEMIES[Math.min(
+ENEMIES.length-1,
+Math.floor(floor/5)
+)]
+
+enemy={
+
+name:base.name,
+
+hp:base.hp+floor*4,
+
+maxHp:base.hp+floor*4,
+
+atk:base.atk+floor
+
+}
+
+}
+
+
+////////////////////////////////////////////////////
+// 戦闘
+////////////////////////////////////////////////////
 
 function attack(){
 
@@ -191,23 +328,9 @@ enemy.hp-=totalAtk()
 
 if(enemy.hp<=0){
 
-player.exp+=10
+gainExp()
 
-if(player.exp>=player.lv*10){
-
-player.exp=0
-player.lv++
-
-player.maxHp+=10
-player.hp=player.maxHp
-
-player.weapons.push(
-Math.floor(Math.random()*weaponMaster.length)
-)
-
-}
-
-newEnemy()
+createEnemy()
 
 }
 
@@ -223,55 +346,82 @@ update()
 
 }
 
+
+////////////////////////////////////////////////////
+// EXP
+////////////////////////////////////////////////////
+
+function gainExp(){
+
+player.exp+=10
+
+if(player.exp>=player.lv*20){
+
+player.exp=0
+
+player.lv++
+
+player.maxHp+=20
+
+player.hp=player.maxHp
+
+player.weapons.push(
+rand(WEAPONS.length)
+)
+
+}
+
+}
+
+
+////////////////////////////////////////////////////
+// 移動
+////////////////////////////////////////////////////
+
+function moveFloor(){
+
+floor++
+
+createEnemy()
+
+update()
+
+}
+
+
+////////////////////////////////////////////////////
+// AUTO
+////////////////////////////////////////////////////
+
 function toggleAuto(){
 
 auto=!auto
 
-document.getElementById("autoBtn").innerText=
+autoBtn.innerText=
 auto?"AUTO ON":"AUTO OFF"
 
 }
+
 
 setInterval(()=>{
 
 if(auto)attack()
 
-},1000)
+},800)
 
-function move(){
 
-floor=parseInt(
-document.getElementById("moveInput").value
-)
+////////////////////////////////////////////////////
+// 装備
+////////////////////////////////////////////////////
 
-newEnemy()
+function equip(id){
+
+player.equip=id
 
 update()
 
 }
 
-function openTab(name){
-
-document.getElementById("jobTab").classList.add("hidden")
-document.getElementById("equipTab").classList.add("hidden")
-
-document.getElementById(name+"Tab").classList.remove("hidden")
-
-}
-
-function changeJob(i){
-
-player.job=i
-update()
-
-}
-
-function equip(i){
-
-player.equip=i
-update()
-
-}
 
 function discardAll(){
 
@@ -282,42 +432,136 @@ update()
 
 }
 
+
+////////////////////////////////////////////////////
+// ジョブ
+////////////////////////////////////////////////////
+
+function changeJob(id){
+
+player.job=id
+
+update()
+
+}
+
+
+////////////////////////////////////////////////////
+// セーブ
+////////////////////////////////////////////////////
+
+function save(){
+
+localStorage.infinityRelic=
+JSON.stringify({
+player,floor
+})
+
+alert("セーブ完了")
+
+}
+
+
+function load(){
+
+let s=localStorage.infinityRelic
+
+if(!s)return
+
+let data=JSON.parse(s)
+
+player=data.player
+floor=data.floor
+
+createEnemy()
+
+update()
+
+}
+
+
+////////////////////////////////////////////////////
+// UI
+////////////////////////////////////////////////////
+
+function openTab(name){
+
+jobTab.classList.add("hidden")
+equipTab.classList.add("hidden")
+saveTab.classList.add("hidden")
+
+if(name=="job")jobTab.classList.remove("hidden")
+if(name=="equip")equipTab.classList.remove("hidden")
+if(name=="save")saveTab.classList.remove("hidden")
+
+}
+
+
+////////////////////////////////////////////////////
+// 更新
+////////////////////////////////////////////////////
+
 function update(){
 
 floorText.innerText=floor
 
-lv.innerText=player.lv
+lvText.innerText=player.lv
 
-hp.innerText=
-Math.floor(player.hp)
-+"/"+
+jobText.innerText=JOBS[player.job].name
+
+hpText.innerText=
+Math.floor(player.hp)+"/"+
 Math.floor(player.maxHp)
-
-exp.innerText=
-Math.floor(player.exp)
-+"/"+
-player.lv*10
 
 hpBar.style.width=
 (player.hp/player.maxHp*100)+"%"
 
+expText.innerText=
+player.exp+"/"+(player.lv*20)
+
 enemyName.innerText=enemy.name
 
 enemyHp.innerText=
-Math.floor(enemy.hp)
-+"/"+
+Math.floor(enemy.hp)+"/"+
 Math.floor(enemy.maxHp)
 
 enemyBar.style.width=
 (enemy.hp/enemy.maxHp*100)+"%"
 
-jobList.innerHTML=""
 
-jobs.forEach((j,i)=>{
 
-jobList.innerHTML+=
+equipName.innerText=
+WEAPONS[player.equip].name
+
+
+
+weaponList.innerHTML=""
+
+player.weapons.forEach(id=>{
+
+weaponList.innerHTML+=`
+
+<div>
+
+${WEAPONS[id].name}
+
+<button onclick="equip(${id})">
+装備
+</button>
+
+</div>
 
 `
+
+})
+
+
+jobList.innerHTML=""
+
+JOBS.forEach((j,i)=>{
+
+jobList.innerHTML+=`
+
 <button onclick="changeJob(${i})">
 
 ${j.name}
@@ -328,59 +572,25 @@ ${j.name}
 
 })
 
-equipped.innerText=
-weaponMaster[player.equip].name
+}
 
-weaponList.innerHTML=""
 
-player.weapons.forEach(i=>{
+////////////////////////////////////////////////////
+// utility
+////////////////////////////////////////////////////
 
-weaponList.innerHTML+=
+function rand(max){
 
-`
-<div>
-
-${weaponMaster[i].name}
-
-<button onclick="equip(${i})">
-
-装備
-
-</button>
-
-</div>
-
-`
-
-})
+return Math.floor(Math.random()*max)
 
 }
 
-function save(){
 
-localStorage.save=
-JSON.stringify({
-player,floor
-})
+////////////////////////////////////////////////////
+// 初期化
+////////////////////////////////////////////////////
 
-}
-
-function load(){
-
-let s=
-JSON.parse(localStorage.save)
-
-player=s.player
-
-floor=s.floor
-
-newEnemy()
-
-update()
-
-}
-
-newEnemy()
+createEnemy()
 
 update()
 
