@@ -1,78 +1,65 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html>
 <head>
 <meta charset="UTF-8">
-<title>Haxla RPG Ultimate Complete</title>
+<title>Haxla RPG Ultimate+</title>
+
 <style>
 
 body{
 background:#111;
 color:#fff;
 font-family:sans-serif;
-margin:0;
 }
 
 .panel{
 background:#222;
-padding:10px;
 margin:5px;
+padding:10px;
 border-radius:10px;
 }
 
 button{
 padding:10px;
 margin:3px;
-font-size:16px;
 }
 
-.bar{
-height:20px;
-background:#444;
-margin:5px 0;
+.autoOn{
+background:green;
 }
 
-.fill{
-height:100%;
-background:#0f0;
-}
-
-.enemyfill{
-background:#f00;
+.autoOff{
+background:gray;
 }
 
 .item{
 border:1px solid #555;
-margin:3px;
+margin:5px;
 padding:5px;
 }
 
 .equip{
-color:#0ff;
+color:cyan;
 }
 
 </style>
+
 </head>
 <body>
 
+
 <div class="panel">
 
-<h2>階層 <span id="floor"></span></h2>
+階層 <span id="floor"></span>
 
 Lv <span id="level"></span>
 
-<div class="bar">
-<div id="hpbar" class="fill"></div>
-</div>
+<br>
 
 HP
 <span id="hp"></span>
 /
 <span id="maxhp"></span>
-
-<br>
-
-転生Pt
-<span id="rp"></span>
 
 <br>
 
@@ -82,12 +69,24 @@ HP
 防御
 <span id="def"></span>
 
+<br>
+
+転生Pt
+<span id="rp"></span>
+
 </div>
+
 
 
 <div class="panel">
 
-<button onclick="battle()">戦闘</button>
+<button onclick="startBattle()">戦闘</button>
+
+<button id="autoBtn" onclick="toggleAuto()" class="autoOff">
+
+AUTO
+
+</button>
 
 <button onclick="openEquip()">装備</button>
 
@@ -102,122 +101,155 @@ HP
 </div>
 
 
+
 <div class="panel">
 
 敵
 
-<div class="bar">
-<div id="enemybar" class="enemyfill fill"></div>
-</div>
+<span id="enemyName"></span>
 
-<span id="enemyhp"></span>
+<br>
 
-</div>
+HP
 
-
-<div class="panel" id="main">
+<span id="enemyHP"></span>
 
 </div>
+
+
+
+<div class="panel" id="main"></div>
 
 
 
 <script>
 
+
 player={
+
 floor:1,
+
 level:1,
-exp:0,
 
 hp:100,
+
 maxhp:100,
 
 atk:10,
+
 def:5,
 
 rp:0,
 
+rebirthSkill:{
+atk:0,
+def:0,
+hp:0,
+exp:0,
+drop:0
+},
+
 weapon:null,
 
-job:"戦士",
+armor:null,
 
 inventory:[],
-passive:[],
-active:["強撃"]
+
+job:"剣士",
+
+jobSkill:{}
+
 }
 
+
+auto=false
 
 enemy=null
 
 
-jobs={
+enemyList=[
 
-戦士:{
-atk:5,
-def:5,
-desc:"攻守バランス"
-},
+{name:"スライム",hp:50,atk:5},
 
-魔法使い:{
-atk:10,
-def:0,
-desc:"高火力"
-},
+{name:"ゴブリン",hp:80,atk:8},
 
-守護者:{
-atk:0,
-def:10,
-desc:"防御特化"
-}
+{name:"オーク",hp:120,atk:12},
 
-}
+{name:"ダークナイト",hp:200,atk:20},
+
+{name:"ドラゴン",hp:500,atk:40}
+
+]
+
+
+
+rarity=[
+
+"Common",
+
+"Rare",
+
+"Epic",
+
+"Legend"
+
+]
 
 
 
 function update(){
 
 floor.innerText=player.floor
+
 level.innerText=player.level
 
 hp.innerText=Math.floor(player.hp)
+
 maxhp.innerText=Math.floor(player.maxhp)
 
-rp.innerText=player.rp
-
 atk.innerText=Math.floor(player.atk)
+
 def.innerText=Math.floor(player.def)
 
-
-hpbar.style.width=(player.hp/player.maxhp*100)+"%"
+rp.innerText=player.rp
 
 
 if(enemy){
 
-enemyhp.innerText=Math.floor(enemy.hp)
+enemyName.innerText=enemy.name
 
-enemybar.style.width=(enemy.hp/enemy.maxhp*100)+"%"
-
-}else{
-
-enemyhp.innerText=""
-
-enemybar.style.width="0%"
+enemyHP.innerText=Math.floor(enemy.hp)
 
 }
 
 }
 
 
-function battle(){
+
+function toggleAuto(){
+
+auto=!auto
+
+autoBtn.className=auto?"autoOn":"autoOff"
+
+}
+
+
+
+function startBattle(){
 
 enemy={
-hp:50+player.floor*10,
-maxhp:50+player.floor*10,
-atk:5+player.floor
+
+...enemyList[Math.floor(Math.random()*enemyList.length)]
+
 }
+
+enemy.hp+=player.floor*10
 
 fight()
 
 }
+
 
 
 function fight(){
@@ -225,12 +257,18 @@ function fight(){
 if(!enemy)return
 
 
-enemy.hp-=Math.max(1,player.atk)
+enemy.hp-=player.atk
 
 
 if(enemy.hp<=0){
 
-win()
+drop()
+
+player.floor++
+
+enemy=null
+
+update()
 
 return
 
@@ -244,14 +282,21 @@ if(player.hp<=0){
 
 player.hp=player.maxhp
 
-player.floor=Math.max(1,player.floor-5)
+player.floor--
 
-alert("敗北")
+enemy=null
+
+update()
+
+return
 
 }
 
 
 update()
+
+
+if(auto)
 
 setTimeout(fight,500)
 
@@ -259,33 +304,27 @@ setTimeout(fight,500)
 
 
 
-function win(){
-
-player.floor++
-
-player.exp+=10
-
-drop()
-
-enemy=null
-
-update()
-
-}
-
-
-
 function drop(){
 
-let w={
+let type=Math.random()<0.5?"weapon":"armor"
 
-name:"武器"+Math.floor(Math.random()*100),
+let r=Math.floor(Math.random()*rarity.length)
 
-atk:Math.floor(Math.random()*10)
+let item={
+
+type,
+
+name:rarity[r]+" "+(type=="weapon"?"剣":"鎧"),
+
+atk:type=="weapon"?r*5:0,
+
+def:type=="armor"?r*5:0,
+
+rarity:rarity[r]
 
 }
 
-player.inventory.push(w)
+player.inventory.push(item)
 
 }
 
@@ -293,31 +332,58 @@ player.inventory.push(w)
 
 function openEquip(){
 
-main.innerHTML=""
+main.innerHTML=`
 
-player.inventory.forEach((w,i)=>{
+ステータス<br>
 
-let d=document.createElement("div")
+攻撃 ${player.atk}<br>
 
-d.className="item"
+防御 ${player.def}<br>
 
-d.innerHTML=
+HP ${player.maxhp}
 
-w.name+
+`
 
-" ATK+"+w.atk+
 
-(player.weapon==w?" <span class='equip'>装備中</span>":"")+
+player.inventory.forEach((item,i)=>{
 
-"<br>"+
 
-"<button onclick='equip("+i+")'>装備</button>"+
+main.innerHTML+=`
 
-"<button onclick='discard("+i+")'>捨てる</button>"
+<div class=item>
 
-main.appendChild(d)
+${item.name}
+
+<br>
+
+ATK ${item.atk}
+
+DEF ${item.def}
+
+<br>
+
+${player.weapon==item||player.armor==item?"装備中":""}
+
+<br>
+
+<button onclick="equip(${i})">
+
+装備
+
+</button>
+
+<button onclick="discard(${i})">
+
+捨てる
+
+</button>
+
+</div>
+
+`
 
 })
+
 
 }
 
@@ -325,13 +391,19 @@ main.appendChild(d)
 
 function equip(i){
 
-let w=player.inventory[i]
+let item=player.inventory[i]
 
-player.weapon=w
 
-player.atk=10+w.atk
+if(item.type=="weapon")
 
-update()
+player.weapon=item
+
+else
+
+player.armor=item
+
+
+calcStat()
 
 openEquip()
 
@@ -349,45 +421,13 @@ openEquip()
 
 
 
-function openJob(){
+function calcStat(){
 
-main.innerHTML=""
+player.atk=10+(player.weapon?player.weapon.atk:0)+player.rebirthSkill.atk
 
-for(let j in jobs){
+player.def=5+(player.armor?player.armor.def:0)+player.rebirthSkill.def
 
-let d=document.createElement("div")
-
-d.className="item"
-
-d.innerHTML=
-
-j+
-
-"<br>"+
-
-jobs[j].desc+
-
-"<br>"+
-
-"<button onclick='setJob(\""+j+"\")'>変更</button>"
-
-main.appendChild(d)
-
-}
-
-}
-
-
-
-function setJob(j){
-
-player.job=j
-
-player.atk+=jobs[j].atk
-
-player.def+=jobs[j].def
-
-update()
+player.maxhp=100+player.rebirthSkill.hp
 
 }
 
@@ -397,7 +437,13 @@ function move(){
 
 let f=prompt("移動階層")
 
-player.floor=parseInt(f)
+if(!f)return
+
+f=parseInt(f)
+
+if(isNaN(f))return
+
+player.floor=f
 
 update()
 
@@ -407,31 +453,57 @@ update()
 
 function openRebirth(){
 
-main.innerHTML=
+main.innerHTML=`
 
-"転生すると<br>"+
+転生Pt ${player.rp}
 
-"攻撃防御が永久上昇<br>"+
+<br>
 
-"転生Pt獲得<br>"+
+攻撃強化
 
-"<button onclick='rebirth()'>転生</button>"
+<button onclick="rebirthUp('atk')">
+
+強化
+
+</button>
+
+<br>
+
+防御強化
+
+<button onclick="rebirthUp('def')">
+
+強化
+
+</button>
+
+<br>
+
+HP強化
+
+<button onclick="rebirthUp('hp')">
+
+強化
+
+</button>
+
+`
 
 }
 
 
 
-function rebirth(){
+function rebirthUp(type){
 
-player.rp+=player.floor
+if(player.rp<=0)return
 
-player.floor=1
+player.rp--
 
-player.atk+=player.rp
+player.rebirthSkill[type]+=5
 
-player.def+=player.rp
+calcStat()
 
-update()
+openRebirth()
 
 }
 
@@ -439,17 +511,63 @@ update()
 
 function openSkill(){
 
-main.innerHTML=
+main.innerHTML=`
 
-"パッシブ<br>"+
+強撃
 
-player.passive.join("<br>")+
+敵に150%ダメージ
 
-"<br><br>"+
+<br>
 
-"アクティブ<br>"+
+防御
 
-player.active.join("<br>")
+ダメージ20%軽減
+
+`
+
+}
+
+
+
+function openJob(){
+
+main.innerHTML=`
+
+剣士
+
+攻守バランス
+
+<br>
+
+ナイト
+
+防御特化
+
+<br>
+
+魔法使い
+
+高火力
+
+<br>
+
+アサシン
+
+高速攻撃
+
+<br>
+
+僧侶
+
+回復
+
+<br>
+
+バーサーカー
+
+超攻撃
+
+`
 
 }
 
