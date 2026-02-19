@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Infinite Relic - Final Refine</title>
+<title>Infinite Relic - Complete Edition</title>
 <style>
     :root {
         --bg: #0d0d0d; --card: #1a1a1a; --primary: #00e676; 
@@ -12,7 +12,7 @@
         --epic: #9c27b0; --legend: #ffc107; --lock: #ff4081;
     }
     body { background: var(--bg); color: var(--text); font-family: sans-serif; margin: 0; user-select: none; touch-action: manipulation; }
-    #control-panel { background: #000; padding: 10px; border-bottom: 1px solid #333; font-size: 0.8em; }
+    #control-panel { background: #000; padding: 10px; border-bottom: 1px solid #333; font-size: 0.8em; display: flex; gap: 10px; align-items: center; }
     #top { background: var(--card); padding: 15px; border-bottom: 2px solid #333; position: sticky; top: 0; z-index: 100; }
     .status-row { display: flex; justify-content: space-between; font-size: 0.85em; margin-bottom: 5px; color: var(--secondary); }
     .bar { height: 8px; background: #333; border-radius: 4px; margin: 4px 0; overflow: hidden; }
@@ -25,32 +25,30 @@
     .nav button.active { color: var(--secondary); border-bottom: 3px solid var(--secondary); }
     .tab { display: none; padding: 15px; }
     .tab.active { display: block; }
-    .item-card { background: #222; padding: 10px; margin-bottom: 8px; border-radius: 8px; border-left: 5px solid; }
+    .item-card { background: #222; padding: 10px; margin-bottom: 8px; border-radius: 8px; border-left: 5px solid; position: relative; }
     .item-card.common { border-color: var(--common); }
     .item-card.uncommon { border-color: var(--uncommon); }
     .item-card.rare { border-color: var(--rare); }
     .item-card.epic { border-color: var(--epic); }
-    .item-card.legend { border-color: var(--legend); }
+    .item-card.legend { border-color: var(--legend); box-shadow: 0 0 8px rgba(255,193,7,0.3); }
     .btn-main { width:100%; padding:15px; background:var(--primary); font-weight:bold; border-radius:8px; border:none; font-size: 1.1em; cursor: pointer; }
-    #log { height: 100px; overflow-y: auto; background: #000; padding: 10px; font-size: 0.7em; border-radius: 5px; display: flex; flex-direction: column-reverse; }
+    #log { height: 100px; overflow-y: auto; background: #000; padding: 10px; font-size: 0.7em; border-radius: 5px; display: flex; flex-direction: column-reverse; margin-top: 10px; }
     .btn-action { padding: 8px 10px; border-radius: 4px; border: none; background: #444; color: #fff; font-size: 0.75em; cursor: pointer; }
     .btn-lock.active { background: var(--lock); }
-    .skill-info { font-size: 0.65em; background: rgba(0,0,0,0.5); padding: 5px; margin-top: 5px; border-radius: 4px; color: #bbb; }
-    .req-text { color: var(--danger); font-size: 0.8em; }
+    .skill-info { font-size: 0.65em; background: rgba(0,0,0,0.5); padding: 6px; margin-top: 5px; border-radius: 4px; color: #bbb; line-height: 1.4; }
+    .req-text { color: var(--danger); font-size: 0.75em; font-weight: bold; }
 </style>
 </head>
 <body>
 
 <div id="control-panel">
-    <div style="display:flex; align-items:center; gap:10px;">
-        <label><input type="checkbox" id="checkAuto" onchange="toggleAuto(this.checked)"> オート</label>
-        <label><input type="checkbox" id="checkStay" onchange="toggleStay(this.checked)"> 階層維持</label>
-        <select id="lootFilter" onchange="p.lootFilter = this.value; save();" style="margin-left:auto;">
-            <option value="common">全部拾う</option>
-            <option value="uncommon">UC以上</option>
-            <option value="rare">R以上</option>
-        </select>
-    </div>
+    <label><input type="checkbox" id="checkAuto" onchange="toggleAuto(this.checked)"> オート</label>
+    <label><input type="checkbox" id="checkStay" onchange="toggleStay(this.checked)"> 階層維持</label>
+    <select id="lootFilter" onchange="p.lootFilter = this.value; save();" style="margin-left:auto; background:#222; color:#fff; border:1px solid #444;">
+        <option value="common">全部拾う</option>
+        <option value="uncommon">UC以上</option>
+        <option value="rare">Rare以上</option>
+    </select>
 </div>
 
 <div id="top">
@@ -59,7 +57,7 @@
         <span id="p-job-info">剣士 Lv.1</span>
     </div>
     <div style="font-size:0.8em; margin-bottom:5px; display:flex; justify-content:space-between;">
-        <span id="p-stats">⚔️0 🛡️0</span>
+        <span id="p-stats">⚔️0 🛡️0 🎯5%</span>
         <span id="p-hp-text">HP: 0/0</span>
     </div>
     <div class="bar"><div id="hp" class="fill"></div></div>
@@ -72,6 +70,7 @@
     <button onclick="showTab('battle', this)" class="active">戦闘</button>
     <button onclick="showTab('equip', this)">装備</button>
     <button onclick="showTab('job', this)">職業</button>
+    <button onclick="showTab('move', this)">移動/引継</button>
 </div>
 
 <div id="battle" class="tab active">
@@ -86,7 +85,10 @@
         <button class="btn-action" onclick="setEquipTab('armor')" style="flex:1">防具</button>
         <button class="btn-action" onclick="setEquipTab('acc')" style="flex:1">装飾</button>
     </div>
-    <button class="btn-action" onclick="bulkDelete()" style="width:100%; background:var(--danger); margin-bottom:10px;">ロック以外をすべて売却</button>
+    <div style="display:flex; gap:5px; margin-bottom:10px;">
+        <button class="btn-action" onclick="sortInventory()" style="flex:1; background:var(--secondary); color:#000;">最強順</button>
+        <button class="btn-action" onclick="bulkDelete()" style="flex:1; background:var(--danger);">ロック以外売却</button>
+    </div>
     <div id="inventory"></div>
 </div>
 
@@ -94,23 +96,56 @@
     <div id="jobList"></div>
 </div>
 
+<div id="move" class="tab">
+    <div style="text-align:center;">
+        <span id="maxFloorDisp">1</span>F 到達済み
+        <input type="range" id="floorRange" min="1" max="1" style="width:100%; margin:15px 0;" oninput="updateFloorVal(this.value)">
+        <div id="floorVal" style="font-size:2em; font-weight:bold; color:var(--secondary); margin-bottom:10px;">1</div>
+        <button class="btn-main" onclick="moveFloor()" style="background:var(--secondary)">移動する</button>
+    </div>
+    <hr style="border:0; border-top:1px solid #333; margin:20px 0;">
+    <p style="font-size:0.8em;">データ引き継ぎコード</p>
+    <textarea id="saveInput" style="width:100%; background:#000; color:#0f0; font-size:0.6em; border:1px solid #444;" rows="5" placeholder="ここにコードが表示されます"></textarea>
+    <div style="display:flex; gap:5px; margin-top:5px;">
+        <button class="btn-action" onclick="copySaveCode()" style="flex:1">コードをコピー</button>
+        <button class="btn-action" onclick="importSave()" style="flex:1">コードから復元</button>
+    </div>
+</div>
+
 <script>
 let p, e, autoIdx, longPressIdx;
 let currentEquipTab = 'weapon';
-const SAVE_KEY = "IR_SERIOUS_FINAL";
+const SAVE_KEY = "IR_ULTIMATE_V12";
 
 const JOBS = {
     "剣士": { req:[], s:["力","斬","守","極","閃"], eff:["ATK+5","ATK+10","DEF+5","全+5","2倍撃"] },
     "騎士": { req:[], s:["耐","挑","護","献","不"], eff:["DEF+10","HP+50","DEF+20","全+5","致死回避"] },
     "魔術師": { req:[], s:["魔","詠","瞑","波","爆"], eff:["ATK+10","CRT+2","ATK+20","全+5","3倍撃"] },
+    "盗賊": { req:[], s:["速","隠","奪","目","急"], eff:["CRT+5","回避+5","EXP+10%","全+5","ドロップUP"] },
+    "弓使い": { req:[], s:["集","遠","追","心","必"], eff:["ATK+8","CRT+3","ATK+12","全+5","必中撃"] },
+    "僧侶": { req:[], s:["祈","加","浄","慈","域"], eff:["HP+40","DEF+5","HP+80","全+5","自動回復"] },
+    "拳闘士": { req:[], s:["練","連","剛","回","旋"], eff:["ATK+7","SPD+5","CRT+8","全+5","連撃"] },
+    "侍": { req:[], s:["切","見","波","心","一"], eff:["ATK+15","CRT+5","ATK+20","全+5","反撃"] },
+    "槍使い": { req:[], s:["刺","貫","払","不","龍"], eff:["ATK+12","DEF+8","ATK+15","全+5","防御無視"] },
+    "冒険者": { req:[], s:["運","直","解","歩","万"], eff:["EXP+15%","Drop+15%","全+5","全+10","万能"] },
     "勇者": { req:["剣士","騎士"], s:["勇","聖","英","天","滅"], eff:["全+10","全+20","ATK+50","DEF+50","最終ダメUP"] },
-    "賢者": { req:["魔術師","剣士"], s:["知","万","全","導","究"], eff:["全+15","EXP+50%","ATK+40","DEF+40","全知全能"] }
+    "賢者": { req:["魔術師","僧侶"], s:["知","万","全","導","究"], eff:["全+15","EXP+50%","ATK+40","DEF+40","全知全能"] },
+    "忍者": { req:["盗賊","侍"], s:["分","変","裏","隠","闇"], eff:["SPD+20","回避+20","CRT+15","即死","追撃"] },
+    "聖騎士": { req:["騎士","僧侶"], s:["罰","盾","音","臨","判"], eff:["DEF+40","HP+200","軽減20%","リジェネ","無敵"] },
+    "魔王": { req:["魔術師","盗賊"], s:["圧","無","淵","魂","焉"], eff:["ATK+60","CRT+20","ATK+100","全+30","崩壊"] },
+    "銃士": { req:["弓使い","拳闘士"], s:["狙","射","填","弾","制"], eff:["CRT+25","ATK+30","SPD+15","必中","貫通"] },
+    "覇王": { req:["拳闘士","侍"], s:["覇","粉","蹂","壊","無"], eff:["ATK+80","DEF-20","CRT+30","最終ダメUP","全破壊"] },
+    "守護神": { req:["騎士","槍使い"], s:["壁","反","天","拒","創"], eff:["DEF+100","被ダメ-30%","HP+500","反射","完全ガード"] },
+    "死神": { req:["盗賊","魔術師"], s:["死","魂","冥","腐","獲"], eff:["即死5%","ATK+50","HP吸収","全+25","魂狩り"] },
+    "錬金術師": { req:["冒険者","魔術師"], s:["等","変","石","造","金"], eff:["Drop+100%","EXP+100%","全+30","強化","黄金化"] }
 };
+
+const itemPre = [{n:"壊れた",m:0.5},{n:"なまくらな",m:0.8},{n:"普通の",m:1.0},{n:"鋭い",m:1.3},{n:"名匠の",m:1.8},{n:"伝説の",m:4.0},{n:"神の",m:8.0}];
 
 function init() {
     const saved = localStorage.getItem(SAVE_KEY);
     p = saved ? JSON.parse(saved) : createNewPlayer();
-    // ジョブデータの整合性チェック
+    // 欠損ジョブデータの補完
     Object.keys(JOBS).forEach(j => {
         if(!(j in p.jobLevels)) p.jobLevels[j] = 1;
         if(!(j in p.jobExp)) p.jobExp[j] = 0;
@@ -133,25 +168,16 @@ function createNewPlayer() {
 }
 
 function calc() {
-    // 基礎ステータス
     p.maxhp = 100 + (p.lv * 20);
     p.atk = 10 + (p.lv * 5);
     p.def = 5 + (p.lv * 3);
     p.critRate = 5;
-
-    // 装備ステータス加算 (ここが重要)
     if (p.weapon) p.atk += (p.weapon.atk || 0);
     if (p.armor) p.def += (p.armor.def || 0);
-    if (p.acc) { 
-        p.maxhp += (p.acc.hp || 0); 
-        p.critRate += (p.acc.crit || 0);
-    }
-
-    // ジョブパッシブ（Lv10以上のジョブ1つにつき全ステータス+2%）
+    if (p.acc) { p.maxhp += (p.acc.hp || 0); p.critRate += (p.acc.crit || 0); }
     let bonus = 1.0;
     Object.keys(JOBS).forEach(j => { if(p.jobLevels[j] >= 10) bonus += 0.02; });
-    p.atk = Math.floor(p.atk * bonus);
-    p.def = Math.floor(p.def * bonus);
+    p.atk = Math.floor(p.atk * bonus); p.def = Math.floor(p.def * bonus);
 }
 
 function spawn() {
@@ -165,11 +191,8 @@ function attack() {
     let dmg = Math.max(1, p.atk - e.def) * (0.9 + Math.random()*0.2);
     if (Math.random() < p.critRate/100) dmg *= 2;
     e.hp -= Math.floor(dmg);
-    
     if (e.hp <= 0) return win();
-
-    let edmg = Math.max(1, e.atk - p.def);
-    p.hp -= Math.floor(edmg);
+    p.hp -= Math.max(1, e.atk - p.def);
     if (p.hp <= 0) { p.hp = p.maxhp; if(!p.stay) p.floor = Math.max(1, p.floor-3); spawn(); }
     refresh();
 }
@@ -187,18 +210,21 @@ function win() {
 function drop() {
     const r = Math.random();
     let rare = r < 0.05 ? "legend" : r < 0.15 ? "epic" : r < 0.4 ? "rare" : "common";
+    if (rare === "common" && p.lootFilter !== "common") return;
+    if (rare === "uncommon" && (p.lootFilter === "rare")) return;
+
     const type = ["weapon", "armor", "acc"][Math.floor(Math.random()*3)];
-    const m = { common:1, rare:2, epic:4, legend:8 }[rare];
+    const pre = itemPre[Math.floor(Math.random()*itemPre.length)];
+    const suf = { weapon:"剣", armor:"鎧", acc:"珠" }[type];
+    let itemName = pre.n.endsWith("な") || pre.n.endsWith("の") ? `${pre.n}${suf}` : `${pre.n}の${suf}`;
     
-    let item = { 
-        id:Date.now()+Math.random(), type, rarity:rare, lock:false,
-        name: (rare==="common"?"普通の":rare==="rare"?"名匠の":"伝説の") + (type==="weapon"?"剣":type==="armor"?"鎧":"珠"),
-        atk: type==="weapon" ? Math.floor(p.floor * 5 * m) : 0,
-        def: type==="armor" ? Math.floor(p.floor * 3 * m) : 0,
-        hp: type==="acc" ? Math.floor(p.floor * 50 * m) : 0,
-        crit: type==="acc" ? m * 2 : 0
-    };
-    p.inventory.push(item);
+    p.inventory.push({ 
+        id:Date.now()+Math.random(), type, rarity:rare, lock:false, name: itemName,
+        atk: type==="weapon" ? Math.floor(p.floor * 5 * pre.m) : 0,
+        def: type==="armor" ? Math.floor(p.floor * 3 * pre.m) : 0,
+        hp: type==="acc" ? Math.floor(p.floor * 50 * pre.m) : 0,
+        crit: type==="acc" ? Math.floor(pre.m * 2) : 0
+    });
 }
 
 function refresh() {
@@ -212,13 +238,14 @@ function refresh() {
     document.getElementById("jobexp").style.width = (p.jobExp[p.job]/(p.jobLevels[p.job]*100)*100) + "%";
     document.getElementById("enemyhp").style.width = (e.hp/e.maxhp*100) + "%";
     document.getElementById("e-name").innerText = e.name;
+    document.getElementById("maxFloorDisp").innerText = p.maxFloor;
+    document.getElementById("floorRange").max = p.maxFloor;
 
-    // 装備リスト
     document.getElementById("inventory").innerHTML = p.inventory.filter(it => it.type === currentEquipTab).map(it => {
         const isEq = (p.weapon?.id===it.id || p.armor?.id===it.id || p.acc?.id===it.id);
         return `<div class="item-card ${it.rarity}">
-            <b>${isEq?'[装備中] ':''}${it.name}</b><br>
-            <small>${it.atk?`攻撃+${it.atk}`:it.def?`防御+${it.def}`:`HP+${it.hp} CRT+${it.crit}%`}</small>
+            <b>${isEq?'[E] ':''}${it.name}</b><br>
+            <small>${it.atk?`攻+${it.atk}`:it.def?`防+${it.def}`:`HP+${it.hp} CRT+${it.crit}%`}</small>
             <div style="margin-top:5px; display:flex; gap:5px;">
                 <button class="btn-action" onclick="toggleEquip(${it.id})">${isEq?'外す':'装備'}</button>
                 <button class="btn-action btn-lock ${it.lock?'active':''}" onclick="toggleLock(${it.id})">${it.lock?'🔒':'🔓'}</button>
@@ -227,23 +254,20 @@ function refresh() {
         </div>`;
     }).join("");
 
-    // ジョブリスト
     document.getElementById("jobList").innerHTML = Object.keys(JOBS).map(j => {
         const lv = p.jobLevels[j];
-        const can = JOBS[j].req.every(r => (p.jobLevels[r]||1) >= 10);
+        const can = JOBS[j].req.every(r => (p.jobLevels[r]||0) >= 10);
         return `<div class="item-card" style="opacity:${can?1:0.6}; border-color:${p.job===j?'var(--primary)':'#444'}">
             <b>${j} (Lv.${lv})</b> ${can?'':'<span class="req-text">未解放</span>'}<br>
-            ${!can?`<small class="req-text">条件: ${JOBS[j].req.join("と")} Lv10</small>`:''}
+            ${!can?`<small class="req-text">条件: ${JOBS[j].req.join("&")} Lv10</small>`:''}
             <div class="skill-info">
-                ${JOBS[j].s.map((s,i) => `<span style="color:${lv>(i*2)?'var(--primary)':'#777'}">Lv${i*2}:${s}(${JOBS[j].eff[i]})</span> `).join("")}
+                ${JOBS[j].s.map((s,i) => `<span style="color:${lv>(i*2)?'var(--primary)':'#777'}">L${i*2}:${s}(${JOBS[j].eff[i]})</span> `).join("")}
             </div>
-            <button class="btn-action" onclick="changeJob('${j}')" ${!can||p.job===j?'disabled':''} style="width:100%; margin-top:5px;">転職する</button>
+            <button class="btn-action" onclick="p.job='${j}';save();refresh();" ${!can||p.job===j?'disabled':''} style="width:100%; margin-top:5px;">転職</button>
         </div>`;
     }).join("");
 }
 
-function changeJob(j) { p.job = j; save(); refresh(); }
-function toggleLock(id) { let it = p.inventory.find(i=>i.id===id); it.lock = !it.lock; save(); refresh(); }
 function toggleEquip(id) {
     let it = p.inventory.find(i=>i.id===id);
     if(it.type==="weapon") p.weapon = (p.weapon?.id===id)?null:it;
@@ -251,21 +275,19 @@ function toggleEquip(id) {
     if(it.type==="acc") p.acc = (p.acc?.id===id)?null:it;
     save(); refresh();
 }
+function toggleLock(id) { let it = p.inventory.find(i=>i.id===id); it.lock = !it.lock; save(); refresh(); }
 function deleteItem(id) { p.inventory = p.inventory.filter(i=>i.id!==id); save(); refresh(); }
-function bulkDelete() { 
-    p.inventory = p.inventory.filter(it => it.lock || p.weapon?.id===it.id || p.armor?.id===it.id || p.acc?.id===it.id); 
-    save(); refresh(); 
-}
+function bulkDelete() { p.inventory = p.inventory.filter(it => it.lock || p.weapon?.id===it.id || p.armor?.id===it.id || p.acc?.id===it.id); save(); refresh(); }
+function sortInventory() { p.inventory.sort((a,b) => (b.atk+b.def+b.hp+b.crit) - (a.atk+a.def+a.hp+a.crit)); refresh(); }
 function toggleAuto(v) { p.auto=v; clearInterval(autoIdx); if(v) autoIdx=setInterval(attack,600); save(); }
 function toggleStay(v) { p.stay=v; save(); }
 function setEquipTab(t) { currentEquipTab = t; refresh(); }
-function showTab(id, btn) {
-    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-    document.getElementById(id).classList.add("active");
-    document.querySelectorAll(".nav button").forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
-}
+function updateFloorVal(v) { document.getElementById("floorVal").innerText = v; }
+function moveFloor() { p.floor = parseInt(document.getElementById("floorRange").value); spawn(); save(); refresh(); }
+function showTab(id, btn) { document.querySelectorAll(".tab").forEach(t => t.classList.remove("active")); document.getElementById(id).classList.add("active"); document.querySelectorAll(".nav button").forEach(b => b.classList.remove("active")); btn.classList.add("active"); }
 function save() { localStorage.setItem(SAVE_KEY, JSON.stringify(p)); }
+function copySaveCode() { save(); document.getElementById("saveInput").value = btoa(unescape(encodeURIComponent(JSON.stringify(p)))); alert("コピーしました"); }
+function importSave() { try{ p = JSON.parse(decodeURIComponent(escape(atob(document.getElementById("saveInput").value)))); save(); location.reload(); }catch(e){alert("失敗");} }
 init();
 </script>
 </body>
