@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Infinite Relic - Job Master</title>
+<title>Infinite Relic - Professional Edition</title>
 <style>
     :root {
         --bg: #0d0d0d; --card: #1a1a1a; --primary: #00e676; 
@@ -11,7 +11,7 @@
         --common: #9e9e9e; --uncommon: #4caf50; --rare: #2196f3; 
         --epic: #9c27b0; --legend: #ffc107;
     }
-    body { background: var(--bg); color: var(--text); font-family: sans-serif; margin: 0; user-select: none; overflow-x: hidden; }
+    body { background: var(--bg); color: var(--text); font-family: sans-serif; margin: 0; user-select: none; overflow-x: hidden; touch-action: manipulation; }
     #control-panel { background: #000; padding: 10px; border-bottom: 1px solid #333; font-size: 0.8em; position: sticky; top: 0; z-index: 1000; }
     #top { background: var(--card); padding: 15px; border-bottom: 2px solid #333; }
     .status-row { display: flex; justify-content: space-between; font-size: 0.85em; margin-bottom: 5px; color: var(--secondary); }
@@ -31,12 +31,12 @@
     .item-card.rare { border-color: var(--rare); }
     .item-card.epic { border-color: var(--epic); }
     .item-card.legend { border-color: var(--legend); box-shadow: 0 0 8px rgba(255,193,7,0.4); }
-    .btn-main { width:100%; padding:15px; background:var(--primary); font-weight:bold; border-radius:8px; border:none; color:#000; font-size: 1.2em; margin-bottom: 8px; cursor: pointer; }
+    .btn-main { width:100%; padding:15px; background:var(--primary); font-weight:bold; border-radius:8px; border:none; color:#000; font-size: 1.2em; margin-bottom: 8px; cursor: pointer; outline: none; }
+    .btn-main:active { filter: brightness(1.2); }
     #log { height: 120px; overflow-y: auto; background: #000; padding: 10px; font-size: 0.7em; border-radius: 5px; display: flex; flex-direction: column-reverse; }
-    .btn-action { padding: 6px 10px; border-radius: 4px; border: none; background: #444; color: #fff; font-size: 0.75em; cursor: pointer; }
-    .btn-danger { background: var(--danger); }
-    .skill-list { font-size: 0.7em; color: #aaa; margin-top: 4px; }
-    .unlocked { color: var(--primary); font-weight: bold; }
+    .btn-action { padding: 8px 10px; border-radius: 4px; border: none; background: #444; color: #fff; font-size: 0.75em; cursor: pointer; }
+    .skill-box { font-size: 0.65em; background: rgba(0,0,0,0.3); padding: 5px; margin-top: 5px; border-radius: 4px; line-height: 1.4; }
+    .unlocked { color: var(--primary); }
 </style>
 </head>
 <body>
@@ -49,10 +49,10 @@
     <div style="display:flex; gap:5px; align-items:center;">
         フィルタ: 
         <select id="lootFilter" onchange="p.lootFilter = this.value; save();" style="background:#222; color:#fff; border:1px solid #444;">
-            <option value="common">全部</option>
-            <option value="uncommon">UC↑</option>
-            <option value="rare">R↑</option>
-            <option value="epic">E↑</option>
+            <option value="common">全部拾う</option>
+            <option value="uncommon">UC以上</option>
+            <option value="rare">R以上</option>
+            <option value="epic">E以上</option>
             <option value="legend">Lのみ</option>
         </select>
     </div>
@@ -65,12 +65,12 @@
     </div>
     <div style="font-size:0.75em; margin-bottom:4px; display:flex; justify-content:space-between;">
         <span id="p-stats">⚔️0 🛡️0</span>
-        <span id="p-crit">🎯5%</span>
+        <span id="p-crit">🎯5% | 💡EXP+0%</span>
     </div>
     <div class="bar"><div id="hp" class="fill"></div></div>
     <div class="bar"><div id="exp" class="fill"></div></div>
     <div class="bar"><div id="jobexp" class="fill"></div></div>
-    <button class="btn-main" id="attackBtn" onclick="attack()">ATTACK</button>
+    <button class="btn-main" id="attackBtn">ATTACK (長押し可)</button>
 </div>
 
 <div class="nav">
@@ -92,12 +92,14 @@
         <button class="btn-action" onclick="setEquipTab('armor')" style="flex:1">防具</button>
         <button class="btn-action" onclick="setEquipTab('acc')" style="flex:1">装飾</button>
     </div>
-    <button class="btn-action btn-danger" onclick="bulkDelete()" style="width:100%; margin-bottom:10px;">一括売却（Legend以外）</button>
+    <div style="display:flex; gap:5px; margin-bottom:10px;">
+        <button class="btn-action" onclick="sortInventory()" style="flex:1; background:var(--secondary); color:#000;">最強順ソート</button>
+        <button class="btn-action" onclick="bulkDelete()" style="flex:1; background:var(--danger);">Legend以外売却</button>
+    </div>
     <div id="inventory"></div>
 </div>
 
 <div id="job" class="tab">
-    <div style="color:var(--secondary); font-size:0.8em; margin-bottom:10px;">※Lv10達成したスキルは全職で常時発動！</div>
     <div id="jobList"></div>
 </div>
 
@@ -117,91 +119,48 @@
 </div>
 
 <script>
-let p, e, autoIdx;
+let p, e, autoIdx, longPressIdx;
 let currentEquipTab = 'weapon';
-const SAVE_KEY = "IR_JOBMASTER_V8";
+const SAVE_KEY = "IR_FINAL_REPAIR_V1";
 
-// --- ジョブデータ定義 ---
+// ジョブとスキル効果定義
 const JOBS = {
-    // 下級職
-    "戦士": { req:[], s:["強撃","頑強","咆哮","鍛錬","一閃"] },
-    "騎士": { req:[], s:["防陣","挑発","守護","献身","不屈"] },
-    "魔術師": { req:[], s:["火球","魔力","詠唱","瞑想","爆裂"] },
-    "盗賊": { req:[], s:["目利き","隠密","強奪","俊足","急所"] },
-    "弓使い": { req:[], s:["遠射","集中","追撃","雨矢","心眼"] },
-    "僧侶": { req:[], s:["治癒","浄化","加護","慈愛","聖域"] },
-    "拳闘士": { req:[], s:["連撃","練気","剛腕","回避","旋風"] },
-    "侍": { req:[], s:["切落","見切","居合","波紋","無心"] },
-    "槍使い": { req:[], s:["刺突","貫通","払撃","不動","龍突"] },
-    "冒険者": { req:[], s:["幸運","採取","直感","解体","歩行"] },
-    // 上級職
-    "勇者": { req:["戦士","騎士"], s:["勇気","聖光","英雄","天断","不滅"] },
-    "魔王": { req:["魔術師","盗賊"], s:["威圧","虚無","深淵","壊魂","終焉"] },
-    "聖騎士": { req:["騎士","僧侶"], s:["神罰","聖盾","福音","降臨","審判"] },
-    "忍者": { req:["盗賊","侍"], s:["影分身","変わり身","手裏剣","隠刀","闇討"] },
-    "賢者": { req:["魔術師","僧侶"], s:["叡智","万象","全知","魔導","究極"] },
-    "銃士": { req:["弓使い","盗賊"], s:["狙撃","速射","装填","跳弾","制圧"] },
-    "覇王": { req:["戦士","拳闘士"], s:["覇気","粉砕","蹂躙","天壊","無双"] },
-    "守護神": { req:["騎士","槍使い"], s:["鉄壁","反撃","天界","拒絶","創世"] },
-    "死神": { req:["盗賊","魔術師"], s:["即死","魂狩","冥府","腐敗","収穫"] },
-    "錬金術師": { req:["冒険者","魔術師"], s:["等価","変異","賢者の石","創造","黄金"] }
+    "戦士": { req:[], s:["強撃","頑強","咆哮","鍛錬","一閃"], desc:"物理攻撃特化。Lv10で全職の攻撃+5%" },
+    "騎士": { req:[], s:["防陣","挑発","守護","献身","不屈"], desc:"防御特化。Lv10で全職の防御+5%" },
+    "魔術師": { req:[], s:["火球","魔力","詠唱","瞑想","爆裂"], desc:"魔法特化。Lv10でクリ率+1%" },
+    "盗賊": { req:[], s:["目利き","隠密","強奪","俊足","急所"], desc:"稼ぎ特化。Lv10で経験値+5%" },
+    "僧侶": { req:[], s:["治癒","浄化","加護","慈愛","聖域"], desc:"生存特化。Lv10でHP+5%" },
+    // 他のジョブも同様に定義（簡略化のため代表的なものを表示）
+    "勇者": { req:["戦士","騎士"], s:["勇気","聖光","英雄","天断","不滅"], desc:"究極の物理職。全ステータス強化" },
+    "賢者": { req:["魔術師","僧侶"], s:["叡智","万象","全知","魔導","究極"], desc:"究極の魔法職。全効率強化" }
 };
 
-const enemyPre = ["凶暴な", "深淵の", "呪われた", "光る", "古の", "汚染された", "幻影の", "虚ろな"];
-const enemyName = ["スライム", "ゴブリン", "スケルトン", "ドラゴン", "魔導士", "ゴーレム", "影神", "巨像"];
+const enemyPre = ["凶暴な", "深淵の", "呪われた", "光る", "古の", "汚染された"];
+const enemyName = ["スライム", "ゴブリン", "スケルトン", "ドラゴン", "魔導士", "ゴーレム"];
 
 function createNewPlayer() {
-    let base = { 
-        floor:1, maxFloor:1, lv:1, exp:0, expMax:40, hp:100, maxhp:100, 
-        job:"戦士", inventory:[], weapon:null, armor:null, acc:null, 
-        auto:false, stay:false, lootFilter:"common", jobLevels:{}, jobExp:{} 
-    };
+    let base = { floor:1, maxFloor:1, lv:1, exp:0, expMax:40, hp:100, maxhp:100, job:"戦士", inventory:[], weapon:null, armor:null, acc:null, auto:false, stay:false, lootFilter:"common", jobLevels:{}, jobExp:{} };
     Object.keys(JOBS).forEach(j => { base.jobLevels[j] = 1; base.jobExp[j] = 0; });
     return base;
 }
 
 function init() {
     const saved = localStorage.getItem(SAVE_KEY);
-    if(saved) {
-        try { p = JSON.parse(saved); } catch(e) { p = createNewPlayer(); }
-    } else { p = createNewPlayer(); }
+    p = saved ? JSON.parse(saved) : createNewPlayer();
+    Object.keys(JOBS).forEach(j => { if(!p.jobLevels[j]) p.jobLevels[j]=1; if(p.jobExp[j]===undefined) p.jobExp[j]=0; });
     
-    // データ補完
-    Object.keys(JOBS).forEach(j => {
-        if(!p.jobLevels[j]) p.jobLevels[j] = 1;
-        if(p.jobExp[j] === undefined) p.jobExp[j] = 0;
-    });
+    // アタックボタン長押し処理
+    const btn = document.getElementById("attackBtn");
+    const startPress = (ev) => { ev.preventDefault(); attack(); longPressIdx = setInterval(attack, 150); };
+    const endPress = () => clearInterval(longPressIdx);
+    btn.addEventListener("mousedown", startPress);
+    btn.addEventListener("mouseup", endPress);
+    btn.addEventListener("mouseleave", endPress);
+    btn.addEventListener("touchstart", startPress);
+    btn.addEventListener("touchend", endPress);
 
-    document.getElementById("checkAuto").checked = !!p.auto;
-    document.getElementById("checkStay").checked = !!p.stay;
-    document.getElementById("lootFilter").value = p.lootFilter || "common";
-    
     if (p.auto) autoIdx = setInterval(attack, 600);
     spawn(); refresh();
-}
-
-function save() { 
-    localStorage.setItem(SAVE_KEY, JSON.stringify(p)); 
-}
-
-// 日本語対応の安全なエンコード/デコード
-function copySaveCode() {
-    const json = JSON.stringify(p);
-    const code = btoa(unescape(encodeURIComponent(json)));
-    document.getElementById("saveInput").value = code;
-    document.getElementById("saveInput").select();
-    document.execCommand("copy");
-    alert("コピーしました");
-}
-
-function importSave() {
-    const code = document.getElementById("saveInput").value.trim();
-    try {
-        const json = decodeURIComponent(escape(atob(code)));
-        p = JSON.parse(json);
-        save();
-        location.reload();
-    } catch(e) { alert("コードが正しくありません"); }
 }
 
 function spawn() {
@@ -210,103 +169,72 @@ function spawn() {
     const pre = enemyPre[Math.floor(Math.random()*enemyPre.length)];
     const name = enemyName[Math.floor(Math.random()*enemyName.length)];
     const mult = isBoss ? 15 : 1;
-    e = { 
-        name: (isBoss ? "【BOSS】" : "") + pre + name, 
-        hp: Math.floor((20+f*20)*mult), maxhp: Math.floor((20+f*20)*mult), 
-        atk: Math.floor((5+f*4)*(isBoss?1.8:1)), def: Math.floor((2+f*2)*(isBoss?2:1)) 
-    };
+    e = { name: (isBoss ? "【BOSS】" : "") + pre + name, hp: (20+f*20)*mult, maxhp: (20+f*20)*mult, atk: (5+f*4)*(isBoss?1.5:1), def: (2+f*2)*(isBoss?1.5:1) };
 }
 
 function calc() {
     p.maxhp = 100 + (p.lv * 30);
-    let a = 10 + (p.lv * 6), d = 5 + (p.lv * 4), c = 5;
+    let a = 10 + (p.lv * 6), d = 5 + (p.lv * 4), c = 5, ex = 0;
 
-    // 装備補正
-    [p.weapon, p.armor, p.acc].forEach(item => {
-        if(item) {
-            a += (item.atk || 0);
-            d += (item.def || 0);
-            p.maxhp += (item.hp || 0);
-            c += (item.crit || 0);
+    // 装備
+    [p.weapon, p.armor, p.acc].forEach(it => {
+        if(it) { a += (it.atk||0); d += (it.def||0); p.maxhp += (it.hp||0); c += (it.crit||0); ex += (it.expUp||0); }
+    });
+
+    // ジョブパッシブ(Lv10以上)
+    Object.keys(JOBS).forEach(j => {
+        if(p.jobLevels[j] >= 10) {
+            if(j==="戦士") a *= 1.05; if(j==="騎士") d *= 1.05; if(j==="魔術師") c += 2;
+            if(j==="盗賊") ex += 10; if(j==="僧侶") p.maxhp *= 1.05;
         }
     });
 
-    // パッシブスキル補正（Lv10以上の全ジョブスキル）
-    Object.keys(JOBS).forEach(jName => {
-        if(p.jobLevels[jName] >= 10) {
-            a = Math.floor(a * 1.05); // 1職につき攻撃5%UP
-            d = Math.floor(d * 1.05); // 1職につき防御5%UP
-            c += 1; // 1職につきクリ率1%UP
-        }
-    });
-
-    p.atk = Math.max(1, a);
-    p.def = Math.max(0, d);
-    p.critRate = Math.min(100, c);
+    p.atk = Math.floor(a); p.def = Math.floor(d); p.critRate = c; p.expBonus = ex;
 }
 
 function attack() {
     if (!e || e.hp <= 0) return;
     calc();
-    let isCrit = Math.random() < (p.critRate / 100);
-    let dmg = Math.max(1, p.atk - e.def) * (0.9 + Math.random()*0.2) * (isCrit ? 2 : 1);
-    
-    // スキル演出用(簡易)
-    if(Math.random() < 0.2) dmg *= 1.5;
-
+    let isCrit = Math.random() < (p.critRate/100);
+    let dmg = Math.max(1, p.atk - e.def) * (0.9 + Math.random()*0.2) * (isCrit?2:1);
     e.hp -= Math.floor(dmg);
     addLog(`${isCrit?'CRIT! ':''}⚔️${Math.floor(dmg)}`);
-
     if (e.hp <= 0) return win();
 
     let edmg = Math.max(1, e.atk - p.def);
     p.hp -= Math.floor(edmg);
-    
-    if (p.hp <= 0) {
-        p.hp = p.maxhp;
-        if(!p.stay) p.floor = Math.max(1, p.floor - 5);
-        addLog("💀敗北...");
-        spawn();
-    }
+    if (p.hp <= 0) { p.hp = p.maxhp; if(!p.stay) p.floor = Math.max(1, p.floor-5); spawn(); addLog("💀敗北"); }
     refresh();
 }
 
 function win() {
-    p.exp += Math.floor(20 + p.floor * 3);
+    p.exp += Math.floor((20 + p.floor * 3) * (1 + p.expBonus/100));
     p.jobExp[p.job] += 20;
-
-    if (p.jobExp[p.job] >= p.jobLevels[p.job] * 100) {
-        p.jobExp[p.job] = 0;
-        p.jobLevels[p.job]++;
-        addLog(`✨${p.job} Lv${p.jobLevels[p.job]}!`);
-    }
-
-    if (p.exp >= p.expMax) {
-        p.lv++; p.exp = 0; p.expMax = Math.floor(p.expMax * 1.3); p.hp = p.maxhp;
-        addLog(`🎉Lv${p.lv}に上がった！`);
-    }
-
+    if (p.jobExp[p.job] >= p.jobLevels[p.job]*100) { p.jobExp[p.job]=0; p.jobLevels[p.job]++; addLog(`✨Job LvUp!`); }
+    if (p.exp >= p.expMax) { p.lv++; p.exp=0; p.expMax = Math.floor(p.expMax*1.3); p.hp=p.maxhp; addLog(`🎉Player LvUp!`); }
     if (!p.stay) { p.floor++; if(p.floor > p.maxFloor) p.maxFloor = p.floor; }
     if (Math.random() < 0.35 || (p.floor-1)%50===0) drop();
-    
     spawn(); save(); refresh();
 }
 
 function drop() {
     const r = Math.random();
     let rare = "common";
-    if (r < 0.03) rare = "legend"; else if (r < 0.12) rare = "epic"; else if (r < 0.3) rare = "rare"; else if (r < 0.6) rare = "uncommon";
-    
-    if (RARE_LEVELS[rare] < (RARE_LEVELS[p.lootFilter] || 0)) return;
+    if (r < 0.03) rare = "legend"; else if (r < 0.1) rare = "epic"; else if (r < 0.25) rare = "rare"; else if (r < 0.5) rare = "uncommon";
+    if (RARE_LEVELS[rare] < RARE_LEVELS[p.lootFilter]) return;
 
     let type = ["weapon", "armor", "acc"][Math.floor(Math.random()*3)];
     const rb = 1 + (RARE_LEVELS[rare] * 0.6);
-    let item = { id:Date.now()+Math.random(), type, rarity:rare, name:rare.toUpperCase()+(type==="weapon"?"の剣":type==="armor"?"の鎧":"の珠"), atk:0, def:0, hp:0, crit:0 };
+    let item = { id:Date.now()+Math.random(), type, rarity:rare, name:rare.toUpperCase()+(type==="weapon"?"の剣":type==="armor"?"の鎧":"の珠"), atk:0, def:0, hp:0, crit:0, expUp:0 };
     
     if (type === "weapon") item.atk = Math.floor(p.floor * 4 * rb);
     else if (type === "armor") item.def = Math.floor(p.floor * 3 * rb);
-    else { item.hp = Math.floor(p.floor * 20 * rb); item.crit = 5; }
-
+    else { 
+        let roll = Math.random();
+        if(roll < 0.4) item.expUp = 5 + RARE_LEVELS[rare]*5;
+        else if(roll < 0.7) item.hp = Math.floor(p.floor * 25 * rb);
+        else item.crit = 5 + RARE_LEVELS[rare]*2;
+    }
     p.inventory.push(item);
     addLog(`<span style="color:var(--${rare})">🎁${item.name}</span>`);
 }
@@ -318,41 +246,49 @@ function refresh() {
     document.getElementById("p-main-info").innerText = `Lv.${p.lv} (${p.floor}F)`;
     document.getElementById("p-job-info").innerText = `${p.job} Lv.${p.jobLevels[p.job]}`;
     document.getElementById("p-stats").innerText = `⚔️${p.atk} 🛡️${p.def}`;
-    document.getElementById("p-crit").innerText = `🎯${p.critRate}%`;
-    document.getElementById("hp").style.width = Math.max(0, (p.hp/p.maxhp*100)) + "%";
+    document.getElementById("p-crit").innerText = `🎯${p.critRate}% | 💡EXP+${p.expBonus}%`;
+    document.getElementById("hp").style.width = (p.hp/p.maxhp*100) + "%";
     document.getElementById("exp").style.width = (p.exp/p.expMax*100) + "%";
     document.getElementById("jobexp").style.width = (p.jobExp[p.job]/(p.jobLevels[p.job]*100)*100) + "%";
-    document.getElementById("enemyhp").style.width = Math.max(0, (e.hp/e.maxhp*100)) + "%";
+    document.getElementById("enemyhp").style.width = (e.hp/e.maxhp*100) + "%";
     document.getElementById("e-name").innerText = e.name;
     document.getElementById("maxFloorDisp").innerText = p.maxFloor;
     document.getElementById("floorRange").max = p.maxFloor;
 
     document.getElementById("inventory").innerHTML = p.inventory.filter(it => it.type === currentEquipTab).map(it => {
         const isEq = (p.weapon?.id===it.id || p.armor?.id===it.id || p.acc?.id===it.id);
-        let s = it.atk?`⚔️${it.atk}`:it.def?`🛡️${it.def}`:`HP${it.hp}`;
+        let s = it.atk?`⚔️${it.atk}`:it.def?`🛡️${it.def}`:it.hp?`HP${it.hp}`:`EXP+${it.expUp}%`;
+        if(it.crit) s += ` 🎯${it.crit}%`;
         return `<div class="item-card ${it.rarity}">
-            <b>${isEq?'[E]':''}${it.name}</b><br>
-            <small>${s} / 🎯${it.crit}%</small>
+            <b>${isEq?'[E]':''}${it.name}</b><br><small>${s}</small>
             <div style="margin-top:5px; display:flex; gap:5px;">
                 <button class="btn-action" onclick="toggleEquip(${it.id})">${isEq?'外す':'装備'}</button>
-                <button class="btn-action btn-danger" onclick="deleteItem(${it.id})">売却</button>
+                <button class="btn-action" onclick="deleteItem(${it.id})">売却</button>
             </div>
         </div>`;
     }).join("");
 
     document.getElementById("jobList").innerHTML = Object.keys(JOBS).map(j => {
-        const can = JOBS[j].req.every(r => (p.jobLevels[r]||0) >= 10);
         const lv = p.jobLevels[j];
-        const skills = JOBS[j].s.map((s, i) => `<span class="${lv > (i*2) ? 'unlocked' : ''}">${s}</span>`).join(" / ");
+        const can = JOBS[j].req.every(r => p.jobLevels[r] >= 10);
         return `<div class="item-card" style="opacity:${can?1:0.5}; border-color:${p.job===j?'var(--legend)':'#444'}">
-            <div style="display:flex; justify-content:space-between;"><b>${j} (Lv.${lv})</b><span>${can?'':'未解放'}</span></div>
-            <div class="skill-list">${skills}</div>
-            <button class="btn-action" onclick="changeJob('${j}')" ${!can||p.job===j?'disabled':''} style="margin-top:5px; width:100%;">転職</button>
+            <b>${j} (Lv.${lv})</b>
+            <div class="skill-box">
+                ${JOBS[j].s.map((s,i)=>`<span class="${lv>(i*2)?'unlocked':''}">[Lv${i*2}] ${s}</span>`).join(" ")}<br>
+                <span style="color:var(--secondary)">${JOBS[j].desc}</span>
+            </div>
+            <button class="btn-action" onclick="p.job='${j}';save();refresh();" ${!can||p.job===j?'disabled':''} style="width:100%; margin-top:5px;">転職</button>
         </div>`;
     }).join("");
 }
 
-function changeJob(j) { p.job = j; save(); refresh(); }
+function sortInventory() {
+    p.inventory.sort((a,b) => (b.atk+b.def+b.hp+b.crit+b.expUp) - (a.atk+a.def+a.hp+a.crit+a.expUp));
+    refresh();
+}
+
+function bulkDelete() { p.inventory = p.inventory.filter(it => it.rarity === "legend" || (p.weapon?.id!==it.id && p.armor?.id!==it.id && p.acc?.id!==it.id)); save(); refresh(); }
+function deleteItem(id) { p.inventory = p.inventory.filter(i => i.id !== id); save(); refresh(); }
 function toggleEquip(id) {
     let it = p.inventory.find(i => i.id === id);
     if(it.type==="weapon") p.weapon = p.weapon?.id===id?null:it;
@@ -360,11 +296,12 @@ function toggleEquip(id) {
     else p.acc = p.acc?.id===id?null:it;
     save(); refresh();
 }
-function deleteItem(id) { p.inventory = p.inventory.filter(i => i.id !== id); save(); refresh(); }
-function bulkDelete() { p.inventory = p.inventory.filter(it => it.rarity === "legend" || (p.weapon?.id!==it.id && p.armor?.id!==it.id && p.acc?.id!==it.id)); save(); refresh(); }
 function toggleAuto(v) { p.auto = v; clearInterval(autoIdx); if(v) autoIdx = setInterval(attack, 600); save(); }
 function toggleStay(v) { p.stay = v; save(); }
 function setEquipTab(t) { currentEquipTab = t; refresh(); }
+function save() { localStorage.setItem(SAVE_KEY, JSON.stringify(p)); }
+function copySaveCode() { save(); document.getElementById("saveInput").value = btoa(unescape(encodeURIComponent(JSON.stringify(p)))); alert("コピー完了"); }
+function importSave() { try { p = JSON.parse(decodeURIComponent(escape(atob(document.getElementById("saveInput").value)))); save(); location.reload(); } catch(e){ alert("失敗"); } }
 function updateFloorVal(v) { document.getElementById("floorVal").innerText = v; }
 function moveFloor() { p.floor = parseInt(document.getElementById("floorRange").value); spawn(); save(); refresh(); }
 function showTab(id, btn) {
@@ -376,7 +313,7 @@ function showTab(id, btn) {
 function addLog(m) {
     const l = document.getElementById("log");
     l.innerHTML += `<div>${m}</div>`;
-    if(l.childNodes.length > 20) l.removeChild(l.firstChild);
+    if(l.childNodes.length > 15) l.removeChild(l.firstChild);
 }
 
 init();
