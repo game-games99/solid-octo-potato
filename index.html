@@ -3,716 +3,446 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Infinite Relic - Ultimate</title>
+<title>Infinite Relic - Ultimate Edition</title>
 
 <style>
+    :root {
+        --bg-color: #121212;
+        --card-bg: #1e1e1e;
+        --primary: #00e676;
+        --secondary: #40c4ff;
+        --danger: #ff5252;
+        --text: #ffffff;
+    }
 
-body{
-background:#111;
-color:#fff;
-font-family:sans-serif;
-margin:0;
-font-size:18px;
-}
+    body {
+        background: var(--bg-color);
+        color: var(--text);
+        font-family: 'Segoe UI', sans-serif;
+        margin: 0;
+        padding-bottom: 80px;
+    }
 
-#top{
+    /* ヘッダー・ステータス周り */
+    #top {
+        background: var(--card-bg);
+        padding: 15px;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        border-bottom: 2px solid #333;
+    }
 
-background:#1a1a1a;
-padding:10px;
-position:sticky;
-top:0;
+    .status-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        font-size: 0.9em;
+        margin-bottom: 10px;
+    }
 
-}
+    /* プログレスバー */
+    .bar {
+        height: 12px;
+        background: #333;
+        border-radius: 10px;
+        overflow: hidden;
+        margin: 5px 0 15px 0;
+    }
+    .fill { height: 100%; transition: width 0.3s; }
+    #hp { background: var(--primary); }
+    #exp { background: var(--secondary); }
+    #enemyhp { background: var(--danger); }
 
-button{
+    /* タブ切り替えボタン */
+    .nav-tabs {
+        display: flex;
+        overflow-x: auto;
+        background: #222;
+        padding: 5px;
+    }
+    .nav-tabs button {
+        flex: 1;
+        min-width: 80px;
+        background: #333;
+        color: #ccc;
+        margin: 2px;
+    }
+    .nav-tabs button.active-btn {
+        background: var(--secondary);
+        color: #000;
+        font-weight: bold;
+    }
 
-font-size:18px;
-padding:10px;
-margin:4px;
-border:none;
-border-radius:8px;
+    /* コンテンツエリア */
+    .tab { display: none; padding: 15px; animation: fadeIn 0.3s; }
+    .active { display: block; }
 
-}
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-.tab{display:none;padding:10px;}
-.active{display:block;}
+    button {
+        cursor: pointer;
+        border: none;
+        border-radius: 6px;
+        padding: 10px 15px;
+        font-weight: bold;
+        transition: 0.2s;
+    }
+    button:active { transform: scale(0.95); }
 
-.bar{
+    .btn-main { background: var(--primary); color: #000; width: 100%; font-size: 1.2em; margin-bottom: 10px; }
+    .btn-auto { background: #555; color: #fff; width: 100%; }
+    .btn-auto.on { background: #f44336; }
 
-height:20px;
-background:#333;
-border-radius:6px;
-margin:4px 0;
+    /* アイテム・リスト */
+    .item-card {
+        background: #2a2a2a;
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 10px;
+        border-left: 5px solid #555;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .common { border-color: #9e9e9e; }
+    .uncommon { border-color: #00e676; color: #00e676; }
+    .rare { border-color: #00b0ff; color: #00b0ff; }
+    .epic { border-color: #aa00ff; color: #aa00ff; }
+    .legend { border-color: #ffd600; color: #ffd600; }
 
-}
+    .equipped-tag {
+        background: #ffd600;
+        color: #000;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.7em;
+        margin-left: 5px;
+    }
 
-.fill{
+    /* ログ */
+    #log {
+        height: 120px;
+        overflow-y: auto;
+        background: #000;
+        padding: 10px;
+        font-size: 0.8em;
+        border-radius: 5px;
+        color: #aaa;
+        display: flex;
+        flex-direction: column-reverse;
+    }
 
-height:100%;
-background:#00e676;
-border-radius:6px;
-
-}
-
-.enemy{background:#ff5252;}
-.exp{background:#40c4ff;}
-
-.common{color:#fff;}
-.uncommon{color:#00e676;}
-.rare{color:#00b0ff;}
-.epic{color:#aa00ff;}
-.legend{color:#ffd600;}
-
-.item{
-
-border-bottom:1px solid #333;
-padding:5px;
-
-}
-
+    input[type="number"] {
+        background: #333;
+        color: #fff;
+        border: 1px solid #555;
+        padding: 8px;
+        border-radius: 4px;
+    }
 </style>
-
 </head>
-
 <body>
 
-
 <div id="top">
+    <div class="status-grid">
+        <div id="player-info"></div>
+        <div id="player-stats" style="text-align: right;"></div>
+    </div>
+    
+    HP <div class="bar"><div id="hp" class="fill" style="width: 100%;"></div></div>
+    EXP <div class="bar"><div id="exp" class="fill" style="width: 0%;"></div></div>
 
-<div id="player"></div>
-
-HP
-<div class="bar"><div id="hp" class="fill"></div></div>
-
-EXP
-<div class="bar"><div id="exp" class="fill exp"></div></div>
-
-
-<button onclick="attack()">攻撃</button>
-
-<button onclick="autoToggle()" id="autoBtn">AUTO OFF</button>
-
-<br>
-
-<button onclick="tab('battle')">戦闘</button>
-<button onclick="tab('equip')">装備</button>
-<button onclick="tab('job')">ジョブ</button>
-<button onclick="tab('move')">移動</button>
-
-
-<button onclick="save()">セーブ</button>
-<button onclick="load()">ロード</button>
-
-
+    <button class="btn-main" onclick="attack()">ATTACK</button>
+    <button class="btn-auto" onclick="autoToggle()" id="autoBtn">AUTO: OFF</button>
 </div>
 
+<div class="nav-tabs">
+    <button onclick="tab('battle', this)" class="tab-b active-btn">戦闘</button>
+    <button onclick="tab('equip', this)" class="tab-b">装備品</button>
+    <button onclick="tab('job', this)" class="tab-b">ジョブ</button>
+    <button onclick="tab('move', this)" class="tab-b">移動</button>
+    <button onclick="save()" style="background:#444;">保存</button>
+</div>
 
 <div id="battle" class="tab active">
-
-<div id="enemy"></div>
-
-<div class="bar">
-<div id="enemyhp" class="fill enemy"></div>
+    <div id="enemy-name" style="font-weight: bold; color: var(--danger);"></div>
+    <div class="bar"><div id="enemyhp" class="fill" style="width: 100%;"></div></div>
+    <div id="log"></div>
 </div>
-
-<div id="log"></div>
-
-</div>
-
 
 <div id="equip" class="tab">
-
-装備中
-
-<div id="equipped"></div>
-
-<hr>
-
-所持品
-
-<div id="inventory"></div>
-
-<button onclick="clearEquip()">
-未装備を一括破棄
-</button>
-
+    <h3>現在の装備</h3>
+    <div id="equipped-area"></div>
+    <hr>
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h3>所持品</h3>
+        <button onclick="clearInventory()" style="background: #c62828; font-size: 0.7em;">装備中以外を破棄</button>
+    </div>
+    <div id="inventory"></div>
 </div>
-
 
 <div id="job" class="tab">
-
-現在：
-<span id="jobNow"></span>
-
-<hr>
-
-<div id="jobList"></div>
-
+    <h3>ジョブ選択</h3>
+    <div id="jobList"></div>
 </div>
-
 
 <div id="move" class="tab">
-
-<input id="floorInput" type="number" placeholder="階層">
-
-<button onclick="moveFloor()">
-
-移動
-
-</button>
-
+    <h3>階層移動</h3>
+    <input id="floorInput" type="number" placeholder="階層を入力">
+    <button onclick="moveFloor()" style="background: var(--secondary); color: #000;">移動実行</button>
 </div>
 
-
-
 <script>
+let player;
+let enemy;
+let autoInterval = null;
 
+const jobs = {
+    "剣士": { atk: 1.2, def: 1.0, desc: "攻守のバランスが良い" },
+    "ナイト": { atk: 1.0, def: 1.5, desc: "鉄壁の守り" },
+    "アサシン": { atk: 1.6, def: 0.7, desc: "攻撃特化・紙装甲" },
+    "魔法使い": { atk: 2.0, def: 0.5, desc: "究極の攻撃力" }
+};
 
-let player
-let enemy
+const weaponNames = ["錆びた剣", "鉄の剣", "騎士剣", "英雄剣", "聖剣", "神剣"];
+const armorNames = ["布の服", "革鎧", "鎖鎧", "騎士鎧", "聖鎧", "神鎧"];
+const rarity = ["common", "uncommon", "rare", "epic", "legend"];
 
+// 敵の名前生成用
+const enemyPrefix = ["飢えた", "狂った", "巨大な", "闇の", "鋼鉄の", "伝説の"];
+const enemyBaseNames = ["スライム", "ゴブリン", "オーク", "スケルトン", "デーモン", "ドラゴン"];
 
-
-const jobs={
-
-剣士:{
-atk:1.2,
-def:1,
-desc:"バランス型"
-},
-
-ナイト:{
-atk:1,
-def:1.5,
-desc:"防御特化"
-},
-
-アサシン:{
-atk:1.5,
-def:0.8,
-desc:"高火力"
-},
-
-魔法使い:{
-atk:1.7,
-def:0.7,
-desc:"最大火力"
+function newPlayer() {
+    player = {
+        floor: 1, level: 1, exp: 0, expMax: 50,
+        hp: 100, maxhp: 100,
+        baseAtk: 10, baseDef: 5,
+        atk: 10, def: 5,
+        job: "剣士",
+        weapon: null, armor: null,
+        inventory: [],
+        auto: false
+    };
 }
 
+function createEnemy() {
+    const f = player.floor;
+    const prefix = enemyPrefix[Math.min(rand(enemyPrefix.length), Math.floor(f/10))];
+    const base = enemyBaseNames[rand(enemyBaseNames.length)];
+    
+    enemy = {
+        name: `${prefix}${base}`,
+        hp: 40 + f * 15,
+        atk: 5 + f * 4,
+        def: 2 + f * 2
+    };
+    enemy.maxhp = enemy.hp;
 }
 
+function calc() {
+    player.maxhp = 100 + (player.level - 1) * 20;
+    let tempAtk = 10 + player.level * 3;
+    let tempDef = 5 + player.level * 2;
 
+    if (player.weapon) tempAtk += player.weapon.atk;
+    if (player.armor) tempDef += player.armor.def;
 
-const weaponNames=[
-"錆びた剣",
-"鉄の剣",
-"騎士剣",
-"英雄剣",
-"聖剣",
-"神剣"
-]
-
-
-
-const armorNames=[
-
-"布の服",
-"革鎧",
-"鎖鎧",
-"騎士鎧",
-"聖鎧",
-"神鎧"
-
-]
-
-
-
-const rarity=[
-"common",
-"uncommon",
-"rare",
-"epic",
-"legend"
-]
-
-
-
-function newPlayer(){
-
-player={
-
-floor:1,
-level:1,
-exp:0,
-expMax:50,
-
-hp:100,
-maxhp:100,
-
-atk:10,
-def:5,
-
-job:"剣士",
-
-weapon:null,
-armor:null,
-
-inventory:[],
-
-auto:false
-
+    const j = jobs[player.job];
+    player.atk = Math.floor(tempAtk * j.atk);
+    player.def = Math.floor(tempDef * j.def);
 }
 
+function attack() {
+    // プレイヤーの攻撃
+    let dmg = Math.max(1, player.atk - enemy.def);
+    enemy.hp -= dmg;
+    addLog(`<span style="color:var(--primary)">💥 攻撃: ${dmg}ダメージ</span>`);
+
+    if (enemy.hp <= 0) {
+        win();
+    } else {
+        // 敵の反撃
+        let eDmg = Math.max(1, enemy.atk - player.def);
+        player.hp -= eDmg;
+        addLog(`<span style="color:var(--danger)">⚠️ 被弾: ${eDmg}ダメージ</span>`);
+
+        if (player.hp <= 0) {
+            addLog("💀 敗北... 1つ下の階層へ戻ります");
+            player.hp = player.maxhp;
+            player.floor = Math.max(1, player.floor - 1);
+            createEnemy();
+        }
+    }
+    refresh();
 }
 
-
-
-function save(){
-
-localStorage.ultimateSave=
-JSON.stringify(player)
-
-alert("セーブ完了")
-
+function win() {
+    addLog(`✨ ${enemy.name}を撃破！`);
+    player.exp += 15 + player.floor;
+    player.floor++;
+    dropItem();
+    checkLevelUp();
+    createEnemy();
 }
 
-
-
-function load(){
-
-let data=localStorage.ultimateSave
-
-if(data){
-
-player=
-JSON.parse(data)
-
-createEnemy()
-
-refresh()
-
-alert("ロード完了")
-
+function checkLevelUp() {
+    while (player.exp >= player.expMax) {
+        player.exp -= player.expMax;
+        player.level++;
+        player.expMax = Math.floor(player.expMax * 1.2);
+        addLog(`<span style="color:var(--secondary)">🆙 LEVEL UP! Lv.${player.level}</span>`);
+        player.hp = player.maxhp;
+    }
 }
 
+function dropItem() {
+    if (Math.random() < 0.4) {
+        const isWeapon = Math.random() < 0.5;
+        const rIndex = Math.random() < 0.1 ? rand(5) : rand(3); // 10%で高レア
+        const item = {
+            id: Date.now() + Math.random(),
+            type: isWeapon ? "weapon" : "armor",
+            name: isWeapon ? weaponNames[rand(6)] : armorNames[rand(6)],
+            atk: rand(player.floor * 2) + 1,
+            def: rand(player.floor * 2) + 1,
+            rarity: rarity[rIndex]
+        };
+        player.inventory.push(item);
+        addLog(`🎁 アイテム入手: ${item.name}`);
+    }
 }
 
+function toggleEquip(itemId) {
+    const item = player.inventory.find(i => i.id === itemId);
+    if (!item) return;
 
-
-function createEnemy(){
-
-let f=player.floor
-
-enemy={
-
-name:["スライム","ゴブリン","オーク","騎士","悪魔","神兵"][rand(6)],
-
-hp:50+f*20,
-
-atk:5+f*5,
-
-def:3+f*3
-
+    if (item.type === "weapon") {
+        player.weapon = (player.weapon && player.weapon.id === item.id) ? null : item;
+    } else {
+        player.armor = (player.armor && player.armor.id === item.id) ? null : item;
+    }
+    refresh();
 }
 
-enemy.maxhp=enemy.hp
-
+function clearInventory() {
+    player.inventory = player.inventory.filter(it => 
+        (player.weapon && it.id === player.weapon.id) || 
+        (player.armor && it.id === player.armor.id)
+    );
+    refresh();
 }
 
-
-
-function calc(){
-
-player.atk=10+player.level*3
-player.def=5+player.level*2
-
-if(player.weapon){
-
-player.atk+=player.weapon.atk
-player.def+=player.weapon.def
-
+function autoToggle() {
+    player.auto = !player.auto;
+    if (player.auto) {
+        autoInterval = setInterval(attack, 600);
+    } else {
+        clearInterval(autoInterval);
+    }
+    refresh();
 }
 
-if(player.armor){
+function refresh() {
+    calc();
+    
+    // プレイヤー情報
+    document.getElementById("player-info").innerHTML = `<b>Lv.${player.level}</b> ${player.job}<br>Floor: ${player.floor}`;
+    document.getElementById("player-stats").innerHTML = `⚔️${player.atk} 🛡️${player.def}`;
+    
+    document.getElementById("hp").style.width = (player.hp / player.maxhp * 100) + "%";
+    document.getElementById("exp").style.width = (player.exp / player.expMax * 100) + "%";
 
-player.atk+=player.armor.atk
-player.def+=player.armor.def
+    // 敵情報
+    document.getElementById("enemy-name").innerText = `Lv.${player.floor} ${enemy.name}`;
+    document.getElementById("enemyhp").style.width = (enemy.hp / enemy.maxhp * 100) + "%";
 
+    // AUTOボタン
+    const ab = document.getElementById("autoBtn");
+    ab.innerText = player.auto ? "AUTO: ON" : "AUTO: OFF";
+    ab.className = player.auto ? "btn-auto on" : "btn-auto";
+
+    // 装備タブの描画
+    const eqArea = document.getElementById("equipped-area");
+    eqArea.innerHTML = `
+        <div class="item-card">武器: ${player.weapon ? player.weapon.name : 'なし'} (ATK+${player.weapon?player.weapon.atk:0})</div>
+        <div class="item-card">防具: ${player.armor ? player.armor.name : 'なし'} (DEF+${player.armor?player.armor.def:0})</div>
+    `;
+
+    // 所持品
+    document.getElementById("inventory").innerHTML = player.inventory.map(it => {
+        const isEquipped = (player.weapon && it.id === player.weapon.id) || (player.armor && it.id === player.armor.id);
+        return `
+            <div class="item-card ${it.rarity}">
+                <div>
+                    <b>${it.name}</b> ${isEquipped ? '<span class="equipped-tag">装備中</span>' : ''}<br>
+                    <small>ATK:${it.atk} DEF:${it.def} [${it.rarity.toUpperCase()}]</small>
+                </div>
+                <button onclick="toggleEquip(${it.id})" style="background:${isEquipped ? '#555' : 'var(--secondary)'}">
+                    ${isEquipped ? '外す' : '装備'}
+                </button>
+            </div>
+        `;
+    }).join("");
+
+    // ジョブリスト
+    document.getElementById("jobList").innerHTML = Object.keys(jobs).map(j => `
+        <div class="item-card" style="border:none; border-bottom:1px solid #333;">
+            <div><b>${j}</b><br><small>${jobs[j].desc}</small></div>
+            <button onclick="changeJob('${j}')" ${player.job === j ? 'disabled' : ''}>${player.job === j ? '選択中' : '変更'}</button>
+        </div>
+    `).join("");
 }
 
-
-let j=jobs[player.job]
-
-player.atk=
-Math.floor(player.atk*j.atk)
-
-player.def=
-Math.floor(player.def*j.def)
-
+function changeJob(j) {
+    player.job = j;
+    addLog(`💼 ジョブを${j}に変更しました`);
+    refresh();
 }
 
-
-
-function attack(){
-
-let dmg=
-Math.max(1,player.atk-enemy.def)
-
-enemy.hp-=dmg
-
-log("攻撃 "+dmg)
-
-
-if(enemy.hp<=0){
-
-win()
-
-}else{
-
-enemyAttack()
-
+function addLog(msg) {
+    const l = document.getElementById("log");
+    l.innerHTML += `<div>${msg}</div>`;
+    if(l.childNodes.length > 20) l.removeChild(l.firstChild);
 }
 
-refresh()
+function rand(v) { return Math.floor(Math.random() * v); }
 
+function tab(id, btn) {
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+    document.querySelectorAll(".tab-b").forEach(b => b.classList.remove("active-btn"));
+    btn.classList.add("active-btn");
 }
 
-
-
-function enemyAttack(){
-
-let dmg=
-Math.max(1,enemy.atk-player.def)
-
-player.hp-=dmg
-
-log("被弾 "+dmg)
-
-
-if(player.hp<=0){
-
-player.hp=player.maxhp
-
-player.floor--
-
-createEnemy()
-
+function moveFloor() {
+    const f = parseInt(document.getElementById("floorInput").value);
+    if (!isNaN(f) && f > 0) {
+        player.floor = f;
+        createEnemy();
+        addLog(`🚀 第${f}階層へ転送しました`);
+        refresh();
+    }
 }
 
+function save() {
+    localStorage.ultimateSave = JSON.stringify(player);
+    alert("データを保存しました");
 }
 
-
-
-function win(){
-
-log("撃破")
-
-player.exp+=20
-
-player.floor++
-
-drop()
-
-levelup()
-
-createEnemy()
-
+function load() {
+    if (localStorage.ultimateSave) {
+        player = JSON.parse(localStorage.ultimateSave);
+        createEnemy();
+        refresh();
+    }
 }
 
-
-
-function levelup(){
-
-while(player.exp>=player.expMax){
-
-player.exp-=player.expMax
-
-player.level++
-
-player.expMax=
-Math.floor(player.expMax*1.3)
-
-player.maxhp+=20
-
-player.hp=player.maxhp
-
-}
-
-calc()
-
-}
-
-
-
-function drop(){
-
-if(Math.random()<0.7){
-
-let type=
-Math.random()<0.5?"weapon":"armor"
-
-
-let item={
-
-type,
-
-name:
-(type=="weapon"?
-weaponNames[rand(6)]
-:
-armorNames[rand(6)]),
-
-atk:rand(10),
-
-def:rand(10),
-
-rarity:
-rarity[rand(5)]
-
-}
-
-player.inventory.push(item)
-
-}
-
-}
-
-
-
-function equip(i){
-
-let it=player.inventory[i]
-
-if(it.type=="weapon")
-player.weapon=it
-
-else
-player.armor=it
-
-
-calc()
-
-refresh()
-
-}
-
-
-
-function clearEquip(){
-
-player.inventory=
-player.inventory.filter(
-
-it=>it!=player.weapon
-&& it!=player.armor
-
-)
-
-refresh()
-
-}
-
-
-
-function moveFloor(){
-
-let f=
-parseInt(floorInput.value)
-
-if(!isNaN(f)){
-
-player.floor=f
-
-createEnemy()
-
-refresh()
-
-}
-
-}
-
-
-
-function autoToggle(){
-
-player.auto=!player.auto
-
-if(player.auto)
-auto()
-
-refresh()
-
-}
-
-
-
-function auto(){
-
-if(!player.auto)return
-
-attack()
-
-setTimeout(auto,500)
-
-}
-
-
-
-function refresh(){
-
-calc()
-
-
-player.innerHTML=
-
-"階層:"+player.floor+
-
-"<br>Lv:"+player.level+
-
-"<br>ATK:"+player.atk+
-
-"<br>DEF:"+player.def+
-
-"<br>JOB:"+player.job
-
-
-
-hp.style.width=
-
-(player.hp/player.maxhp*100)+"%"
-
-
-
-exp.style.width=
-
-(player.exp/player.expMax*100)+"%"
-
-
-
-enemyhp.style.width=
-
-(enemy.hp/enemy.maxhp*100)+"%"
-
-
-enemy.innerHTML=
-
-enemy.name+
-"<br>HP:"+enemy.hp
-
-
-autoBtn.innerHTML=
-
-player.auto?
-"AUTO ON":
-"AUTO OFF"
-
-
-
-equipped.innerHTML=
-
-"武器:"+
-(player.weapon?player.weapon.name:"なし")+
-
-"<br>防具:"+
-(player.armor?player.armor.name:"なし")
-
-
-
-inventory.innerHTML=
-
-player.inventory.map(
-
-(it,i)=>
-
-'<div class="item '+it.rarity+'">'+
-
-it.name+
-
-" ATK:"+it.atk+
-
-" DEF:"+it.def+
-
-'<button onclick="equip('+i+')">装備</button>'
-
-+"</div>"
-
-).join("")
-
-
-
-jobNow.innerHTML=player.job
-
-
-
-jobList.innerHTML=
-
-Object.keys(jobs).map(
-
-j=>
-
-j+
-" "+jobs[j].desc+
-
-'<button onclick="changeJob("'+j+'")">変更</button><hr>'
-
-).join("")
-
-
-
-}
-
-
-
-function changeJob(j){
-
-player.job=j
-
-calc()
-
-refresh()
-
-}
-
-
-
-function log(t){
-
-log.innerHTML=
-t+"<br>"+log.innerHTML
-
-}
-
-
-
-function rand(v){
-
-return Math.floor(Math.random()*v)
-
-}
-
-
-
-function tab(t){
-
-document.querySelectorAll(".tab")
-
-.forEach(x=>x.classList.remove("active"))
-
-document.getElementById(t)
-
-.classList.add("active")
-
-}
-
-
-
-newPlayer()
-
-createEnemy()
-
-refresh()
-
+// 開始
+newPlayer();
+createEnemy();
+refresh();
 </script>
-
 </body>
 </html>
