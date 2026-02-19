@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Infinite Relic - Unique Loot Edition</title>
+<title>Infinite Relic - Full Specs</title>
 <style>
     :root {
         --bg: #0d0d0d; --card: #1a1a1a; --primary: #00e676; 
@@ -47,6 +47,10 @@
     .btn-main { width:100%; padding:15px; background:var(--primary); font-weight:bold; border-radius:8px; border:none; color:#000; font-size: 1.2em; touch-action: none; margin-bottom: 8px; }
     #log { height: 160px; overflow-y: auto; background: #000; padding: 10px; font-size: 0.75em; border-radius: 5px; display: flex; flex-direction: column-reverse; line-height: 1.4; }
     .eq-badge { background: var(--legend); color: #000; padding: 2px 4px; border-radius: 3px; font-size: 0.7em; font-weight: bold; margin-right: 5px; }
+    
+    .save-area { background: #111; padding: 10px; border-radius: 5px; margin-top: 10px; }
+    .save-box { width: 100%; background: #000; color: #0f0; font-size: 0.7em; border: 1px solid #333; padding: 5px; box-sizing: border-box; resize: none; }
+    .btn-save { width: 100%; padding: 10px; margin-top: 5px; background: #333; color: #eee; border: none; border-radius: 4px; font-size: 0.8em; }
 </style>
 </head>
 <body>
@@ -105,18 +109,22 @@
     最高到達: <span id="maxFloorDisp">1</span>F
     <input type="range" id="floorRange" min="1" style="width:100%; margin: 20px 0;" oninput="updateFloorVal(this.value)">
     <div id="floorVal" style="text-align:center; font-size:2em; font-weight: bold; color: var(--secondary);">1</div>
-    <button onclick="moveFloor()" style="width:100%; padding:15px; background:var(--secondary); font-weight:bold; border-radius:8px;">移動実行</button>
-    <hr style="border:0; border-top:1px solid #444; margin:20px 0;">
-    <textarea id="saveCode" class="save-box" rows="3" readonly></textarea>
+    <button onclick="moveFloor()" style="width:100%; padding:15px; background:var(--secondary); font-weight:bold; border-radius:8px; border:none; color:#000;">移動実行</button>
+    
+    <div class="save-area">
+        <div style="font-size: 0.8em; margin-bottom: 5px; color: #888;">セーブデータ (コピー/貼り付け)</div>
+        <textarea id="saveInput" class="save-box" rows="4" placeholder="ここにセーブコードを貼り付け"></textarea>
+        <button class="btn-save" onclick="importSave()">コードから復元（再起動）</button>
+        <button class="btn-save" onclick="copySaveCode()">現在のコードをコピー</button>
+    </div>
 </div>
 
 <script>
 let p, e, autoIdx, pressIdx;
 let currentEquipTab = 'weapon';
-const SAVE_KEY = "IR_FINAL_SAVE_SYSTEM_V3";
+const SAVE_KEY = "IR_FINAL_SAVE_V4_STABLE";
 const RARE_LEVELS = { "common": 0, "uncommon": 1, "rare": 2, "epic": 3, "legend": 4 };
 
-// 二つ名リスト
 const itemPrefixes = [
     {n:"壊れた", m:0.6}, {n:"鈍い", m:0.8}, {n:"普通の", m:1.0}, {n:"鋭い", m:1.2}, 
     {n:"熟練の", m:1.4}, {n:"王家の", m:1.6}, {n:"伝説の", m:2.0}, {n:"神話の", m:2.5},
@@ -129,7 +137,7 @@ const jobData = {
     "アサシン": { skill: "急所", desc: "攻撃4倍", proc: 0.1 },
     "魔法使い": { skill: "ドレイン", desc: "50%回復", proc: 0.15 },
     "狩人": { skill: "集中", desc: "1.5倍必中", proc: 0.25 },
-    "聖騎士": { skill: "慈愛", desc: "被ダメ回復", proc: 0.2 },
+    "聖騎士": { skill: "慈愛", desc: "被ダメ分回復", proc: 0.2 },
     "暗殺王": { skill: "即死", desc: "攻撃10倍", proc: 0.05 },
     "賢者": { skill: "連鎖", desc: "3倍＋回復", proc: 0.15 }
 };
@@ -138,6 +146,7 @@ function init() {
     const saved = localStorage.getItem(SAVE_KEY);
     p = saved ? JSON.parse(saved) : createNewPlayer();
     if(!p.lootFilter) p.lootFilter = "common";
+    
     document.getElementById("checkAuto").checked = p.auto;
     document.getElementById("checkStay").checked = p.stay;
     document.getElementById("lootFilter").value = p.lootFilter;
@@ -158,7 +167,26 @@ function createNewPlayer() {
 
 function save() { 
     localStorage.setItem(SAVE_KEY, JSON.stringify(p)); 
-    document.getElementById("saveCode").value = btoa(unescape(encodeURIComponent(JSON.stringify(p))));
+    document.getElementById("saveInput").value = btoa(unescape(encodeURIComponent(JSON.stringify(p))));
+}
+
+function copySaveCode() {
+    const box = document.getElementById("saveInput");
+    box.select();
+    document.execCommand("copy");
+    alert("コピーしました！");
+}
+
+function importSave() {
+    const code = document.getElementById("saveInput").value;
+    if (code) {
+        try {
+            const decoded = JSON.parse(decodeURIComponent(escape(atob(code))));
+            p = decoded;
+            save();
+            location.reload();
+        } catch(e) { alert("無効なコードです"); }
+    }
 }
 
 function spawn() {
@@ -261,17 +289,19 @@ function refresh() {
 
     document.getElementById("jobList").innerHTML = Object.keys(jobData).map(j => {
         const lv = p.jobLevels[j];
-        return `<div class="item-card ${lv>=10?'legend':''}" style="flex-direction:row; justify-content:space-between; align-items:center;">
-            <div><b>${j} (Lv.${lv})</b><br><small>${jobData[j].skill}</small></div>
+        const isPassive = lv >= 10;
+        return `<div class="item-card ${isPassive?'legend':''}" style="flex-direction:row; justify-content:space-between; align-items:center;">
+            <div style="flex:1">
+                <b>${j} (Lv.${lv})</b> ${isPassive?'<small style="color:var(--legend)">(Passive!)</small>':''}<br>
+                <small style="opacity:0.8;">【${jobData[j].skill}】${jobData[j].desc}</small>
+            </div>
             <button onclick="p.job='${j}';save();refresh();" ${p.job===j?'disabled':''}>転職</button>
         </div>`;
     }).join("");
 }
 
 function deleteItem(id) {
-    if (p.weapon?.id === id || p.armor?.id === id || p.acc?.id === id) {
-        alert("装備中は売却できません"); return;
-    }
+    if (p.weapon?.id === id || p.armor?.id === id || p.acc?.id === id) { alert("装備中は売却できません"); return; }
     p.inventory = p.inventory.filter(i => i.id !== id);
     save(); refresh();
 }
