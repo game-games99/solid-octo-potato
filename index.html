@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Infinite Relic - Relic Hunter Edition</title>
+<title>Infinite Relic - Monster & Relic</title>
 <style>
     :root {
         --bg: #0d0d0d; --card: #1a1a1a; --primary: #00e676; 
@@ -42,8 +42,8 @@
 <body>
 
 <div id="control-panel">
-    <div style="display:flex; gap:10px; margin-bottom:5px;">
-        <label><input type="checkbox" id="checkAuto" onchange="toggleAuto(this.checked)"> オート</label>
+    <div style="display:flex; gap:10px;">
+        <label><input type="checkbox" id="checkAuto" onchange="toggleAuto(this.checked)"> オート探索</label>
         <label><input type="checkbox" id="checkStay" onchange="toggleStay(this.checked)"> 階層維持</label>
     </div>
 </div>
@@ -55,12 +55,12 @@
     </div>
     <div style="font-size:0.75em; margin-bottom:4px; display:flex; justify-content:space-between;">
         <span id="p-stats">⚔️0 🛡️0</span>
-        <span id="p-crit">🎯5% | 💡EXP+0%</span>
+        <span id="p-crit">🎯5%</span>
     </div>
-    <div class="bar"><div id="hp" class="fill"></div></div>
-    <div class="bar"><div id="exp" class="fill"></div></div>
-    <div class="bar"><div id="jobexp" class="fill"></div></div>
-    <button class="btn-main" id="attackBtn">ATTACK</button>
+    HP<div class="bar"><div id="hp" class="fill"></div></div>
+    EXP<div class="bar"><div id="exp" class="fill"></div></div>
+    JOB<div class="bar"><div id="jobexp" class="fill"></div></div>
+    <button class="btn-main" id="attackBtn">ATTACK (長押し可)</button>
 </div>
 
 <div class="nav">
@@ -71,8 +71,8 @@
 </div>
 
 <div id="battle" class="tab active">
-    <div id="e-name" style="font-weight:bold; font-size:0.9em; margin-bottom:5px;"></div>
-    <div class="bar" style="height:10px;"><div id="enemyhp" class="fill" style="background:var(--danger)"></div></div>
+    <div id="e-name" style="font-weight:bold; font-size:0.9em; margin-bottom:5px; color:var(--danger);"></div>
+    <div class="bar" style="height:12px;"><div id="enemyhp" class="fill" style="background:var(--danger)"></div></div>
     <div id="log"></div>
 </div>
 
@@ -84,7 +84,7 @@
     </div>
     <div style="display:flex; gap:5px; margin-bottom:10px;">
         <button class="btn-action" onclick="sortInventory()" style="flex:1; background:var(--secondary); color:#000;">最強順</button>
-        <button class="btn-action" onclick="bulkDelete()" style="flex:1; background:var(--danger);">一括売却(未ロック)</button>
+        <button class="btn-action" onclick="bulkDelete()" style="flex:1; background:var(--danger);">一括売却(ロック以外)</button>
     </div>
     <div id="inventory"></div>
 </div>
@@ -92,33 +92,36 @@
 <div id="job" class="tab"><div id="jobList"></div></div>
 
 <div id="move" class="tab">
-    <div style="text-align:center; padding:20px;">
-        <span id="maxFloorDisp">1</span>F まで到達済み
-        <input type="range" id="floorRange" min="1" max="1" style="width:100%;" oninput="updateFloorVal(this.value)">
-        <div id="floorVal" style="font-size:2em; font-weight: bold; color: var(--secondary);">1</div>
-        <button class="btn-main" onclick="moveFloor()" style="background:var(--secondary)">移動</button>
-    </div>
-    <textarea id="saveInput" style="width:100%; background:#000; color:#0f0; font-size:0.6em;" rows="4"></textarea>
-    <button class="btn-action" onclick="copySaveCode()" style="width:100%; margin-top:5px;">セーブコピー</button>
-    <button class="btn-action" onclick="importSave()" style="width:100%; margin-top:5px;">データ復元</button>
+    最高到達: <span id="maxFloorDisp">1</span>F
+    <input type="range" id="floorRange" min="1" max="1" style="width:100%; margin:20px 0;" oninput="updateFloorVal(this.value)">
+    <div id="floorVal" style="text-align:center; font-size:2em; font-weight:bold; color:var(--secondary);">1</div>
+    <button class="btn-main" onclick="moveFloor()" style="background:var(--secondary)">移動実行</button>
+    <textarea id="saveInput" style="width:100%; background:#000; color:#0f0; font-size:0.6em; margin-top:10px;" rows="4"></textarea>
+    <button class="btn-action" onclick="copySaveCode()" style="width:100%; margin-top:5px;">データ出力</button>
+    <button class="btn-action" onclick="importSave()" style="width:100%; margin-top:5px;">データ入力</button>
 </div>
 
 <script>
 let p, e, autoIdx, longPressIdx;
 let currentEquipTab = 'weapon';
-const SAVE_KEY = "IR_RELIC_V9";
+const SAVE_KEY = "IR_FIXED_V10";
 
-const JOBS = {
-    "戦士": { s:["強撃","頑強","咆哮","鍛錬","一閃"], eff:["攻撃力+5%","最大HP+5%","攻撃力+10%","全ステ+5%","最終ダメージ+20%"], desc:"物理攻撃のスペシャリスト。力強い一撃を放つ。" },
-    "騎士": { s:["防陣","挑発","守護","献身","不屈"], eff:["防御力+10%","被ダメ-5%","防御力+15%","最大HP+10%","HP1で耐える(5%)"], desc:"鉄壁の守りを誇る盾。生存能力が非常に高い。" },
-    "盗賊": { s:["目利き","隠密","強奪","俊足","急所"], eff:["ドロップ率+5%","回避+5%","獲得金+20%","行動速度+10%","クリ倍率+50%"], desc:"素早い動きで敵を翻弄し、お宝を奪い去る。" }
-};
+// モンスター二つ名
+const enemyPre = ["凶暴な", "深淵の", "飢えた", "光る", "古の", "汚染された", "幻影の", "呪われた", "虚ろな", "震える"];
+const enemyName = ["スライム", "ゴブリン", "スケルトン", "オーク", "ドラゴン", "魔導士", "ゴーレム", "影", "巨像", "悪魔"];
 
+// 装備二つ名
 const itemPre = [
     {n:"壊れた", m:0.5}, {n:"なまくらな", m:0.8}, {n:"普通の", m:1.0}, {n:"鋭い", m:1.3}, 
     {n:"名匠の", m:1.8}, {n:"魔力の", m:2.2}, {n:"神の", m:3.5}, {n:"呪われた", m:5.0}
 ];
-const itemSuf = ["剣", "槍", "刀", "斧", "甲冑", "ローブ", "指輪", "首飾り"];
+const itemSuf = { weapon:"の剣", armor:"の鎧", acc:"の珠" };
+
+const JOBS = {
+    "戦士": { s:["強撃","頑強","咆哮","鍛錬","一閃"], eff:["攻撃+5%","HP+5%","攻撃+10%","全ステ+5%","ダメ2倍(10%)"], desc:"近接戦闘の基礎。攻撃力が上がりやすい。" },
+    "騎士": { s:["防陣","挑発","守護","献身","不屈"], eff:["防御+10%","ダメ軽減5%","防御+15%","HP+10%","致死回避(5%)"], desc:"守備の要。高い防御力で耐え凌ぐ。" },
+    "盗賊": { s:["目利き","隠密","強奪","俊足","急所"], eff:["ドロップ+5%","回避+5%","経験値+10%","速度+10%","クリ倍率UP"], desc:"素早さと運に特化。アイテム集めに最適。" }
+};
 
 function init() {
     const saved = localStorage.getItem(SAVE_KEY);
@@ -140,25 +143,40 @@ function createNewPlayer() {
 
 function spawn() {
     const f = p.floor;
-    e = { name: "Lv."+f+" モンスター", hp:(20+f*25), maxhp:(20+f*25), atk:(5+f*5), def:(2+f*3) };
+    const isBoss = f % 50 === 0;
+    const pre = enemyPre[Math.floor(Math.random()*enemyPre.length)];
+    const name = enemyName[Math.floor(Math.random()*enemyName.length)];
+    const mult = isBoss ? 15 : 1;
+    e = { 
+        name: (isBoss ? "【BOSS】" : "") + pre + name, 
+        hp: (20+f*25)*mult, maxhp: (20+f*25)*mult, 
+        atk: (5+f*5)*(isBoss?1.5:1), def: (2+f*3)*(isBoss?1.5:1) 
+    };
+}
+
+function calc() {
+    p.maxhp = 100 + (p.lv * 30);
+    let a = 10 + (p.lv * 6), d = 5 + (p.lv * 4);
+    [p.weapon, p.armor, p.acc].forEach(it => { if(it){ a+=it.atk; d+=it.def; p.maxhp+=it.hp; } });
+    p.atk = Math.floor(a); p.def = Math.floor(d); p.critRate = 5 + (p.acc?p.acc.crit:0);
 }
 
 function attack() {
-    if (e.hp <= 0) return;
+    if (!e || e.hp <= 0) return;
     calc();
     let dmg = Math.max(1, p.atk - e.def) * (0.9 + Math.random()*0.2) * (Math.random()<p.critRate/100?2:1);
     e.hp -= Math.floor(dmg);
     if (e.hp <= 0) return win();
     p.hp -= Math.max(1, e.atk - p.def);
-    if (p.hp <= 0) { p.hp = p.maxhp; if(!p.stay) p.floor = Math.max(1, p.floor-5); spawn(); }
+    if (p.hp <= 0) { p.hp = p.maxhp; if(!p.stay) p.floor = Math.max(1, p.floor-5); spawn(); addLog("💀敗北..."); }
     refresh();
 }
 
 function win() {
     p.exp += Math.floor(20 + p.floor * 2);
     p.jobExp[p.job] += 20;
-    if (p.jobExp[p.job] >= p.jobLevels[p.job]*100) { p.jobExp[p.job]=0; p.jobLevels[p.job]++; }
-    if (p.exp >= p.expMax) { p.lv++; p.exp=0; p.expMax *= 1.3; p.hp=p.maxhp; }
+    if (p.jobExp[p.job] >= p.jobLevels[p.job]*100) { p.jobExp[p.job]=0; p.jobLevels[p.job]++; addLog(`✨Job Up!`); }
+    if (p.exp >= p.expMax) { p.lv++; p.exp=0; p.expMax *= 1.3; p.hp=p.maxhp; addLog(`🎉Lv Up!`); }
     if (!p.stay) { p.floor++; if(p.floor > p.maxFloor) p.maxFloor = p.floor; }
     if (Math.random() < 0.4) drop();
     spawn(); save(); refresh();
@@ -167,27 +185,19 @@ function win() {
 function drop() {
     const r = Math.random();
     let rare = r < 0.05 ? "legend" : r < 0.15 ? "epic" : r < 0.3 ? "rare" : r < 0.6 ? "uncommon" : "common";
-    const pre = itemPre[Math.floor(Math.random()*itemPre.length)];
-    const suf = itemSuf[Math.floor(Math.random()*itemSuf.length)];
     const type = ["weapon", "armor", "acc"][Math.floor(Math.random()*3)];
+    const pre = itemPre[Math.floor(Math.random()*itemPre.length)];
     
     let item = { 
         id: Date.now()+Math.random(), type, rarity: rare, lock: false,
-        name: `${pre.n}${suf}`,
-        atk: type==="weapon" ? Math.floor(p.floor * 5 * pre.m * (1+Math.random())) : 0,
-        def: type==="armor" ? Math.floor(p.floor * 4 * pre.m * (1+Math.random())) : 0,
+        name: `${pre.n}${itemSuf[type]}`,
+        atk: type==="weapon" ? Math.floor(p.floor * 5 * pre.m * (0.8+Math.random()*0.4)) : 0,
+        def: type==="armor" ? Math.floor(p.floor * 4 * pre.m * (0.8+Math.random()*0.4)) : 0,
         hp: type==="acc" ? Math.floor(p.floor * 30 * pre.m) : 0,
         crit: type==="acc" ? Math.floor(Math.random()*15) : 0
     };
     p.inventory.push(item);
     addLog(`<span style="color:var(--${rare})">🎁${item.name}</span>`);
-}
-
-function calc() {
-    p.maxhp = 100 + (p.lv * 30);
-    let a = 10 + (p.lv * 6), d = 5 + (p.lv * 4);
-    [p.weapon, p.armor, p.acc].forEach(it => { if(it){ a+=it.atk; d+=it.def; p.maxhp+=it.hp; } });
-    p.atk = Math.floor(a); p.def = Math.floor(d); p.critRate = 5;
 }
 
 function refresh() {
