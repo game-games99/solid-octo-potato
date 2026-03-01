@@ -136,7 +136,7 @@ RELICORE（以下「本サービス」）は、ユーザーのプライバシー
 <strong>4. 外部サービスの利用について</strong><br>
 本サービスがGoogle Analytics等の外部サービスを利用する場合、それらのサービス提供者のプライバシーポリシーが適用される場合があります。<br><hr class="policy-divider">
 <strong>5. データの保存について</strong><br>
-ゲームデータはユーザーのブラウザ内に保存されます。ブラウザの削除やキャッシュクリア等によりデータが消失する場合があります。<br><hr class="policy-divider">
+ゲームデータはユーザーのブラウザ内に保存されます。ブラウザ의 削除やキャッシュクリア等によりデータが消失する場合があります。<br><hr class="policy-divider">
 <strong>6. 免責事項</strong><br>
 本サービスの利用により生じた損害について、開発者は一切の責任を負いません。<br><hr class="policy-divider">
 <strong>7. 改定</strong><br>
@@ -214,26 +214,24 @@ let isModalOpen = false;
 
 const PLAYER_TITLES = ["初心者", "修練者", "熟練者", "探求者", "到達者", "解放者", "支配者", "超越者", "救世主", "極致：唯一神"];
 
-// 指定された経験値テーブルに基づき、純粋なレベルを算出
-function getBaseLevelByDeath() { 
-  const exp = player.deathCount;
-  if (exp >= 5040000) return 10; // 極致
-  if (exp >= 3000000) return 9;  // 救世主
-  if (exp >= 1500000) return 8;  // 超越者
-  if (exp >= 720000)  return 7;  // 支配者
-  
-  // それ以下（Lv.1〜6）
-  if (exp >= 120000) return 6;
-  if (exp >= 30000)  return 5;
-  if (exp >= 6000)   return 4;
-  if (exp >= 2000)   return 3;
-  if (exp >= 1000)   return 2;
-  return 1;
-}
+// 昇格条件テーブルの固定
+const EXP_THRESHOLDS = [
+    0,          // Lv1
+    1000,       // Lv2
+    2000,       // Lv3
+    6000,       // Lv4
+    24000,      // Lv5
+    120000,     // Lv6
+    720000,     // Lv7
+    1500000,    // Lv8
+    3000000,    // Lv9
+    5040000     // Lv10
+];
 
-// 遺物ボーナスを含めた最終表示レベル
-function getLevelByDeath() {
-  return getBaseLevelByDeath() + (player.inventory[601] || 0);
+function getLevelByDeath() { 
+  let lv = 1; 
+  while (lv < 10 && player.deathCount >= EXP_THRESHOLDS[lv]) lv++; 
+  return lv + (player.inventory[601] || 0);
 }
 
 const RELIC_MASTER = [
@@ -248,7 +246,7 @@ const RELIC_MASTER = [
   {id:504, star:5, name:"破壊の権能", atk:999999, hp:0, desc:"1つにつき、最終ダメージを+1%加算。"},
   {id:601, star:6, name:"絶対統率レリック・オーバーロード", atk:1500000, hp:4500000, mult:1.1, desc:"1個につき再起スキルLv上限を無視して+1。"}, 
   {id:602, star:6, name:"魂律解放レリ・クシア", atk:2500000, hp:3500000, mult:1.1, desc:"刻んだ遺物の総数分、ATKを加算。"}, 
-  {id:603, star:6, name:"原初核冠レリコア・レガリア", atk:2000000, hp:4000000, mult:1.1, desc:"所持遺物の種類数×1% Damage gain."}, 
+  {id:603, star:6, name:"原初核冠レリコア・レガリア", atk:2000000, hp:4000000, mult:1.1, desc:"所持遺物の種類数×1%의 ダメージ倍率加算。"}, 
   {id:604, star:6, name:"虚無終焉レリ・ノヴァ", atk:5000000, hp:0, mult:1.1, desc:"最終ダメージ倍率に+999%加算。"},
   {id:701, star:7, name:"パンドラの箱", atk:150000000, hp:350000000, mult:100.0, desc:"神を屠る唯一の条件。災厄の底に希望を宿す。"}, {id:702, star:7, name:"終焉の福音", atk:200000000, hp:450000000, mult:150.0, desc:"終わりの始まりを告げる、黄金の調べ。"}, {id:703, star:7, name:"神滅のアカシックレコード", atk:100000000, hp:550000000, mult:200.0, desc:"全宇宙の事象を書き換え、神話を否定する。"}
 ];
@@ -352,7 +350,7 @@ function attack() {
       let minCut = (lv * 2) + Math.min(30, player.inventory[403] || 0); 
       let finalMitigated = BigInt(Math.floor(Number(MAJIN_ATK_BASE * BigInt(player.uraAtkMult)) * (1 - (Math.floor(Math.random() * (101 - minCut)) + minCut) / 100))) - BigInt((player.inventory[501] || 0) * 500000);
       if(finalMitigated < 0n) finalMitigated = 0n;
-      const oldLv = getBaseLevelByDeath(); // 基礎レベルで比較
+      const oldLv = getLevelByDeath();
       if (currentTotalHP > finalMitigated) {
           player.deathCount += totalPolish;
           logHtml += `<div><span style="color:#28a745; font-weight:bold;">敵の攻撃！${finalMitigated.toLocaleString()} ダメージ。障壁展開！</span></div>` + getGuaranteedDrop();
@@ -362,7 +360,7 @@ function attack() {
           player.baseHP += totalUpHP; player.deathCount += totalPolish;
           logHtml += `<div><span style="color:#dc3545;">敵の攻撃！${finalMitigated.toLocaleString()} ダメージ。</span><span style="color:#007bff; font-weight:bold;">再起の誓いによって新たなる力を得た </span><span style="color:var(--growth); font-weight:bold;">(基礎HP+${totalUpHP.toLocaleString()})</span></div>`;
       }
-      if(getBaseLevelByDeath() > oldLv) openRankUpModal(getLevelByDeath());
+      if(getLevelByDeath() > oldLv) openRankUpModal(getLevelByDeath());
   }
   addLog(logHtml); saveGame(); refreshUI();
 }
@@ -459,6 +457,7 @@ function renderRelics() {
 }
 
 function renderStatus() {
+  const lv = getLevelByDeath(); 
   document.getElementById("st-totalclicks").innerText = player.totalClicks.toLocaleString();
   document.getElementById("v-death").innerText = player.deathCount.toLocaleString();
   document.getElementById("st-totalrelics").innerText = (player.totalRelics || 0).toLocaleString();
