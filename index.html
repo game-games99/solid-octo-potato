@@ -307,7 +307,7 @@ function renderVow() {
           const baseRate = 0.00004 * lv;
           const kamaBonus = kamaCount * 0.0004;
           // UI表示を最新の計算ロジックに合わせる
-          highlight = `上昇率：+${baseRate.toFixed(5)}%/exp ${kamaCount > 0 ? '【死刻：倍率+' + kamaBonus.toFixed(4) + '%】' : ''} / 最終倍率：x${calcFinalDmgMult().toFixed(6)}`;
+          highlight = `上昇率：+${baseRate.toFixed(5)}%/総攻撃数 ${kamaCount > 0 ? '【死刻：倍率+' + kamaBonus.toFixed(4) + '%】' : ''} / 最終倍率：x${calcFinalDmgMult().toFixed(6)}`;
       }
       const isMax = lv >= 10;
       const lvText = isMax ? `<span class="vow-lv max">極 (Lv.${lv})</span>` : `<span class="vow-lv">Lv.${lv}</span>`;
