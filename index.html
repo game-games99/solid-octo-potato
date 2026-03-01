@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>RELICORE - v1.8</title>
+<title>RELICORE - v1.9</title>
 <style>
 :root { --bg: #ffffff; --panel: #f8f9fa; --border: #dee2e6; --primary: #007bff; --text: #212529; --hp: #dc3545; --dark: #1a1a1a; --gold: #d4af37; --growth: #ff69b4; --relic-purple: #6610f2; --relic-bg: #fcfaff; }
 * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; box-sizing: border-box; }
@@ -179,7 +179,7 @@ RELICORE 開発者　げぇいむ＆AI
  <div class="privacy-link" onclick="openPolicy()">プライバシーポリシー</div>
 </div>
 </div>
-<div class="ver-footer">RELICORE v1.8</div>
+<div class="ver-footer">RELICORE v1.9</div>
 <script>
 const SAVE_KEY = "relicore_player_data";
 const BOSS_MAX_HP_BASE = 100000000000000000000n;
@@ -222,7 +222,7 @@ const RELIC_MASTER = [
 {id:401, star:4, name:"【不退転】武神の魂", atk:65000, hp:180000, desc:"獲得遺物ボーナス増加。"}, {id:402, star:4, name:"【刹那】聖者の遺志", atk:50000, hp:250000, desc:"HP増加時の増加幅を+5（重複可）。"}, {id:403, star:4, name:"【因果】魔導王の記憶", atk:75000, hp:150000, desc:"攻撃無効化率の下限を底上げ。"}, {id:404, star:4, name:"【反撃】勇者の残光", atk:90000, hp:120000, desc:"生存ボーナスで★3以上が出現。"}, {id:405, star:4, name:"【魂研】賢者の叡智", atk:55000, hp:220000, desc:"獲得戦闘経験値が向上。"}, {id:406, star:4, name:"【死刻】死神の鎌", atk:110000, hp:80000, desc:"戦闘のたびに最終ダメージを+0.0004%加算する。"},
 {id:501, star:5, name:"断絶の権能", atk:382660, hp:916330, desc:"1つにつき、受けるダメージを50万軽減。"}, {id:502, star:5, name:"強欲の権能", atk:649800, hp:812400, desc:"1つにつき、獲得遺物数を+5増加。"}, {id:503, star:5, name:"超越の権能", atk:524180, hp:689450, desc:"1つにつき、最終ダメージを1.1倍(乗算)。"}, {id:504, star:5, name:"破壊の権能", atk:999999, hp:0, desc:"1つにつき、最終ダメージを+1%加算。"},
 {id:601, star:6, name:"絶対統率レリック・オーバーロード", atk:1500000, hp:4500000, mult:1.1, desc:"1個につき再起スキルLv上限を無視して+1。"}, {id:602, star:6, name:"魂律解放レリ・クシア", atk:2500000, hp:3500000, mult:1.1, desc:"刻んだ遺物の総数分、ATKを加算。"}, {id:603, star:6, name:"原初核冠レリコア・レガリア", atk:2000000, hp:4000000, mult:1.1, desc:"所持遺物の種類数×1%をダメージ倍率加算。"}, {id:604, star:6, name:"虚無終焉レリ・ノヴァ", atk:5000000, hp:0, mult:1.1, desc:"最終ダメージ倍率に+999%加算。"},
-{id:701, star:7, name:"パンドラの箱", atk:150000000, hp:350000000, mult:100.0, desc:"神を屠る唯一の条件。災厄の底に希望を宿す。"}, {id:702, star:7, name:"終焉の福音", atk:200000000, hp:450000000, mult:150.0, desc:"終わりの始まりを告げる、黄金の調べ。"}, {id:703, star:7, name:"神滅のアカシックレコード", atk:100000000, hp:550000000, mult:200.0, desc:"全宇宙の事象を書き換え、神話を否定する。"}
+{id:701, star:7, name:"パンドラの箱", atk:150000000, hp:350000000, mult:100.0, desc:"神を屠る唯一の条件。災厄의 底に希望を宿す。"}, {id:702, star:7, name:"終焉の福音", atk:200000000, hp:450000000, mult:150.0, desc:"終わりの始まりを告げる、黄金の調べ。"}, {id:703, star:7, name:"神滅のアカシックレコード", atk:100000000, hp:550000000, mult:200.0, desc:"全宇宙の事象を書き換え、神話を否定する。"}
 ];
 
 function saveGame() { const data = { ...player, baseAtk: player.baseAtk.toString(), baseHP: player.baseHP.toString(), maxDmg: player.maxDmg.toString(), currentBossHP: currentBossHP.toString() }; localStorage.setItem(SAVE_KEY, JSON.stringify(data)); }
@@ -439,9 +439,7 @@ const sortedInventory = Object.entries(player.inventory).filter(([id, c]) => c >
 container.innerHTML = sortedInventory.map(([id, c]) => {
    const m = RELIC_MASTER.find(x => x.id == id); if(!m) return "";
    let baseA = (m.atk || 0) * (player.hasHado && m.star === 1 ? 10 : 1), baseH = (m.hp || 0) * (player.hasHado && m.star === 1 ? 10 : 1);
-   const currentTotalA = Math.floor(baseA * c);
-   const currentTotalH = Math.floor(baseH * c);
-   return `<div class="relic-card ${m.star>=4?'star-high':'star-low'}"><div class="relic-name c${m.star}">★${m.star} ${m.name}×${c.toLocaleString()}</div><div class="relic-effect-box">${(m.atk?`ATK+${currentTotalA.toLocaleString()} `:'')}${(m.hp?`HP+${currentTotalH.toLocaleString()}`:'')}${(m.mult?` (x${m.mult})`:'')}${m.desc ? `<span class="relic-desc-line">${m.desc}</span>` : ""}${(id == "116" && !player.hasHado) ? `<div style="color:#007bff; font-weight:bold;">残:${(100000 - c).toLocaleString()}</div>` : ""}</div></div>`;
+   return `<div class="relic-card ${m.star>=4?'star-high':'star-low'}"><div class="relic-name c${m.star}">★${m.star} ${m.name}×${c.toLocaleString()}</div><div class="relic-effect-box">性能: ${(m.atk?`ATK+${baseA.toLocaleString()} `:'')}${(m.hp?`HP+${baseH.toLocaleString()}`:'')}${(m.mult?` (x${m.mult})`:'')}${m.desc ? `<span class="relic-desc-line">${m.desc}</span>` : ""}${(id == "116" && !player.hasHado) ? `<div style="color:#007bff; font-weight:bold;">残:${(100000 - c).toLocaleString()}</div>` : ""}</div></div>`;
 }).join("");
 }
 
