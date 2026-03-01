@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>RELICORE - v1.7</title>
+<title>RELICORE - v1.8</title>
 <style>
 :root { --bg: #ffffff; --panel: #f8f9fa; --border: #dee2e6; --primary: #007bff; --text: #212529; --hp: #dc3545; --dark: #1a1a1a; --gold: #d4af37; --growth: #ff69b4; --relic-purple: #6610f2; --relic-bg: #fcfaff; }
 * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; box-sizing: border-box; }
@@ -179,7 +179,7 @@ RELICORE 開発者　げぇいむ＆AI
  <div class="privacy-link" onclick="openPolicy()">プライバシーポリシー</div>
 </div>
 </div>
-<div class="ver-footer">RELICORE v1.7</div>
+<div class="ver-footer">RELICORE v1.8</div>
 <script>
 const SAVE_KEY = "relicore_player_data";
 const BOSS_MAX_HP_BASE = 100000000000000000000n;
@@ -230,7 +230,7 @@ function loadGame() { let saved = localStorage.getItem(SAVE_KEY); if(saved) { co
 
 function openRankUpModal(newLv) { stopAttack(); isModalOpen = true; const titleStr = PLAYER_TITLES[Math.min(9, newLv-1)] || "超越者"; document.getElementById("rank-up-msg-text").innerHTML = `魂の核が激しく鼓動する……！<br><br><span style="font-size:1.4em; color:var(--growth); font-weight:bold;">再起Lv.${newLv} 到達</span><br>称号が【${titleStr}】に昇格した。`; document.getElementById("rank-up-modal").style.display = "flex"; }
 function closeRankUpModal() { document.getElementById("rank-up-modal").style.display = "none"; isModalOpen = false; saveGame(); triggerUIUpdate(); }
-function openRareModal(relic) { stopAttack(); isModalOpen = true; const modal = document.getElementById("rare-drop-modal"); const card = document.getElementById("rare-card-content"); card.className = "rare-card glow-" + relic.star; document.getElementById("rare-star-label").innerText = "★" + relic.star; document.getElementById("rare-star-label").className = "rare-star c" + relic.star; document.getElementById("rare-name-label").innerText = relic.name; let detail = (relic.atk ? `ATK +${formatV(relic.atk)} ` : "") + (relic.hp ? `HP +${formatV(relic.hp)} ` : "") + (relic.mult ? `(x${relic.mult})` : ""); document.getElementById("rare-desc-label").innerHTML = detail + (relic.desc ? `<br><br>${relic.desc}` : ""); modal.style.display = "flex"; }
+function openRareModal(relic) { stopAttack(); isModalOpen = true; const modal = document.getElementById("rare-drop-modal"); const card = document.getElementById("rare-card-content"); card.className = "rare-card glow-" + relic.star; document.getElementById("rare-star-label").innerText = "★" + relic.star; document.getElementById("rare-star-label").className = "rare-star c" + relic.star; document.getElementById("rare-name-label").innerText = relic.name; let detail = (relic.atk ? `ATK +${relic.atk.toLocaleString()} ` : "") + (relic.hp ? `HP +${relic.hp.toLocaleString()} ` : "") + (relic.mult ? `(x${relic.mult})` : ""); document.getElementById("rare-desc-label").innerHTML = detail + (relic.desc ? `<br><br>${relic.desc}` : ""); modal.style.display = "flex"; }
 function closeRareModal() { document.getElementById("rare-drop-modal").style.display = "none"; isModalOpen = false; }
 function openUpgradeModal(title, msg) { stopAttack(); isModalOpen = true; document.getElementById("upgrade-title").innerText = title; document.getElementById("upgrade-msg").innerText = msg; document.getElementById("upgrade-modal").style.display = "flex"; }
 function closeUpgradeModal() { document.getElementById("upgrade-modal").style.display = "none"; isModalOpen = false; }
@@ -439,7 +439,7 @@ const sortedInventory = Object.entries(player.inventory).filter(([id, c]) => c >
 container.innerHTML = sortedInventory.map(([id, c]) => {
    const m = RELIC_MASTER.find(x => x.id == id); if(!m) return "";
    let baseA = (m.atk || 0) * (player.hasHado && m.star === 1 ? 10 : 1), baseH = (m.hp || 0) * (player.hasHado && m.star === 1 ? 10 : 1);
-   return `<div class="relic-card ${m.star>=4?'star-high':'star-low'}"><div class="relic-name c${m.star}">★${m.star} ${m.name}×${c}</div><div class="relic-effect-box">${(m.atk?`ATK+${formatV(Math.floor(baseA * c))} `:'')}${(m.hp?`HP+${formatV(Math.floor(baseH * c))}`:'')}${(m.mult?` (x${m.mult})`:'')}${m.desc ? `<span class="relic-desc-line">${m.desc}</span>` : ""}${(id == "116" && !player.hasHado) ? `<div style="color:#007bff; font-weight:bold;">残:${formatV(100000 - c)}</div>` : ""}</div></div>`;
+   return `<div class="relic-card ${m.star>=4?'star-high':'star-low'}"><div class="relic-name c${m.star}">★${m.star} ${m.name}×${c.toLocaleString()}</div><div class="relic-effect-box">${(m.atk?`ATK+${baseA.toLocaleString()} `:'')}${(m.hp?`HP+${baseH.toLocaleString()}`:'')}${(m.mult?` (x${m.mult})`:'')}${m.desc ? `<span class="relic-desc-line">${m.desc}</span>` : ""}${(id == "116" && !player.hasHado) ? `<div style="color:#007bff; font-weight:bold;">残:${(100000 - c).toLocaleString()}</div>` : ""}</div></div>`;
 }).join("");
 }
 
