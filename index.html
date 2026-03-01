@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>RELICORE - v1.0</title>
+<title>RELICORE - v1.1</title>
 <style>
   :root { --bg: #ffffff; --panel: #f8f9fa; --border: #dee2e6; --primary: #007bff; --text: #212529; --hp: #dc3545; --dark: #1a1a1a; --gold: #d4af37; --growth: #ff69b4; --relic-purple: #6610f2; --relic-bg: #fcfaff; }
   * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; box-sizing: border-box; }
@@ -52,7 +52,6 @@
   #story-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 10000; justify-content: center; align-items: center; padding: 20px; }
   .story-content { max-width: 500px; color: #fff; text-align: center; line-height: 2.2; }
   .story-text { margin-bottom: 35px; font-size: 1.05em; text-align: left; letter-spacing: 0.08em; }
-  .story-line { display: block; margin-bottom: 15px; }
   .story-vow { color: gold; font-weight: bold; display: inline-block; animation: heart-beat 1.5s infinite; text-shadow: 0 0 10px rgba(212, 175, 55, 0.8); }
   @keyframes heart-beat { 0% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1); opacity: 0.8; } }
   .story-btn { background: none; border: 1px solid gold; color: gold; padding: 12px 40px; font-size: 1em; cursor: pointer; transition: 0.3s; }
@@ -178,7 +177,7 @@ RELICORE 開発者　げぇいむ＆AI
     <div class="privacy-link" onclick="openPolicy()">プライバシーポリシー</div>
   </div>
 </div>
-<div class="ver-footer">RELICORE v1.0</div>
+<div class="ver-footer">RELICORE v1.1</div>
 <script>
 const SAVE_KEY = "relicore_player_data";
 const BOSS_MAX_HP_BASE = 100000000000000000000n;
@@ -226,7 +225,7 @@ const RELIC_MASTER = [
   {id:101, star:1, name:"剣士の欠片", atk:7.4, hp:0}, {id:102, star:1, name:"狩人の欠片", atk:8.1, hp:0}, {id:103, star:1, name:"暗殺者の欠片", atk:9.6, hp:0}, {id:104, star:1, name:"狂戦士の欠片", atk:10.3, hp:0}, {id:105, star:1, name:"武闘家の欠片", atk:6.7, hp:0}, {id:106, star:1, name:"衛兵の欠片", atk:0, hp:45.2}, {id:107, star:1, name:"騎士の欠片", atk:0, hp:55.9}, {id:108, star:1, name:"重装兵の欠片", atk:0, hp:65.4}, {id:109, star:1, name:"修道士の欠片", atk:0, hp:40.3}, {id:110, star:1, name:"盾持ちの欠片", atk:0, hp:50.8}, {id:111, star:1, name:"魔法使いの欠片", atk:4.2, hp:35.7}, {id:112, star:1, name:"斥候の欠片", atk:3.9, hp:48.1}, {id:113, star:1, name:"冒険者の欠片", atk:5.4, hp:42.6}, {id:114, star:1, name:"見習いの欠片", atk:2.1, hp:30.5}, {id:115, star:1, name:"放浪者の欠片", atk:4.7, hp:44.2}, {id:116, star:1, name:"メモリーダスト", atk:1.3, hp:10.9},
   {id:201, star:2, name:"聖騎士の欠片", atk:41.2, hp:682.4}, {id:202, star:2, name:"龍騎士の欠片", atk:86.7, hp:423.1}, {id:203, star:2, name:"暗黒騎士の欠片", atk:134.2, hp:0}, {id:204, star:2, name:"賢者の欠片", atk:52.1, hp:711.2}, {id:205, star:2, name:"大魔道士の欠片", atk:118.9, hp:24.3}, {id:206, star:2, name:"暗殺王の欠片", atk:156.3, hp:12.7}, {id:207, star:2, name:"重装騎士の欠片", atk:0, hp:1248.6}, {id:208, star:2, name:"拳聖の欠片", atk:99.2, hp:315.4}, {id:209, star:2, name:"神官の欠片", atk:4.2, hp:1486.7}, {id:210, star:2, name:"冒険王の欠片", atk:73.3, hp:594.1},
   {id:301, star:3, name:"聖龍騎士の欠片", atk:874.3, hp:6924.1}, {id:302, star:3, name:"深淵魔導の欠片", atk:1324.1, hp:214.7}, {id:303, star:3, name:"金剛武神の欠片", atk:412.8, hp:14863.2}, {id:304, star:3, name:"暗黒皇帝の欠片", atk:1568.4, hp:0}, {id:305, star:3, name:"大聖者の欠片", atk:52.7, hp:15241.4}, {id:306, star:3, name:"影の支配者の欠片", atk:1410.9, hp:128.4}, {id:307, star:3, name:"竜血闘士の欠片", atk:1024.2, hp:4210.9}, {id:308, star:3, name:"天界騎士の欠片", atk:612.7, hp:9845.1}, {id:309, star:3, name:"虚空の暗殺者の欠片", atk:1624.8, hp:42.1}, {id:310, star:3, name:"極大賢者の欠片", atk:542.1, hp:11840.7},
-  {id:401, star:4, name:"【不退転】武神の魂", atk:65000, hp:180000, desc:"獲得遺物ボーナス増加。"}, {id:402, star:4, name:"【刹那】聖者の遺志", atk:50000, hp:250000, desc:"HP増加時の抽選回数増加。"}, {id:403, star:4, name:"【因果】魔導王の記憶", atk:75000, hp:150000, desc:"攻撃無効化率の下限を底上げ。"}, {id:404, star:4, name:"【反撃】勇者の残光", atk:90000, hp:120000, desc:"生存ボーナスで★3以上が出現。"}, {id:405, star:4, name:"【魂研】賢者の叡智", atk:55000, hp:220000, desc:"獲得戦闘経験値が向上。"}, {id:406, star:4, name:"【死刻】死神の鎌", atk:110000, hp:80000, desc:"経験によるダメージ変換率を2倍。"},
+  {id:401, star:4, name:"【不退転】武神の魂", atk:65000, hp:180000, desc:"獲得遺物ボーナス増加。"}, {id:402, star:4, name:"【刹那】聖者の遺志", atk:50000, hp:250000, desc:"HP増加時の増加幅を+5（重複可）。"}, {id:403, star:4, name:"【因果】魔導王の記憶", atk:75000, hp:150000, desc:"攻撃無効化率の下限を底上げ。"}, {id:404, star:4, name:"【反撃】勇者の残光", atk:90000, hp:120000, desc:"生存ボーナスで★3以上が出現。"}, {id:405, star:4, name:"【魂研】賢者の叡智", atk:55000, hp:220000, desc:"獲得戦闘経験値が向上。"}, {id:406, star:4, name:"【死刻】死神の鎌", atk:110000, hp:80000, desc:"経験によるダメージ変換率を2倍。"},
   {id:501, star:5, name:"断絶の権能", atk:382660, hp:916330, desc:"1つにつき、受けるダメージを50万軽減。"}, 
   {id:502, star:5, name:"強欲の権能", atk:649800, hp:812400, desc:"1つにつき、獲得遺物数を+5増加。"}, 
   {id:503, star:5, name:"超越の権能", atk:524180, hp:689450, desc:"1つにつき、最終ダメージを1.1倍(乗算)。"}, 
@@ -283,8 +282,8 @@ function renderVow() {
           highlight = `獲得遺物ボーナス：+${lv - 1} 【不退転：+${futaitenVal}】【権能：+${gouyokuVal}】`;
       }
       else if(s.id === "setsuna") {
-          const setsunaVal = player.inventory[402] || 0;
-          highlight = `HP増加幅: +${lv} / 上限: ${player.deathCount.toLocaleString()} 【刹那：+${setsunaVal}回】`;
+          const setsunaVal = (player.inventory[402] || 0) * 5;
+          highlight = `HP増加幅: +${lv + setsunaVal} / 上限: ${player.deathCount.toLocaleString()} ${setsunaVal > 0 ? '【刹那：+'+setsunaVal+'】' : ''}`;
       }
       else if(s.id === "inga") {
           let baseCut = lv * 2;
@@ -340,9 +339,8 @@ function attack() {
           player.deathCount += totalPolish;
           logHtml += `<div><span style="color:#28a745; font-weight:bold;">敵の攻撃！${finalMitigated.toLocaleString()} ダメージ。障壁展開！</span></div>` + getGuaranteedDrop();
       } else {
-          let totalUpHP = 0n; 
-          const rollCount = 1 + (player.inventory[402] || 0);
-          for(let i=0; i < rollCount; i++) { totalUpHP += BigInt(Math.floor(Math.random() * Math.max(1, player.deathCount)) + 1 + lv); }
+          const setsunaBonus = (player.inventory[402] || 0) * 5;
+          let totalUpHP = BigInt(Math.floor(Math.random() * Math.max(1, player.deathCount)) + 1 + lv + setsunaBonus);
           player.baseHP += totalUpHP; player.deathCount += totalPolish;
           logHtml += `<div><span style="color:#dc3545;">敵の攻撃！${finalMitigated.toLocaleString()} ダメージ。</span><span style="color:#007bff; font-weight:bold;">再起の誓いによって新たなる力を得た </span><span style="color:var(--growth); font-weight:bold;">(基礎HP+${totalUpHP.toLocaleString()})</span></div>`;
       }
