@@ -207,7 +207,7 @@ const RELIC_MASTER = [
 {id:401, star:4, name:"【不退転】武神の魂", atk:65000, hp:180000}, {id:402, star:4, name:"【刹那】聖者の遺志", atk:50000, hp:250000}, {id:403, star:4, name:"【因果】魔導王の記憶", atk:75000, hp:150000}, {id:404, star:4, name:"【反撃】勇者の残光", atk:90000, hp:120000}, {id:405, star:4, name:"【魂研】賢者の叡智", atk:55000, hp:220000}, {id:406, star:4, name:"【死刻】死神の鎌", atk:110000, hp:80000},
 {id:501, star:5, name:"断絶の権能", atk:382660, hp:916330}, {id:502, star:5, name:"強欲の権能", atk:649800, hp:812400}, {id:503, star:5, name:"超越の権能", atk:524180, hp:689450}, {id:504, star:5, name:"破壊の権能", atk:999999, hp:0},
 {id:601, star:6, name:"絶対統率レリック・オーバーロード", atk:1500000, hp:4500000, mult:1.1}, {id:602, star:6, name:"魂律解放レリ・クシア", atk:2500000, hp:3500000, mult:1.1}, {id:603, star:6, name:"原初核冠レリコア・レガリア", atk:2000000, hp:4000000, mult:1.1}, {id:604, star:6, name:"虚無終焉レリ・ノヴァ", atk:5000000, hp:0, mult:1.1},
-{id:701, star:7, name:"パンドラの箱", atk:150000000, hp:350000000, mult:100.0}, {id:702, star:7, name:"終焉の福音", atk:200000000, hp:450000000, mult:150.0}, {id:703, star:7, name:"神滅のアカシックレコード", atk:100000000, hp:550000000, mult:200.0}
+{id:701, star:7, name:"パンドラの箱", atk:150000000, hp:350000000, mult:1.4}, {id:702, star:7, name:"終焉の福音", atk:200000000, hp:450000000, mult:1.4}, {id:703, star:7, name:"神滅のアカシックレコード", atk:100000000, hp:550000000, mult:1.5}
 ];
 
 function saveGame() { const data = { ...player, baseAtk: player.baseAtk.toString(), baseHP: player.baseHP.toString(), maxDmg: player.maxDmg.toString(), currentBossHP: currentBossHP.toString() }; localStorage.setItem(SAVE_KEY, JSON.stringify(data)); }
