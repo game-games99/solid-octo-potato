@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>RELICORE - v1.5</title>
+<title>RELICORE - v1.6</title>
 <style>
 :root { --bg: #ffffff; --panel: #f8f9fa; --border: #dee2e6; --primary: #007bff; --text: #212529; --hp: #dc3545; --dark: #1a1a1a; --gold: #d4af37; --growth: #ff69b4; --relic-purple: #6610f2; --relic-bg: #fcfaff; }
 * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; box-sizing: border-box; }
@@ -102,7 +102,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Robot
 .clickable-stat { display: inline-block; color: var(--primary); border: 1px solid var(--primary); padding: 2px 8px; border-radius: 12px; font-size: 0.85em; cursor: pointer; text-decoration: none; margin-left: 5px; background: #f0f7ff; transition: 0.2s; }
 .clickable-stat:active { background: var(--primary); color: #fff; transform: scale(0.95); }
 .st-title-flex { display: flex; justify-content: space-between; align-items: baseline; font-weight: bold; }
-.btn-reset { width: 100%; padding: 166px; background: #dc3545; color: #fff; border: none; border-radius: 8px; font-weight: bold; margin-bottom: 10px; }
+.btn-reset { width: 100%; padding: 12px; background: #dc3545; color: #fff; border: none; border-radius: 8px; font-weight: bold; margin-bottom: 10px; }
 .privacy-link { display: block; text-align: center; font-size: 0.75em; color: #888; text-decoration: underline; cursor: pointer; padding: 10px; }
 
 #policy-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 60000; justify-content: center; align-items: center; padding: 20px; }
@@ -179,7 +179,7 @@ RELICORE 開発者　げぇいむ＆AI
   <div class="privacy-link" onclick="openPolicy()">プライバシーポリシー</div>
 </div>
 </div>
-<div class="ver-footer">RELICORE v1.5</div>
+<div class="ver-footer">RELICORE v1.6</div>
 <script>
 const SAVE_KEY = "relicore_player_data";
 const BOSS_MAX_HP_BASE = 100000000000000000000n;
@@ -353,7 +353,6 @@ if(showRare) openRareModal(showRare);
 
 let finalEntries = [];
 
-// ★1, ★2, ★3 の軽量化判定
 [1, 2, 3].forEach(s => {
     let group = starGroups[s];
     let totalInStar = Object.values(group).reduce((a, b) => a + b, 0);
@@ -367,7 +366,6 @@ let finalEntries = [];
     }
 });
 
-// ★4以上の表示
 Object.entries(others).forEach(([id, c]) => {
     const m = RELIC_MASTER.find(x => x.id == id);
     finalEntries.push(`<span class="c${m.star}">★${m.star} ${m.name}${c > 1 ? '×' + c : ''}</span>`);
