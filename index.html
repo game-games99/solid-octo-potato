@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>RELICORE - v1.9</title>
+<title>RELICORE - v2.0</title>
 <style>
 :root { --bg: #ffffff; --panel: #f8f9fa; --border: #dee2e6; --primary: #007bff; --text: #212529; --hp: #dc3545; --dark: #1a1a1a; --gold: #d4af37; --growth: #ff69b4; --relic-purple: #6610f2; --relic-bg: #fcfaff; }
 * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; box-sizing: border-box; }
@@ -121,28 +121,17 @@ RELICORE（以下「本サービス」）は、ユーザーのプライバシー
 本サービスでは、以下の情報を取得する場合があります。
 <ul>
 <li>ブラウザのローカルストレージに保存されるゲームデータ</li>
-<li>アクセス解析ツールにより収集される匿名のアクセス情報（使用している場合）</li>
+<li>アクセス解析ツールにより収集される匿名のアクセス情報</li>
 <li>サーバーの標準ログ情報（IPアドレス、閲覧日時など）</li>
 </ul>
-※本サービスでは、氏名・住所・電話番号・メールアドレス等の個人情報は取得しておりません。<br><hr class="policy-divider">
 <strong>2. 情報の利用目的</strong><br>
 取得した情報は以下の目的で利用します。
 <ul>
 <li>ゲームの進行状況保存</li>
 <li>不具合調査および改善</li>
-<li>利用状況の分析</li>
-<li>サービス品質向上</li>
 </ul><hr class="policy-divider">
-<strong>3. 第三者提供について</strong><br>
-取得した情報を、法令に基づく場合を除き、第三者へ提供することはありません。<br><hr class="policy-divider">
-<strong>4. 外部サービスの利用について</strong><br>
-本サービスがGoogle Analytics等の外部サービスを利用する場合、それらのサービス提供者のプライバシーポリシーが適用される場合があります。<br><hr class="policy-divider">
-<strong>5. データの保存について</strong><br>
-ゲームデータはユーザーのブラウザ内に保存されます。ブラウザの削除やキャッシュクリア等によりデータが消失する場合があります。<br><hr class="policy-divider">
 <strong>6. 免責事項</strong><br>
-本サービスの利用により生じた損害について、開発者は一切の責任を負いません。<br><hr class="policy-divider">
-<strong>7. 改定</strong><br>
-本ポリシーは予告なく変更される場合があります。<br>
+本サービスの利用により生じた損害について、開発者は一切の責任を負いません。<br>
 <div class="policy-footer">
 制定日：2026年3月1日<br>
 RELICORE 開発者　げぇいむ＆AI
@@ -179,7 +168,7 @@ RELICORE 開発者　げぇいむ＆AI
  <div class="privacy-link" onclick="openPolicy()">プライバシーポリシー</div>
 </div>
 </div>
-<div class="ver-footer">RELICORE v1.9</div>
+<div class="ver-footer">RELICORE v2.0</div>
 <script>
 const SAVE_KEY = "relicore_player_data";
 const BOSS_MAX_HP_BASE = 100000000000000000000n;
@@ -215,7 +204,11 @@ const RELIC_MASTER = [
 {id:701, star:7, name:"パンドラの箱", atk:150000000, hp:350000000, mult:100.0, desc:"神を屠る唯一の条件。災厄の底に希望を宿す。"}, {id:702, star:7, name:"終焉の福音", atk:200000000, hp:450000000, mult:150.0, desc:"終わりの始まりを告げる、黄金の調べ。"}, {id:703, star:7, name:"神滅のアカシックレコード", atk:100000000, hp:550000000, mult:200.0, desc:"全宇宙の事象を書き換え、神話を否定する。"}
 ];
 
-function saveGame() { const data = { ...player, baseAtk: player.baseAtk.toString(), baseHP: player.baseHP.toString(), maxDmg: player.maxDmg.toString(), currentBossHP: currentBossHP.toString() }; localStorage.setItem(SAVE_KEY, JSON.stringify(data)); }
+function saveGame() { 
+    const data = { ...player, baseAtk: player.baseAtk.toString(), baseHP: player.baseHP.toString(), maxDmg: player.maxDmg.toString(), currentBossHP: currentBossHP.toString() }; 
+    localStorage.setItem(SAVE_KEY, JSON.stringify(data)); 
+}
+
 function loadGame() {
     let saved = localStorage.getItem(SAVE_KEY);
     if(saved) {
@@ -225,8 +218,14 @@ function loadGame() {
         player.baseHP = BigInt(p.baseHP || "100");
         player.maxDmg = BigInt(p.maxDmg || "0");
         player.totalRelics = p.totalRelics || 0;
-        // 保存されたHPがある場合はそれを優先、なければ最大HPをセット
-        currentBossHP = BigInt(p.currentBossHP || p.bossMaxHP || BOSS_MAX_HP_BASE.toString());
+        // 保存されたHPがあればそれを最優先でセット。なければ最大HP。
+        if(p.currentBossHP) {
+            currentBossHP = BigInt(p.currentBossHP);
+        } else {
+            currentBossHP = BigInt(player.bossMaxHP);
+        }
+    } else {
+        currentBossHP = BigInt(player.bossMaxHP);
     }
     if(!player.storySeen) document.getElementById("story-modal").style.display = "flex";
 }
@@ -284,8 +283,12 @@ function attack() {
 if(isModalOpen) return;
 player.totalClicks++;
 const b = getRelicBonus(); const finalDmgMult = calcFinalDmgMult();
-let rawBase = Number(player.baseAtk + b.atk) * b.mult;
-let finalDmg = BigInt(Math.floor(rawBase * (0.8 + Math.random() * 0.4) * finalDmgMult)) || 1n;
+
+// BigIntとNumberの型混合を避けるためにBigIntへ変換
+let rawBase = BigInt(Math.floor(Number(player.baseAtk + b.atk) * b.mult));
+let finalDmg = BigInt(Math.floor(Number(rawBase) * (0.8 + Math.random() * 0.4) * finalDmgMult));
+if(finalDmg < 1n) finalDmg = 1n;
+
 if(finalDmg > player.maxDmg) player.maxDmg = finalDmg;
 if (player.inventory[116] >= 100000 && !player.hasHado && Math.random() < (1/100000)) { openHadoModal(); return; }
 
@@ -305,7 +308,8 @@ if(finalDmg >= currentBossHP) {
    }
    else { currentBossHP = BigInt(player.bossMaxHP); logHtml += `<div><span style="color:#ff0000; font-weight:bold;">終焉の回帰……！ (HP全回復)</span></div>`; }
 } else {
-   currentBossHP -= finalDmg; if(currentBossHP < 1n) { currentBossHP = BigInt(player.bossMaxHP); logHtml += `<div><span style="color:#ff0000; font-weight:bold;">終焉の回帰……！ (HP全回復)</span></div>`; }
+   currentBossHP -= finalDmg; 
+   if(currentBossHP < 1n) { currentBossHP = BigInt(player.bossMaxHP); logHtml += `<div><span style="color:#ff0000; font-weight:bold;">終焉の回帰……！ (HP全回復)</span></div>`; }
 }
 
 if(currentBossHP > 0n) {
@@ -323,7 +327,9 @@ if(currentBossHP > 0n) {
    }
    if(getLevelByDeath() > oldLv) openRankUpModal(getLevelByDeath());
 }
-addLog(logHtml); saveGame(); triggerUIUpdate();
+addLog(logHtml); 
+saveGame(); 
+triggerUIUpdate();
 }
 
 function getGuaranteedDrop() {
@@ -368,9 +374,7 @@ for(let i=0; i < count; i++) {
 }
 
 if(showRare) openRareModal(showRare);
-
 let finalEntries = [];
-
 [1, 2, 3].forEach(s => {
    let group = starGroups[s];
    let totalInStar = Object.values(group).reduce((a, b) => a + b, 0);
@@ -383,12 +387,10 @@ let finalEntries = [];
        });
    }
 });
-
 Object.entries(others).forEach(([id, c]) => {
    const m = RELIC_MASTER.find(x => x.id == id);
    finalEntries.push(`<span class="c${m.star}">★${m.star} ${m.name}${c > 1 ? '×' + c : ''}</span>`);
 });
-
 return finalEntries.length > 0 ? `<div style="font-size:0.82em;">獲得：${finalEntries.join(", ")}</div>` : "";
 }
 
@@ -441,7 +443,6 @@ const container = document.getElementById("relic-list"); if (!container) return;
 const sortedInventory = Object.entries(player.inventory).filter(([id, c]) => c > 0).sort((a, b) => { if (a[0] == "0") return 1; if (b[0] == "0") return -1; return (RELIC_MASTER.find(x=>x.id==a[0])?.star || 0) - (RELIC_MASTER.find(x=>x.id==b[0])?.star || 0); });
 container.innerHTML = sortedInventory.map(([id, c]) => {
    const m = RELIC_MASTER.find(x => x.id == id); if(!m) return "";
-   // ステータス表示時にMath.floorで整数化
    let baseA = Math.floor((m.atk || 0) * (player.hasHado && m.star === 1 ? 10 : 1));
    let baseH = Math.floor((m.hp || 0) * (player.hasHado && m.star === 1 ? 10 : 1));
    return `<div class="relic-card ${m.star>=4?'star-high':'star-low'}"><div class="relic-name c${m.star}">★${m.star} ${m.name}×${c.toLocaleString()}</div><div class="relic-effect-box">${(baseA>0?`ATK+${baseA.toLocaleString()} `:'')}${(baseH>0?`HP+${baseH.toLocaleString()}`:'')}${(m.mult?` (x${m.mult})`:'')}${m.desc ? `<span class="relic-desc-line">${m.desc}</span>` : ""}${(id == "116" && !player.hasHado) ? `<div style="color:#007bff; font-weight:bold;">残:${(100000 - c).toLocaleString()}</div>` : ""}</div></div>`;
