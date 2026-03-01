@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>RELICORE - v1.1</title>
+<title>RELICORE - v1.2</title>
 <style>
   :root { --bg: #ffffff; --panel: #f8f9fa; --border: #dee2e6; --primary: #007bff; --text: #212529; --hp: #dc3545; --dark: #1a1a1a; --gold: #d4af37; --growth: #ff69b4; --relic-purple: #6610f2; --relic-bg: #fcfaff; }
   * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; box-sizing: border-box; }
@@ -177,7 +177,7 @@ RELICORE 開発者　げぇいむ＆AI
     <div class="privacy-link" onclick="openPolicy()">プライバシーポリシー</div>
   </div>
 </div>
-<div class="ver-footer">RELICORE v1.1</div>
+<div class="ver-footer">RELICORE v1.2</div>
 <script>
 const SAVE_KEY = "relicore_player_data";
 const BOSS_MAX_HP_BASE = 100000000000000000000n;
@@ -368,7 +368,6 @@ function getGuaranteedDrop() {
     let cands = RELIC_MASTER.filter(m => m.star === star); 
     let sel = cands[Math.floor(Math.random() * cands.length)];
     
-    // 【初回獲得判定】★4以上かつ未所持なら演出フラグを立てる
     if (sel.star >= 4 && !player.inventory[sel.id]) {
         if (!showRare || sel.star > showRare.star) showRare = sel;
     }
@@ -378,6 +377,18 @@ function getGuaranteedDrop() {
     player.totalRelics++;
   }
   if(showRare) openRareModal(showRare);
+  
+  const totalCount = Object.values(obtained).reduce((a, b) => a + b, 0);
+  if (totalCount > 30) {
+      let starCounts = {};
+      Object.entries(obtained).forEach(([id, c]) => {
+          const m = RELIC_MASTER.find(x => x.id == id);
+          starCounts[m.star] = (starCounts[m.star] || 0) + c;
+      });
+      const summaryStr = Object.entries(starCounts).map(([s, c]) => `<span class="c${s}">★${s} 遺物ドロップ数：${c}個</span>`).join(" / ");
+      return `<div style="font-size:0.82em;">【狼煙】獲得：${summaryStr}</div>`;
+  }
+  
   const itemsStr = Object.entries(obtained).map(([id, c]) => { const m = RELIC_MASTER.find(x=>x.id==id); return `<span class="c${m.star}">★${m.star} ${m.name}${c > 1 ? '×' + c : ''}</span>`; }).join(", ");
   return `<div style="font-size:0.82em;">【狼煙】獲得：${itemsStr}</div>`;
 }
@@ -390,7 +401,6 @@ function getDropLog(count) {
       if (player.maxDmg < rates[star].cond) star=1;
       let cands = RELIC_MASTER.filter(m => m.star === star && m.id !== 0); let sel = cands[Math.floor(Math.random() * cands.length)];
       
-      // 【初回獲得判定】★4以上かつ未所持なら演出フラグを立てる
       if (sel.star >= 4 && !player.inventory[sel.id]) {
           if (!showRare || sel.star > showRare.star) showRare = sel;
       }
@@ -399,6 +409,18 @@ function getDropLog(count) {
       player.totalRelics++;
   }
   if(showRare) openRareModal(showRare);
+  
+  const totalCount = Object.values(obtained).reduce((a, b) => a + b, 0);
+  if (totalCount > 30) {
+      let starCounts = {};
+      Object.entries(obtained).forEach(([id, c]) => {
+          const m = RELIC_MASTER.find(x => x.id == id);
+          starCounts[m.star] = (starCounts[m.star] || 0) + c;
+      });
+      const summaryStr = Object.entries(starCounts).map(([s, c]) => `<span class="c${s}">★${s} 遺物ドロップ数：${c}個</span>`).join(" / ");
+      return `<div style="font-size:0.82em;">獲得：${summaryStr}</div>`;
+  }
+  
   return Object.entries(obtained).length > 0 ? `<div style="font-size:0.82em;">獲得：${Object.entries(obtained).map(([id, c]) => { const m = RELIC_MASTER.find(x=>x.id==id); return `<span class="c${m.star}">★${m.star} ${m.name}${c > 1 ? '×' + c : ''}</span>`; }).join(", ")}</div>` : "";
 }
 
