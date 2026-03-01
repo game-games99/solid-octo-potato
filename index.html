@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>RELICORE - v1.0</title>
+<title>RELICORE - v1.1</title>
 <style>
   :root { --bg: #ffffff; --panel: #f8f9fa; --border: #dee2e6; --primary: #007bff; --text: #212529; --hp: #dc3545; --dark: #1a1a1a; --gold: #d4af37; --growth: #ff69b4; --relic-purple: #6610f2; --relic-bg: #fcfaff; }
   * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; box-sizing: border-box; }
@@ -177,7 +177,7 @@ RELICORE 開発者　げぇいむ＆AI
     <div class="privacy-link" onclick="openPolicy()">プライバシーポリシー</div>
   </div>
 </div>
-<div class="ver-footer">RELICORE v1.0</div>
+<div class="ver-footer">RELICORE v1.1</div>
 <script>
 const SAVE_KEY = "relicore_player_data";
 const BOSS_MAX_HP_BASE = 100000000000000000000n;
@@ -214,31 +214,26 @@ let isModalOpen = false;
 
 const PLAYER_TITLES = ["初心者", "修練者", "熟練者", "探求者", "到達者", "解放者", "支配者", "超越者", "救世主", "極致：唯一神"];
 
-// 核（レベル）と昇格条件の強制訂正
-function getExpThreshold(lv) {
-  if (lv <= 1) return 0;
-  // Lv.8以降の厳密固定
-  if (lv === 8) return 1500000;
-  if (lv === 9) return 3000000;
-  if (lv === 10) return 5040000;
+// 指定された経験値テーブルに基づき、純粋なレベルを算出
+function getBaseLevelByDeath() { 
+  const exp = player.deathCount;
+  if (exp >= 5040000) return 10; // 極致
+  if (exp >= 3000000) return 9;  // 救世主
+  if (exp >= 1500000) return 8;  // 超越者
+  if (exp >= 720000)  return 7;  // 支配者
   
-  // Lv.7（支配者）までのしきい値。経験値858,429でLv.7になるよう調整
-  let threshold = 1000;
-  for (let i = 2; i < lv; i++) {
-    if (i === 7) break; // 既に固定値がある場合はループを抜ける
-    threshold *= i;
-  }
-  // Lv.7の境界線を858,429以下に設定し、Lv.8まで上がらないように調整
-  if (lv === 7) return 720000; 
-  return threshold;
+  // それ以下（Lv.1〜6）
+  if (exp >= 120000) return 6;
+  if (exp >= 30000)  return 5;
+  if (exp >= 6000)   return 4;
+  if (exp >= 2000)   return 3;
+  if (exp >= 1000)   return 2;
+  return 1;
 }
 
-function getLevelByDeath() { 
-  let lv = 1; 
-  while (lv < 10 && player.deathCount >= getExpThreshold(lv + 1)) {
-    lv++;
-  }
-  return lv + (player.inventory[601] || 0);
+// 遺物ボーナスを含めた最終表示レベル
+function getLevelByDeath() {
+  return getBaseLevelByDeath() + (player.inventory[601] || 0);
 }
 
 const RELIC_MASTER = [
@@ -357,7 +352,7 @@ function attack() {
       let minCut = (lv * 2) + Math.min(30, player.inventory[403] || 0); 
       let finalMitigated = BigInt(Math.floor(Number(MAJIN_ATK_BASE * BigInt(player.uraAtkMult)) * (1 - (Math.floor(Math.random() * (101 - minCut)) + minCut) / 100))) - BigInt((player.inventory[501] || 0) * 500000);
       if(finalMitigated < 0n) finalMitigated = 0n;
-      const oldLv = getLevelByDeath();
+      const oldLv = getBaseLevelByDeath(); // 基礎レベルで比較
       if (currentTotalHP > finalMitigated) {
           player.deathCount += totalPolish;
           logHtml += `<div><span style="color:#28a745; font-weight:bold;">敵の攻撃！${finalMitigated.toLocaleString()} ダメージ。障壁展開！</span></div>` + getGuaranteedDrop();
@@ -367,7 +362,7 @@ function attack() {
           player.baseHP += totalUpHP; player.deathCount += totalPolish;
           logHtml += `<div><span style="color:#dc3545;">敵の攻撃！${finalMitigated.toLocaleString()} ダメージ。</span><span style="color:#007bff; font-weight:bold;">再起の誓いによって新たなる力を得た </span><span style="color:var(--growth); font-weight:bold;">(基礎HP+${totalUpHP.toLocaleString()})</span></div>`;
       }
-      if(getLevelByDeath() > oldLv) openRankUpModal(getLevelByDeath());
+      if(getBaseLevelByDeath() > oldLv) openRankUpModal(getLevelByDeath());
   }
   addLog(logHtml); saveGame(); refreshUI();
 }
