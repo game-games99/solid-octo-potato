@@ -269,7 +269,7 @@ function renderVow() {
   const skills = [
       { id: "futaiten", name: "不退転の力", desc: "攻撃時に追加の遺物を刻む。" },
       { id: "setsuna", name: "刹那の堆積", desc: "再起するたびにHP増加幅+(Lv)。確かな意思が核に宿る。" },
-      { id: "inga", name: "因果の拒絶", desc: "敵の攻撃ダメージを軽減する。" },
+      { id: "inga", name: "因果の拒絶", desc: "敵の攻撃を無効化する。" },
       { id: "hangeki", name: "反撃の狼煙", desc: "生存ボーナスを獲得する。" },
       { id: "konken", name: "魂の研磨", desc: "成長速度を加速させる。" },
       { id: "shikoku", name: "死を刻む", desc: "経験をダメージに変換する。" }
@@ -340,7 +340,7 @@ function attack() {
       const oldLv = getLevelByDeath();
       if (currentTotalHP > finalMitigated) {
           player.deathCount += totalPolish;
-          logHtml += `<div><span style="color:#28a745; font-weight:bold;">敵の攻撃！障壁展開！</span></div>`${finalMitigated.toLocaleString()} ダメージ。 + getGuaranteedDrop();
+          logHtml += `<div><span style="color:#28a745; font-weight:bold;">敵の攻撃！${finalMitigated.toLocaleString()} ダメージ。障壁展開！</span></div>` + getGuaranteedDrop();
       } else {
           const setsunaBonus = (player.inventory[402] || 0) * 5;
           let totalUpHP = BigInt(Math.floor(Math.random() * Math.max(1, player.deathCount)) + 1 + lv + setsunaBonus);
