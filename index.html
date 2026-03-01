@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>RELICORE - v1.5</title>
+<title>RELICORE - v1.6</title>
 <style>
  :root { --bg: #ffffff; --panel: #f8f9fa; --border: #dee2e6; --primary: #007bff; --text: #212529; --hp: #dc3545; --dark: #1a1a1a; --gold: #d4af37; --growth: #ff69b4; --relic-purple: #6610f2; --relic-bg: #fcfaff; }
  * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; box-sizing: border-box; }
@@ -149,7 +149,7 @@ RELICORE 開発者　げぇいむ＆AI
 </div>
 </div><button class="btn-attack" style="padding:10px; font-size:1em;" onclick="closePolicy()">閉じる</button></div></div>
 <div id="rank-up-modal"><div class="rank-up-content"><div class="rank-up-title">覚醒</div><div class="rank-up-msg" id="rank-up-msg-text">魂の核が激しく鼓動する……！</div><button class="story-btn" onclick="closeRankUpModal()">高みへ</button><div class="rank-up-sub">※すべての再起スキルが強化されました。</div></div></div>
-<div id="rare-drop-modal" onclick="closeRareModal()"><div id="rare-card-content" class="rare-card"><span id="rare-star-label" class="rare-star"></span><span id="rare-name-label" class="rare-name"></span><div id="rare-desc-label" class="rare-desc"></div><div style="margin-top:20px; font-size:0.7em; color:#888;">画面タップで閉じる</div></div></div>
+<div id="rare-drop-modal" onclick="closeRareModal()"><div id="rare-card-content" class="rare-card"><span id="rare-star-label" class="rare-star"></span><span id="rare-star-label" class="rare-star"></span><span id="rare-name-label" class="rare-name"></span><div id="rare-desc-label" class="rare-desc"></div><div style="margin-top:20px; font-size:0.7em; color:#888;">画面タップで閉じる</div></div></div>
 <div id="hado-awaken-modal"><div class="hado-content"><div class="hado-title">隠しスキル【破軍の号令】覚醒</div><div class="hado-msg">戦場に漂う数多の記憶……その「残滓」が臨界を超えたとき、王者の魂が呼び覚まされた。<br><br><span style="color:var(--gold); font-weight:bold;">【効果：覇道の理】</span><br>★1遺物の基礎ステータス上昇値が<span style="color:var(--gold); font-size:1.2em;"> 10倍 </span>に固定強化される。<br>さらに、★2以上の遺物ドロップ率がベースの<span style="color:var(--gold); font-size:1.2em;"> 10倍 </span>に跳ね上がる。</div><button class="story-btn" onclick="closeHadoModal()">その力を受け入れる</button></div></div>
 <div id="upgrade-modal"><div class="upgrade-content"><div id="upgrade-title" class="upgrade-title"></div><div id="upgrade-msg" class="upgrade-msg"></div><button class="story-btn" onclick="closeUpgradeModal()">承知した</button></div></div>
 <div id="story-modal"><div class="story-content"><div class="story-text"><span class="story-line" style="color:#888;">わたしはすべてをううばわれた</span><span class="story-line" style="color:#4b0082;">奴によって世界は終わりを告げ、すべては虚無に飲まれたはずだった</span><span class="story-line" style="color:#fff;">しかし、それでもまだ諦めることを知らない光がある</span><span class="story-line"><span class="story-vow">『再起の誓い』</span><span style="color:#d4af37;">が魂を激しく鼓動させる</span></span><span class="story-line" style="color:#ff0000; font-weight:bold;">奴を一撃で葬るその日まで、わたしは止まるときを知らない</span></div><button class="story-btn" onclick="closeStory()">魂に刻印する</button></div></div>
@@ -179,7 +179,7 @@ RELICORE 開発者　げぇいむ＆AI
    <div class="privacy-link" onclick="openPolicy()">プライバシーポリシー</div>
  </div>
 </div>
-<div class="ver-footer">RELICORE v1.5</div>
+<div class="ver-footer">RELICORE v1.6</div>
 <script>
 const SAVE_KEY = "relicore_player_data";
 const BOSS_MAX_HP_BASE = 100000000000000000000n;
@@ -206,8 +206,8 @@ const RELIC_MASTER = [
  {id:301, star:3, name:"聖龍騎士の欠片", atk:874.3, hp:6924.1}, {id:302, star:3, name:"深淵魔導の欠片", atk:1324.1, hp:214.7}, {id:303, star:3, name:"金剛武神の欠片", atk:412.8, hp:14863.2}, {id:304, star:3, name:"暗黒皇帝の欠片", atk:1568.4, hp:0}, {id:305, star:3, name:"大聖者の欠片", atk:52.7, hp:15241.4}, {id:306, star:3, name:"影の支配者の欠片", atk:1410.9, hp:128.4}, {id:307, star:3, name:"竜血闘士の欠片", atk:1024.2, hp:4210.9}, {id:308, star:3, name:"天界騎士の欠片", atk:612.7, hp:9845.1}, {id:309, star:3, name:"虚空の暗殺者の欠片", atk:1624.8, hp:42.1}, {id:310, star:3, name:"極大賢者の欠片", atk:542.1, hp:11840.7},
  {id:401, star:4, name:"【不退転】武神の魂", atk:65000, hp:180000, desc:"獲得遺物ボーナス増加。"}, {id:402, star:4, name:"【刹那】聖者の遺志", atk:50000, hp:250000, desc:"HP増加時の増加幅を+5（重複可）。"}, {id:403, star:4, name:"【因果】魔導王の記憶", atk:75000, hp:150000, desc:"攻撃無効化率の下限を底上げ。"}, {id:404, star:4, name:"【反撃】勇者の残光", atk:90000, hp:120000, desc:"生存ボーナスで★3以上が出現。"}, {id:405, star:4, name:"【魂研】賢者の叡智", atk:55000, hp:220000, desc:"獲得戦闘経験値が向上。"}, {id:406, star:4, name:"【死刻】死神の鎌", atk:110000, hp:80000, desc:"戦闘のたびに最終ダメージを+0.0004%加算する。"},
  {id:501, star:5, name:"断絶の権能", atk:382660, hp:916330, desc:"1つにつき、受けるダメージを50万軽減。"}, {id:502, star:5, name:"強欲の権能", atk:649800, hp:812400, desc:"1つにつき、獲得遺物数を+5増加。"}, {id:503, star:5, name:"超越の権能", atk:524180, hp:689450, desc:"1つにつき、最終ダメージを+10%加算。"}, {id:504, star:5, name:"破壊の権能", atk:999999, hp:0, desc:"1つにつき、最終ダメージを+1%加算。"},
- {id:601, star:6, name:"絶対統率レリック・オーバーロード", atk:1500000, hp:4500000, desc:"1個につき再起スキルLv上限を無視して+1。"}, {id:602, star:6, name:"魂律解放レリ・クシア", atk:2500000, hp:3500000, desc:"刻んだ遺物の総数分、ATKを加算。"}, {id:603, star:6, name:"原初核冠レリコア・レガリア", atk:2000000, hp:4000000, desc:"所持遺物の種類数×1%のダメージ倍率加算。"}, {id:604, star:6, name:"虚無終焉レリ・ノヴァ", atk:5000000, hp:0, desc:"最終ダメージ倍率に+999%加算。"},
- {id:701, star:7, name:"パンドラの箱", atk:150000000, hp:350000000, desc:"神を屠る唯一の条件。災厄の底に希望を宿す。"}, {id:702, star:7, name:"終焉の福音", atk:200000000, hp:450000000, desc:"終わりの始まりを告げる、黄金の調べ。"}, {id:703, star:7, name:"神滅のアカシックレコード", atk:100000000, hp:550000000, desc:"全宇宙の事象を書き換え、神話を否定する。"}
+ {id:601, star:6, name:"絶対統率レリック・オーバーロード", atk:0, hp:0, desc:"1個につき再起スキルLv上限を無視して+1。"}, {id:602, star:6, name:"魂律解放レリ・クシア", atk:0, hp:0, desc:"刻んだ遺物の総数分、ATKを加算。"}, {id:603, star:6, name:"原初核冠レリコア・レガリア", atk:0, hp:0, desc:"所持遺物の種類数×1%のダメージ倍率加算。"}, {id:604, star:6, name:"虚無終焉レリ・ノヴァ", atk:0, hp:0, desc:"最終ダメージ倍率に+999%加算。"},
+ {id:701, star:7, name:"パンドラの箱", atk:0, hp:0, desc:"神を屠る唯一の条件。災厄の底に希望を宿す。"}, {id:702, star:7, name:"終焉の福音", atk:0, hp:0, desc:"終わりの始まりを告げる、黄金の調べ。"}, {id:703, star:7, name:"神滅のアカシックレコード", atk:0, hp:0, desc:"全宇宙の事象を書き換え、神話を否定する。"}
 ];
 
 function saveGame() { const data = { ...player, baseAtk: player.baseAtk.toString(), baseHP: player.baseHP.toString(), maxDmg: player.maxDmg.toString(), currentBossHP: currentBossHP.toString() }; localStorage.setItem(SAVE_KEY, JSON.stringify(data)); }
@@ -229,13 +229,12 @@ function calcFinalDmgMult() {
  const lv = getLevelByDeath() + (player.inventory[601] || 0);
  const baseRate = 0.0000004 * lv;
  const kamaBoost = (player.inventory[406] || 0) * 0.000004;
- // 乗算をやめ、すべてベース1.0に対する加算(加算倍率)とする
  let multAdd = (player.totalClicks * (baseRate + kamaBoost));
- multAdd += ((player.inventory[504] || 0) * 0.01); // 破壊の権能:+1%加算
- multAdd += ((player.inventory[503] || 0) * 0.10); // 超越の権能:+10%加算
+ multAdd += ((player.inventory[504] || 0) * 0.01);
+ multAdd += ((player.inventory[503] || 0) * 0.10);
  const relicCount = Object.keys(player.inventory).length;
- multAdd += (relicCount * 0.01 * (player.inventory[603] || 0)); // 原初核冠
- multAdd += (9.99 * (player.inventory[604] || 0)); // 虚無終焉:+999%加算
+ multAdd += (relicCount * 0.01 * (player.inventory[603] || 0));
+ multAdd += (9.99 * (player.inventory[604] || 0));
  return 1.0 + multAdd;
 }
 
@@ -268,7 +267,6 @@ function attack() {
  if(isModalOpen) return;
  player.totalClicks++;
  const b = getRelicBonus(); const finalDmgMult = calcFinalDmgMult();
- // 乗算をやめ、加算したATKに最終ダメージ倍率を掛けるのみにする
  let rawBase = Number(player.baseAtk + b.atk);
  let finalDmg = BigInt(Math.floor(rawBase * (0.8 + Math.random() * 0.4) * finalDmgMult)) || 1n;
  if(finalDmg > player.maxDmg) player.maxDmg = finalDmg;
@@ -328,7 +326,12 @@ function getDropLog(count) {
      for(let s in rates) { curP += rates[s].p; if(rv <= curP) { star=parseInt(s); break; } }
      if (player.maxDmg < rates[star].cond) star=1;
      
-     let cands = RELIC_MASTER.filter(m => m.star === star && m.id !== 0); 
+     let cands = RELIC_MASTER.filter(m => m.star === star && m.id !== 0);
+     if (star >= 6) {
+         cands = cands.filter(m => !player.inventory[m.id] || player.inventory[m.id] === 0);
+         if (cands.length === 0) { star = 1; cands = RELIC_MASTER.filter(m => m.star === 1); }
+     }
+     
      let sel = cands[Math.floor(Math.random() * cands.length)];
      
      if (sel.star >= 4 && !player.inventory[sel.id]) { if (!showRare || sel.star > showRare.star) showRare = sel; }
