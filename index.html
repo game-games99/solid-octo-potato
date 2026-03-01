@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>RELICORE - v1.1</title>
+<title>RELICORE - v1.2</title>
 <style>
   :root { --bg: #ffffff; --panel: #f8f9fa; --border: #dee2e6; --primary: #007bff; --text: #212529; --hp: #dc3545; --dark: #1a1a1a; --gold: #d4af37; --growth: #ff69b4; --relic-purple: #6610f2; --relic-bg: #fcfaff; }
   * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; box-sizing: border-box; }
@@ -177,7 +177,7 @@ RELICORE 開発者　げぇいむ＆AI
     <div class="privacy-link" onclick="openPolicy()">プライバシーポリシー</div>
   </div>
 </div>
-<div class="ver-footer">RELICORE v1.1</div>
+<div class="ver-footer">RELICORE v1.2</div>
 <script>
 const SAVE_KEY = "relicore_player_data";
 const BOSS_MAX_HP_BASE = 100000000000000000000n;
@@ -253,11 +253,9 @@ function closePolicy() { document.getElementById("policy-modal").style.display =
 
 function calcFinalDmgMult() { 
   const lv = getLevelByDeath(); 
-  // 基礎上昇率（0.00004% × lv）
   const baseRate = 0.0000004 * lv; 
-  // 基礎倍率 = 1.0 + (経験値 * 基礎上昇率)
   let mult = 1.0 + (player.deathCount * baseRate); 
-  // 死神の鎌の加算（所持数 × 0.0004%）を最終倍率に直接プラス
+  // 【死を刻む】最新仕様：死神の鎌による直接加算
   mult += (player.inventory[406] || 0) * 0.000004;
   
   mult += ((player.inventory[504] || 0) * 0.01); 
@@ -305,10 +303,11 @@ function renderVow() {
           highlight = `戦闘経験値：+${lv} 【魂研：+${konkenVal}】`;
       }
       else if(s.id === "shikoku") {
-          const kama = player.inventory[406] || 0;
+          const kamaCount = player.inventory[406] || 0;
           const baseRate = 0.00004 * lv;
-          const kamaAdd = kama * 0.0004;
-          highlight = `上昇率：+${baseRate.toFixed(5)}%/exp ${kama > 0 ? '【死刻：倍率+' + kamaAdd.toFixed(4) + '%】' : ''} / 倍率：x${calcFinalDmgMult().toFixed(6)}`;
+          const kamaBonus = kamaCount * 0.0004;
+          // UI表示を最新の計算ロジックに合わせる
+          highlight = `上昇率：+${baseRate.toFixed(5)}%/exp ${kamaCount > 0 ? '【死刻：倍率+' + kamaBonus.toFixed(4) + '%】' : ''} / 最終倍率：x${calcFinalDmgMult().toFixed(6)}`;
       }
       const isMax = lv >= 10;
       const lvText = isMax ? `<span class="vow-lv max">極 (Lv.${lv})</span>` : `<span class="vow-lv">Lv.${lv}</span>`;
