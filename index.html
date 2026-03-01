@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>RELICORE - v1.7</title>
+<title>RELICORE - v1.0</title>
 <style>
 :root { --bg: #ffffff; --panel: #f8f9fa; --border: #dee2e6; --primary: #007bff; --text: #212529; --hp: #dc3545; --dark: #1a1a1a; --gold: #d4af37; --growth: #ff69b4; --relic-purple: #6610f2; --relic-bg: #fcfaff; }
 * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; box-sizing: border-box; }
@@ -179,7 +179,7 @@ RELICORE 開発者　げぇいむ＆AI
  <div class="privacy-link" onclick="openPolicy()">プライバシーポリシー</div>
 </div>
 </div>
-<div class="ver-footer">RELICORE v1.7</div>
+<div class="ver-footer">RELICORE v1.0</div>
 <script>
 const SAVE_KEY = "relicore_player_data";
 const BOSS_MAX_HP_BASE = 100000000000000000000n;
@@ -197,10 +197,15 @@ let needsUIUpdate = false;
 const PLAYER_TITLES = ["初心者", "修練者", "熟練者", "探求者", "到達者", "解放者", "支配者", "超越者", "救世主", "極致：唯一神"];
 
 function formatV(val) {
-   let n = BigInt(val); if (n < 1000n) return n.toString();
-   const suffixes = ["", "k", "M", "G", "T", "P", "aa", "ab", "ac", "ad", "ae", "af", "ag", "ah", "ai", "aj", "ak", "al", "am", "an", "ao", "ap"];
-   let idx = 0; let d = Number(n);
+   let n = BigInt(val);
+   // 99,999,999 までは略称を使わずカンマ区切りで表示
+   if (n <= 99999999n) return Number(n).toLocaleString();
+   
+   // それ以上は独自単位系を適用
+   const suffixes = ["", "", "", "", "", "", "aa", "ab", "ac", "ad", "ae", "af", "ag", "ah", "ai", "aj", "ak", "al", "am", "an", "ao", "ap"];
+   let idx = 0;
    if (n < 1000000000000000n) {
+       let d = Number(n);
        while (d >= 1000 && idx < 5) { d /= 1000; idx++; }
        return d.toFixed(2).replace(/\.00$/, "") + suffixes[idx];
    } else {
@@ -439,14 +444,14 @@ const sortedInventory = Object.entries(player.inventory).filter(([id, c]) => c >
 container.innerHTML = sortedInventory.map(([id, c]) => {
    const m = RELIC_MASTER.find(x => x.id == id); if(!m) return "";
    let baseA = (m.atk || 0) * (player.hasHado && m.star === 1 ? 10 : 1), baseH = (m.hp || 0) * (player.hasHado && m.star === 1 ? 10 : 1);
-   return `<div class="relic-card ${m.star>=4?'star-high':'star-low'}"><div class="relic-name c${m.star}">★${m.star} ${m.name}×${c}</div><div class="relic-effect-box">${(m.atk?`ATK+${formatV(Math.floor(baseA * c))} `:'')}${(m.hp?`HP+${formatV(Math.floor(baseH * c))}`:'')}${(m.mult?` (x${m.mult})`:'')}${m.desc ? `<span class="relic-desc-line">${m.desc}</span>` : ""}${(id == "116" && !player.hasHado) ? `<div style="color:#007bff; font-weight:bold;">残:${formatV(100000 - c)}</div>` : ""}</div></div>`;
+   return `<div class="relic-card ${m.star>=4?'star-high':'star-low'}"><div class="relic-name c${m.star}">★${m.star} ${m.name}×${formatV(BigInt(c))}</div><div class="relic-effect-box">${(m.atk?`ATK+${formatV(BigInt(Math.floor(baseA * c)))} `:'')}${(m.hp?`HP+${formatV(BigInt(Math.floor(baseH * c)))}`:'')}${(m.mult?` (x${m.mult})`:'')}${m.desc ? `<span class="relic-desc-line">${m.desc}</span>` : ""}${(id == "116" && !player.hasHado) ? `<div style="color:#007bff; font-weight:bold;">残:${formatV(BigInt(100000 - c))}</div>` : ""}</div></div>`;
 }).join("");
 }
 
 function renderStatus() {
-document.getElementById("st-totalclicks").textContent = formatV(player.totalClicks);
-document.getElementById("v-death").textContent = formatV(player.deathCount);
-document.getElementById("st-totalrelics").textContent = formatV(player.totalRelics || 0);
+document.getElementById("st-totalclicks").textContent = formatV(BigInt(player.totalClicks));
+document.getElementById("v-death").textContent = formatV(BigInt(player.deathCount));
+document.getElementById("st-totalrelics").textContent = formatV(BigInt(player.totalRelics || 0));
 document.getElementById("st-maxdmg").textContent = formatV(player.maxDmg);
 document.getElementById("st-dmgmult").textContent = "x" + calcFinalDmgMult().toFixed(8);
 const rates = getCurrentDropRates(); let maxStar = 1; for(let s in rates) { if(player.maxDmg >= rates[s].cond) maxStar = Math.max(maxStar, parseInt(s)); }
