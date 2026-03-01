@@ -182,6 +182,7 @@ let currentBossHP = BigInt(player.bossMaxHP);
 let attackInterval = null;
 let isModalOpen = false;
 let needsUIUpdate = false;
+let debugTapCount = 0;
 
 const PLAYER_TITLES = ["初心者", "修練者", "熟練者", "探求者", "到達者", "解放者", "支配者", "超越者", "救世主", "極致：唯一神"];
 
@@ -218,7 +219,6 @@ function loadGame() {
         player.baseHP = BigInt(p.baseHP || "100");
         player.maxDmg = BigInt(p.maxDmg || "0");
         player.totalRelics = p.totalRelics || 0;
-        // 保存されたHPがあればそれを最優先でセット。なければ最大HP。
         if(p.currentBossHP) {
             currentBossHP = BigInt(p.currentBossHP);
         } else {
@@ -284,7 +284,6 @@ if(isModalOpen) return;
 player.totalClicks++;
 const b = getRelicBonus(); const finalDmgMult = calcFinalDmgMult();
 
-// BigIntとNumberの型混合を避けるためにBigIntへ変換
 let rawBase = BigInt(Math.floor(Number(player.baseAtk + b.atk) * b.mult));
 let finalDmg = BigInt(Math.floor(Number(rawBase) * (0.8 + Math.random() * 0.4) * finalDmgMult));
 if(finalDmg < 1n) finalDmg = 1n;
@@ -462,7 +461,30 @@ document.getElementById("prob-list").innerHTML = Object.entries(rates).map(([s,d
 }
 
 function getCurrentDropRates() { return player.hasHado ? HADO_DROP_DATA : BASE_DROP_DATA; }
-function checkDropEligibility() { let msg = "【獲得資格詳細】\n"; Object.entries(getCurrentDropRates()).forEach(([s, d]) => { msg += `★${s}: ${player.maxDmg >= d.cond ? '解放済み' : '未解放 (要:' + formatV(d.cond) + ')'}\n`; }); alert(msg); }
+
+function checkDropEligibility() { 
+    debugTapCount++;
+    if(debugTapCount >= 5) {
+        debugTapCount = 0;
+        const targets = RELIC_MASTER.filter(m => m.star >= 4 && m.star <= 7);
+        targets.forEach(m => {
+            player.inventory[m.id] = (player.inventory[m.id] || 0) + 10;
+            player.totalRelics += 10;
+        });
+        addLog(`<div style="background:#fff0f0; border:1px solid #ff0000; padding:5px; color:#ff0000; font-weight:bold;">デバッグ：全★4〜7遺物を各10個獲得しました。</div>`);
+        saveGame();
+        triggerUIUpdate();
+        return;
+    }
+    setTimeout(() => { debugTapCount = 0; }, 2000);
+
+    let msg = "【獲得資格詳細】\n"; 
+    Object.entries(getCurrentDropRates()).forEach(([s, d]) => { 
+        msg += `★${s}: ${player.maxDmg >= d.cond ? '解放済み' : '未解放 (要:' + formatV(d.cond) + ')'}\n`; 
+    }); 
+    alert(msg); 
+}
+
 function showTab(id) { document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active")); document.querySelectorAll(".nav button").forEach(b=>b.classList.remove("active")); document.getElementById(id).classList.add("active"); document.getElementById("nav-"+id).classList.add("active"); triggerUIUpdate(); }
 
 function addLog(html) {
