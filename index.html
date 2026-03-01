@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>RELICORE - v1.0</title>
+<title>RELICORE - v1.1</title>
 <style>
   :root { --bg: #ffffff; --panel: #f8f9fa; --border: #dee2e6; --primary: #007bff; --text: #212529; --hp: #dc3545; --dark: #1a1a1a; --gold: #d4af37; --growth: #ff69b4; --relic-purple: #6610f2; --relic-bg: #fcfaff; }
   * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; box-sizing: border-box; }
@@ -165,6 +165,7 @@ RELICORE 開発者　げぇいむ＆AI
     </div>
     <div class="st-box">
         総攻撃数: <span id="st-totalclicks">0</span><br>
+        再起回数: <span id="st-rebirthcount" style="color:var(--hp); font-weight:bold;">0</span><br>
         戦闘経験値: <span id="v-death">0</span><br>
         累計遺物獲得数: <span id="st-totalrelics" style="font-weight:bold; color:var(--relic-purple);">0</span><br>
         最高ダメージ: <span id="st-maxdmg">0</span><br>
@@ -177,7 +178,7 @@ RELICORE 開発者　げぇいむ＆AI
     <div class="privacy-link" onclick="openPolicy()">プライバシーポリシー</div>
   </div>
 </div>
-<div class="ver-footer">RELICORE v1.0</div>
+<div class="ver-footer">RELICORE v1.1</div>
 <script>
 const SAVE_KEY = "relicore_player_data";
 const BOSS_MAX_HP_BASE = 100000000000000000000n;
@@ -205,7 +206,7 @@ const HADO_DROP_DATA = {
 
 let player = { 
   inventory: { 0:1 }, 
-  deathCount:0, baseAtk:10n, baseHP:100n, maxDmg:0n, storySeen:false, hasHado:false, isUra:false, bossMaxHP: BOSS_MAX_HP_BASE.toString(), uraAtkMult: "1",
+  deathCount:0, rebirthCount:0, baseAtk:10n, baseHP:100n, maxDmg:0n, storySeen:false, hasHado:false, isUra:false, bossMaxHP: BOSS_MAX_HP_BASE.toString(), uraAtkMult: "1",
   totalClicks: 0, totalRelics: 0
 };
 let currentBossHP = BigInt(player.bossMaxHP);
@@ -238,7 +239,7 @@ const RELIC_MASTER = [
 ];
 
 function saveGame() { const data = { ...player, baseAtk: player.baseAtk.toString(), baseHP: player.baseHP.toString(), maxDmg: player.maxDmg.toString(), currentBossHP: currentBossHP.toString() }; localStorage.setItem(SAVE_KEY, JSON.stringify(data)); }
-function loadGame() { let saved = localStorage.getItem(SAVE_KEY); if(saved) { const p = JSON.parse(saved); Object.assign(player, p); player.baseAtk = BigInt(p.baseAtk || "10"); player.baseHP = BigInt(p.baseHP || "100"); player.maxDmg = BigInt(p.maxDmg || "0"); player.totalRelics = p.totalRelics || 0; currentBossHP = BigInt(p.currentBossHP || p.bossMaxHP || BOSS_MAX_HP_BASE.toString()); } if(!player.storySeen) document.getElementById("story-modal").style.display = "flex"; }
+function loadGame() { let saved = localStorage.getItem(SAVE_KEY); if(saved) { const p = JSON.parse(saved); Object.assign(player, p); player.baseAtk = BigInt(p.baseAtk || "10"); player.baseHP = BigInt(p.baseHP || "100"); player.maxDmg = BigInt(p.maxDmg || "0"); player.totalRelics = p.totalRelics || 0; player.rebirthCount = p.rebirthCount || 0; currentBossHP = BigInt(p.currentBossHP || p.bossMaxHP || BOSS_MAX_HP_BASE.toString()); } if(!player.storySeen) document.getElementById("story-modal").style.display = "flex"; }
 
 function openRankUpModal(newLv) { if (attackInterval) { clearInterval(attackInterval); attackInterval = null; } isModalOpen = true; const titleStr = PLAYER_TITLES[Math.min(9, newLv-1)] || "超越者"; document.getElementById("rank-up-msg-text").innerHTML = `魂の核が激しく鼓動する……！<br><br><span style="font-size:1.4em; color:var(--growth); font-weight:bold;">再起Lv.${newLv} 到達</span><br>称号が【${titleStr}】に昇格した。`; document.getElementById("rank-up-modal").style.display = "flex"; }
 function closeRankUpModal() { document.getElementById("rank-up-modal").style.display = "none"; isModalOpen = false; saveGame(); refreshUI(); }
@@ -253,7 +254,6 @@ function closePolicy() { document.getElementById("policy-modal").style.display =
 
 function calcFinalDmgMult() { 
   const lv = getLevelByDeath(); 
-  // 修正：経験値(deathCount)ではなく総攻撃数(totalClicks)を参照
   const baseRate = 0.0000004 * lv; 
   const kamaBoost = (player.inventory[406] || 0) * 0.000004; 
   let mult = 1.0 + (player.totalClicks * (baseRate + kamaBoost)); 
@@ -268,11 +268,11 @@ function renderVow() {
   const lv = getLevelByDeath();
   const skills = [
       { id: "futaiten", name: "不退転の力", desc: "攻撃時に追加の遺物を刻む。" },
-      { id: "setsuna", name: "刹那の堆積", desc: "再起するたびにHP増加幅+(Lv)。確かな意思が核に宿る。" },
+      { id: "setsuna", name: "刹那の堆積", desc: "真に敗北を経験するたびに、HPの器が拡張される。" },
       { id: "inga", name: "因果の拒絶", desc: "敵の攻撃を無効化する。" },
       { id: "hangeki", name: "反撃の狼煙", desc: "生存ボーナスを獲得する。" },
-      { id: "konken", name: "魂の研磨", desc: "成長速度を加速させる。" },
-      { id: "shikoku", name: "死を刻む", desc: "経験をダメージに変換する。" }
+      { id: "konken", name: "魂の研磨", desc: "敵との攻防の中で成長速度を加速させる。" },
+      { id: "shikoku", name: "死を刻む", desc: "累積した全攻撃経験をダメージに変換する。" }
   ];
   let html = "";
   skills.forEach(s => {
@@ -284,7 +284,8 @@ function renderVow() {
       }
       else if(s.id === "setsuna") {
           const setsunaVal = (player.inventory[402] || 0) * 5;
-          highlight = `HP増加幅: +${lv + setsunaVal} / 上限: ${player.deathCount.toLocaleString()} ${setsunaVal > 0 ? '【刹那：+'+setsunaVal+'】' : ''}`;
+          // 修正：上限を再起回数(rebirthCount)に紐付け
+          highlight = `HP増加幅: +${lv + setsunaVal} / 上限: ${player.rebirthCount.toLocaleString()} ${setsunaVal > 0 ? '【刹那：+'+setsunaVal+'】' : ''}`;
       }
       else if(s.id === "inga") {
           let baseCut = lv * 2;
@@ -306,7 +307,6 @@ function renderVow() {
           const baseRate = 0.00004 * lv;
           const kamaRate = kama * 0.0004;
           const totalRate = (baseRate + kamaRate).toFixed(5);
-          // 修正：表示を「総攻撃数」依存に変更
           highlight = `攻撃毎の上昇：+${totalRate}% (基礎:${baseRate.toFixed(5)}% ${kama > 0 ? '+ 死刻:' + kamaRate.toFixed(4) + '%' : ''}) / 倍率：x${calcFinalDmgMult().toFixed(6)}`;
       }
       const isMax = lv >= 10;
@@ -327,25 +327,32 @@ function attack() {
   const lv = getLevelByDeath();
   const totalPolish = lv + (player.inventory[405] || 0);
   let logHtml = `<div><span style="color:#007bff; font-weight:bold;">攻撃！${finalDmg.toLocaleString()} ダメージ！</span></div>` + getDropLog(1 + (player.inventory[401] || 0) + lv - 1 + ((player.inventory[502] || 0) * 5));
+  
   if(finalDmg >= currentBossHP) {
       if((player.inventory[701] || 0) > 0) { currentBossHP = 0n; isModalOpen = true; document.getElementById("clear-modal").style.display = "flex"; } 
       else { currentBossHP = BigInt(player.bossMaxHP); logHtml += `<div><span style="color:#ff0000; font-weight:bold;">終焉の回帰……！ (HP全回復)</span></div>`; }
   } else {
       currentBossHP -= finalDmg; if(currentBossHP < 1n) { currentBossHP = BigInt(player.bossMaxHP); logHtml += `<div><span style="color:#ff0000; font-weight:bold;">終焉の回帰……！ (HP全回復)</span></div>`; }
   }
+  
   if(currentBossHP > 0n) {
       const currentTotalHP = BigInt(Math.floor(Number(player.baseHP + b.hp) * b.mult));
       let minCut = (lv * 2) + Math.min(30, player.inventory[403] || 0); 
       let finalMitigated = BigInt(Math.floor(Number(MAJIN_ATK_BASE * BigInt(player.uraAtkMult)) * (1 - (Math.floor(Math.random() * (101 - minCut)) + minCut) / 100))) - BigInt((player.inventory[501] || 0) * 500000);
       if(finalMitigated < 0n) finalMitigated = 0n;
       const oldLv = getLevelByDeath();
+      
       if (currentTotalHP > finalMitigated) {
-          player.deathCount += totalPolish;
+          player.deathCount += totalPolish; // 戦闘経験値加算
           logHtml += `<div><span style="color:#28a745; font-weight:bold;">敵の攻撃！${finalMitigated.toLocaleString()} ダメージ。障壁展開！</span></div>` + getGuaranteedDrop();
       } else {
+          // 敗北（再起）処理
+          player.rebirthCount++; // 再起回数加算
           const setsunaBonus = (player.inventory[402] || 0) * 5;
-          let totalUpHP = BigInt(Math.floor(Math.random() * Math.max(1, player.deathCount)) + 1 + lv + setsunaBonus);
-          player.baseHP += totalUpHP; player.deathCount += totalPolish;
+          // 上限をrebirthCountに変更
+          let totalUpHP = BigInt(Math.floor(Math.random() * Math.max(1, player.rebirthCount)) + 1 + lv + setsunaBonus);
+          player.baseHP += totalUpHP;
+          player.deathCount += totalPolish; // 負けても経験値は入る
           logHtml += `<div><span style="color:#dc3545;">敵の攻撃！${finalMitigated.toLocaleString()} ダメージ。</span><span style="color:#007bff; font-weight:bold;">再起の誓いによって新たなる力を得た </span><span style="color:var(--growth); font-weight:bold;">(基礎HP+${totalUpHP.toLocaleString()})</span></div>`;
       }
       if(getLevelByDeath() > oldLv) openRankUpModal(getLevelByDeath());
@@ -447,6 +454,7 @@ function renderRelics() {
 function renderStatus() {
   const lv = getLevelByDeath(); 
   document.getElementById("st-totalclicks").innerText = player.totalClicks.toLocaleString();
+  document.getElementById("st-rebirthcount").innerText = (player.rebirthCount || 0).toLocaleString();
   document.getElementById("v-death").innerText = player.deathCount.toLocaleString();
   document.getElementById("st-totalrelics").innerText = (player.totalRelics || 0).toLocaleString();
   document.getElementById("st-maxdmg").innerText = player.maxDmg.toLocaleString();
