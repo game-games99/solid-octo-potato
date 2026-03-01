@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>RELICORE - v1.5</title>
+<title>RELICORE - v1.6</title>
 <style>
  :root { --bg: #ffffff; --panel: #f8f9fa; --border: #dee2e6; --primary: #007bff; --text: #212529; --hp: #dc3545; --dark: #1a1a1a; --gold: #d4af37; --growth: #ff69b4; --relic-purple: #6610f2; --relic-bg: #fcfaff; }
  * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; box-sizing: border-box; }
@@ -62,12 +62,12 @@
  .boss-name { font-size: 1.0em; font-weight: bold; color: #888; letter-spacing: 2px; margin-bottom: 4px; }
  .hp-bar-container { background: #333; height: 10px; border-radius: 5px; overflow: hidden; margin: 0 auto 8px auto; width: 100%; }
  #hp-bar-fill { height: 100%; background: linear-gradient(90deg, #b02a37, #dc3545); width: 100%; transition: width 0.1s ease-out; }
- .hp-val-display { font-size: 1.45em; font-weight: bold; color: #ff6b6b; font-family: 'Courier New', monospace; word-break: break-all; line-height: 1.2; letter-spacing: -1px; }
+ .hp-val-display { font-size: 1.45em; font-weight: bold; color: #ff6b6b; font-family: 'Courier New', monospace; word-break: break-all; line-height: 1.1; letter-spacing: -1px; min-height: 1.2em; display: flex; align-items: center; justify-content: center; }
  .status-box { display: flex; gap: 8px; margin-top: 10px; }
  .stat-card { flex: 1; background: rgba(255,255,255,0.08); padding: 5px 10px; border-radius: 6px; border-left: 3px solid var(--primary); display: flex; flex-direction: column; overflow: hidden; }
  .stat-card.hp-card { border-left-color: var(--hp); }
  .stat-label { font-size: 0.65em; color: #aaa; text-transform: uppercase; margin-bottom: 1px; }
- .stat-val { font-size: 0.9em; font-weight: bold; font-family: monospace; color: #fff; overflow-x: auto; white-space: nowrap; }
+ .stat-val { font-size: 0.85em; font-weight: bold; font-family: monospace; color: #fff; overflow-x: auto; white-space: nowrap; }
  .nav { display: flex; background: var(--panel); border-bottom: 1px solid var(--border); flex-shrink: 0; }
  .nav button { flex: 1; padding: 12px 0; border: none; background: none; color: #6c757d; font-weight: bold; font-size: 0.8em; }
  .nav button.active { color: var(--primary); border-bottom: 3px solid var(--primary); background: #fff; }
@@ -102,7 +102,7 @@
  .clickable-stat { display: inline-block; color: var(--primary); border: 1px solid var(--primary); padding: 2px 8px; border-radius: 12px; font-size: 0.85em; cursor: pointer; text-decoration: none; margin-left: 5px; background: #f0f7ff; transition: 0.2s; }
  .clickable-stat:active { background: var(--primary); color: #fff; transform: scale(0.95); }
  .st-title-flex { display: flex; justify-content: space-between; align-items: baseline; font-weight: bold; }
- .btn-reset { width: 100%; padding: 166px; background: #dc3545; color: #fff; border: none; border-radius: 8px; font-weight: bold; margin-bottom: 10px; }
+ .btn-reset { width: 100%; padding: 10px; background: #dc3545; color: #fff; border: none; border-radius: 8px; font-weight: bold; margin-bottom: 10px; }
  .privacy-link { display: block; text-align: center; font-size: 0.75em; color: #888; text-decoration: underline; cursor: pointer; padding: 10px; }
 
  #policy-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 60000; justify-content: center; align-items: center; padding: 20px; }
@@ -179,7 +179,7 @@ RELICORE 開発者　げぇいむ＆AI
    <div class="privacy-link" onclick="openPolicy()">プライバシーポリシー</div>
  </div>
 </div>
-<div class="ver-footer">RELICORE v1.5</div>
+<div class="ver-footer">RELICORE v1.6</div>
 <script>
 const SAVE_KEY = "relicore_player_data";
 const BOSS_MAX_HP_BASE = 100000000000000000000n;
@@ -195,6 +195,26 @@ let isModalOpen = false;
 let needsUIUpdate = false;
 
 const PLAYER_TITLES = ["初心者", "修練者", "熟練者", "探求者", "到達者", "解放者", "支配者", "超越者", "救世主", "極致：唯一神"];
+
+function formatBigInt(val, useUnit = false) {
+    if (!useUnit) return val.toLocaleString();
+    if (val < 10000n) return val.toString();
+    const units = [
+        { u: "万", v: 10000n },
+        { u: "億", v: 100000000n },
+        { u: "兆", v: 1000000000000n },
+        { u: "京", v: 10000000000000000n },
+        { u: "垓", v: 100000000000000000000n }
+    ];
+    let res = val.toString();
+    for (let i = units.length - 1; i >= 0; i--) {
+        if (val >= units[i].v) {
+            let integerPart = val / units[i].v;
+            return integerPart.toLocaleString() + units[i].u;
+        }
+    }
+    return res;
+}
 
 function getExpThreshold(lv) { if (lv <= 1) return 0; let threshold = 1000; for (let i = 2; i < lv; i++) threshold *= i; return threshold; }
 function getLevelByDeath() { let lv = 1; while (lv < 10 && player.deathCount >= getExpThreshold(lv + 1)) lv++; return lv; }
@@ -353,7 +373,6 @@ function getDropLog(count) {
  
  let finalEntries = [];
  
- // ★1, ★2, ★3 の軽量化判定
  [1, 2, 3].forEach(s => {
      let group = starGroups[s];
      let totalInStar = Object.values(group).reduce((a, b) => a + b, 0);
@@ -367,7 +386,6 @@ function getDropLog(count) {
      }
  });
 
- // ★4以上の表示
  Object.entries(others).forEach(([id, c]) => {
      const m = RELIC_MASTER.find(x => x.id == id);
      finalEntries.push(`<span class="c${m.star}">★${m.star} ${m.name}${c > 1 ? '×' + c : ''}</span>`);
@@ -403,10 +421,27 @@ function updateUIFrame() {
 
 function refreshUI() {
  const b = getRelicBonus(); const lv = getLevelByDeath();
- document.getElementById("p-atk").textContent = BigInt(Math.floor(Number(player.baseAtk + b.atk) * b.mult)).toLocaleString();
- document.getElementById("p-hp").textContent = BigInt(Math.floor(Number(player.baseHP + b.hp) * b.mult)).toLocaleString();
- document.getElementById("bosshp-cur").textContent = currentBossHP.toLocaleString();
- document.getElementById("hp-bar-fill").style.width = `${Number(currentBossHP * 100n / BigInt(player.bossMaxHP))}%`;
+ const finalPAtk = BigInt(Math.floor(Number(player.baseAtk + b.atk) * b.mult));
+ const finalPHp = BigInt(Math.floor(Number(player.baseHP + b.hp) * b.mult));
+
+ document.getElementById("p-atk").textContent = formatBigInt(finalPAtk, finalPAtk > 100000000000000n);
+ document.getElementById("p-hp").textContent = formatBigInt(finalPHp, finalPHp > 100000000000000n);
+ 
+ const hpLabel = document.getElementById("bosshp-cur");
+ const rawHP = currentBossHP.toLocaleString();
+ hpLabel.textContent = rawHP;
+ 
+ if (rawHP.length > 25) hpLabel.style.fontSize = "0.7em";
+ else if (rawHP.length > 18) hpLabel.style.fontSize = "1.0em";
+ else hpLabel.style.fontSize = "1.45em";
+
+ const bossMax = BigInt(player.bossMaxHP);
+ let barWidth = 0;
+ if (bossMax > 0n) {
+    barWidth = Number((currentBossHP * 10000n) / bossMax) / 100;
+ }
+ document.getElementById("hp-bar-fill").style.width = `${barWidth}%`;
+ 
  document.getElementById("boss-display-name").textContent = player.isUra ? "真裏ボス - 溢れし災厄" : "終末神アポカリス＝ティア";
  const area = document.getElementById("st-rank-area"); const title = document.getElementById("st-rank-title");
  document.getElementById("st-rank-lv").textContent = `Lv.${lv}`;
