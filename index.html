@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>RELICORE - v2.2</title>
+<title>RELICORE - v2.3</title>
 <style>
 :root { --bg: #ffffff; --panel: #f8f9fa; --border: #dee2e6; --primary: #007bff; --text: #212529; --hp: #dc3545; --dark: #1a1a1a; --gold: #d4af37; --growth: #ff69b4; --relic-purple: #6610f2; --relic-bg: #fcfaff; }
 * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; box-sizing: border-box; }
@@ -162,11 +162,11 @@ RELICORE 開発者　げぇいむ＆AI
 <div class="privacy-link" onclick="openPolicy()">プライバシーポリシー</div>
 </div>
 </div>
-<div class="ver-footer">RELICORE v2.2</div>
+<div class="ver-footer">RELICORE v2.3</div>
 <script>
 const SAVE_KEY = "relicore_player_data";
 const BOSS_MAX_HP_BASE = 100000000000000000000n;
-const MAJIN_ATK_BASE = 999999999999n;
+// 敵の基本ATK概念を削除し、プレイヤーHP依存へ移行（一応定数として定義）
 
 const BASE_DROP_DATA = { 1:{p:98.88889,cond:0n}, 2:{p:1.0,cond:0n}, 3:{p:0.1,cond:0n}, 4:{p:0.01,cond:100000n}, 5:{p:0.001,cond:1000000n}, 6:{p:0.0001,cond:10000000n}, 7:{p:0.00001,cond:100000000n} };
 const HADO_DROP_DATA = { 1:{p:88.8889,cond:0n}, 2:{p:10.0,cond:0n}, 3:{p:1.0,cond:0n}, 4:{p:0.01,cond:100000n}, 5:{p:0.001,cond:1000000n}, 6:{p:0.0001,cond:10000000n}, 7:{p:0.00001,cond:100000000n} };
@@ -288,8 +288,11 @@ if(finalDmg >= currentBossHP) {
 if(currentBossHP > 0n) {
  const currentTotalHP = BigInt(Math.floor(Number(player.baseHP + bonus.hp) * bonus.mult));
  let minCut = (lv * 2) + Math.min(30, player.inventory[403] || 0);
- let finalMitigated = BigInt(Math.floor(Number(MAJIN_ATK_BASE * BigInt(player.uraAtkMult)) * (1 - (Math.floor(Math.random() * (101 - minCut)) + minCut) / 100))) - BigInt((player.inventory[501] || 0) * 500000);
+ // 敵ダメージをプレイヤーHPの1.8倍に固定。裏ボスの場合はさらに倍率を乗算。
+ let rawEnemyAtk = (currentTotalHP * 18n / 10n) * BigInt(player.uraAtkMult);
+ let finalMitigated = BigInt(Math.floor(Number(rawEnemyAtk) * (1 - (Math.floor(Math.random() * (101 - minCut)) + minCut) / 100))) - BigInt((player.inventory[501] || 0) * 500000);
  if(finalMitigated < 0n) finalMitigated = 0n;
+ 
  const oldLv = getLevelByDeath();
  let gainedExp = player.isDebugExp ? 100000 : (lv + (player.inventory[405] || 0));
 
@@ -420,8 +423,6 @@ container.innerHTML = sortedInventory.map(([id, c]) => {
 const m = RELIC_MASTER.find(x => x.id == id); if(!m) return "";
 let baseA = m.atk || 0;
 let baseH = m.hp || 0;
-
-// 修正箇所: リスト表示を「1個あたりの初期値」に固定
 if(m.star === 1 && player.hasHado) { baseA *= 10; baseH *= 10; }
 else if(m.star === 2 && player.hasGreatHado) { baseA *= 10; baseH *= 10; }
 else if(m.star === 3 && player.hasDivineGuide) { baseA *= 10; baseH *= 10; }
