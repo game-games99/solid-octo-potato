@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>RELICORE - v3.7</title>
+<title>RELICORE - v3.8</title>
 <style>
 :root { --bg: #ffffff; --panel: #f8f9fa; --border: #dee2e6; --primary: #007bff; --text: #212529; --hp: #dc3545; --dark: #1a1a1a; --gold: #d4af37; --growth: #ff69b4; --relic-purple: #6610f2; --relic-bg: #fcfaff; }
 * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; box-sizing: border-box; }
@@ -80,8 +80,10 @@ body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Robot
 .vow-lv.max { color: var(--gold); text-shadow: 0 0 2px rgba(212,175,55,0.5); }
 .vow-highlight { font-weight: bold; font-size: 0.82em; display: block; line-height: 1.4; color: var(--primary); }
 .vow-sub { font-size: 0.72em; color: #888; display: block; margin-top: 2px; line-height: 1.3; }
-#clear-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; justify-content: center; align-items: center; padding: 20px; }
-.modal-content { background: #1a1a1a; border: 2px solid gold; border-radius: 15px; padding: 25px; text-align: center; color: #fff; max-width: 90%; }
+
+#clear-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; justify-content: center; align-items: center; padding: 20px; }
+.modal-content { background: #000; border: 2px solid var(--gold); border-radius: 20px; padding: 35px 25px; text-align: center; color: #fff; max-width: 450px; width: 95%; box-shadow: 0 0 30px rgba(212,175,55,0.4); }
+.clear-main-msg { font-size: 1.05em; line-height: 1.8; margin: 20px 0; color: #eee; text-align: left; }
 
 .relic-list-container { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
 .relic-card { position: relative; border: 1px solid #e0d5f0; padding: 6px 6px 6px 10px; border-radius: 6px; background: var(--relic-bg); display: flex; flex-direction: column; min-height: 70px; box-shadow: 0 2px 4px rgba(102, 16, 242, 0.05); }
@@ -136,7 +138,20 @@ RELICORE 開発者　げぇいむ＆AI
 <div id="rare-drop-modal" onclick="closeRareModal()"><div id="rare-card-content" class="rare-card"><span id="rare-star-label" class="rare-star"></span><span id="rare-name-label" class="rare-name"></span><div id="rare-desc-label" class="rare-desc"></div><div style="margin-top:20px; font-size:0.7em; color:#888;">画面タップで閉じる</div></div></div>
 <div id="hado-awaken-modal"><div class="hado-content"><div class="hado-title" id="hado-modal-title">隠しスキル覚醒</div><div class="hado-msg" id="hado-modal-msg"></div><button class="story-btn" onclick="closeHadoModal()">その力を受け入れる</button></div></div>
 <div id="story-modal"><div class="story-content"><div class="story-text"><span class="story-line" style="color:#888;">わたしはすべてをうばわれた</span><span class="story-line" style="color:#4b0082;">奴によって世界は終わりを告げ、すべては虚無に飲まれたはずだった</span><span class="story-line" style="color:#fff;">しかし、それでもまだ諦めることを知らない光がある</span><span class="story-line"><span class="story-vow">『再起の誓い』</span><span style="color:#d4af37;">が魂を激しく鼓動させる</span></span><span class="story-line" style="color:#ff0000; font-weight:bold;">奴を一撃で葬るその日まで、わたしは止まらない</span></div><button class="story-btn" onclick="closeStory()">魂に刻印する</button></div></div>
-<div id="clear-modal"><div class="modal-content"><h3 id="clear-title">討伐成功</h3><p id="clear-msg">終末神アポカリス＝ティアを討伐しました。</p><button class="story-btn" onclick="closeClearModal()">次なる戦いへ</button></div></div>
+
+<div id="clear-modal"><div class="modal-content">
+    <h3 style="color:var(--gold); font-size:1.6em; letter-spacing:3px;">神話の終焉</h3>
+    <div class="clear-main-msg">
+        終末神アポカリス＝ティアは、あなたの放った一撃の前に霧散した。<br><br>
+        しかし、その瞬間に所持していた<span style="color:var(--gold); font-weight:bold;">『パンドラの箱』</span>が激しく震え、蓋が跳ね上がる。<br><br>
+        中から溢れ出したのは希望ではなく、底知れぬ混沌。<br>
+        <span style="color:#ff4444; font-weight:bold;">「溢れし災厄」</span>が今、世界を再び塗り潰そうとしている。<br><br>
+        <hr style="border:0; border-top:1px solid #444; margin:15px 0;">
+        <span style="color:var(--growth);">ここからはエンドレスモードです。<br>遊んでくれてありがとうございます！</span>
+    </div>
+    <button class="story-btn" onclick="closeClearModal()">災厄に立ち向かう</button>
+</div></div>
+
 <div id="header"><div class="boss-area"><div class="boss-name" id="boss-display-name">終末神アポカリス＝ティア</div><div class="hp-bar-container"><div id="hp-bar-fill"></div></div><div class="hp-val-display" id="bosshp-cur">0</div></div><div class="status-box"><div class="stat-card"><span class="stat-label">ATK</span><div class="stat-val" id="p-atk">0</div></div><div class="stat-card hp-card"><span class="stat-label">HP</span><div class="stat-val" id="p-hp">0</div></div></div></div>
 <div class="nav"><button onclick="showTab('battle')" id="nav-battle" class="active">討伐</button><button onclick="showTab('vow')" id="nav-vow">再起</button><button onclick="showTab('relic')" id="nav-relic">遺物</button><button onclick="showTab('status')" id="nav-status">詳細</button></div>
 <div id="content-area">
@@ -162,7 +177,7 @@ RELICORE 開発者　げぇいむ＆AI
 <div class="privacy-link" onclick="openPolicy()">プライバシーポリシー</div>
 </div>
 </div>
-<div class="ver-footer">RELICORE v3.7</div>
+<div class="ver-footer">RELICORE v3.8</div>
 <script>
 const SAVE_KEY = "relicore_player_data";
 const BOSS_MAX_HP_BASE = 100000000000000000000n;
@@ -286,43 +301,47 @@ if(player.hasHado && !player.hasGreatHado && dust >= 200000 && (Math.random() < 
 if(player.hasGreatHado && !player.hasDivineGuide && dust >= 300000 && (Math.random() < (1/300000) || exp >= 300000)) { openHadoModal('divine'); return; }
 
 const lv = getLevelByDeath();
-// 遺物ボーナス上限適用
 const bushinCount = Math.min(50000, player.inventory[401] || 0);
 const gouyokuCount = Math.min(50000, player.inventory[502] || 0);
 let logHtml = `<div><span style="color:#007bff; font-weight:bold;">攻撃！${formatV(finalDmg)} ダメージ！</span></div>` + getDropLog(1 + bushinCount + lv - 1 + (gouyokuCount * 5));
 
+// 神の討伐ギミック
 if(finalDmg >= currentBossHP) {
-if((player.inventory[701] || 0) > 0) {
-    currentBossHP = 0n;
-    if(!player.isCleared) { isModalOpen = true; document.getElementById("clear-modal").style.display = "flex"; player.isCleared = true; }
-    else { handleBossDefeat(); }
+    if((player.inventory[701] || 0) > 0) {
+        currentBossHP = 0n;
+        if(!player.isCleared) { 
+            stopAttack();
+            isModalOpen = true; 
+            document.getElementById("clear-modal").style.display = "flex"; 
+            player.isCleared = true; 
+        } else { handleBossDefeat(); }
+    } else {
+        currentBossHP = BigInt(player.bossMaxHP);
+        logHtml += `<div><span style="color:#ff0000; font-weight:bold;">終焉の回帰……！ (HP全回復)</span></div>`;
+    }
 } else {
-    currentBossHP = BigInt(player.bossMaxHP);
-    logHtml += `<div><span style="color:#ff0000; font-weight:bold;">終焉の回帰……！ (HP全回復)</span></div>`;
-}
-} else {
-currentBossHP -= finalDmg;
-if(currentBossHP < 1n) { currentBossHP = BigInt(player.bossMaxHP); logHtml += `<div><span style="color:#ff0000; font-weight:bold;">終焉の回帰……！ (HP全回復)</span></div>`; }
+    currentBossHP -= finalDmg;
+    if(currentBossHP < 1n) { currentBossHP = BigInt(player.bossMaxHP); logHtml += `<div><span style="color:#ff0000; font-weight:bold;">終焉の回帰……！ (HP全回復)</span></div>`; }
 }
 
 if(currentBossHP > 0n) {
-const currentTotalHP = BigInt(Math.floor(Number(player.baseHP + bonus.hp) * bonus.mult));
-let minCut = (lv * 2) + Math.min(30, player.inventory[403] || 0);
-let rawEnemyAtk = currentTotalHP * 3n;
-let finalMitigated = BigInt(Math.floor(Number(rawEnemyAtk) * (1 - (Math.floor(Math.random() * (101 - minCut)) + minCut) / 100))) - BigInt((player.inventory[501] || 0) * 500000);
-if(finalMitigated < 0n) finalMitigated = 0n;
-const oldLv = getLevelByDeath();
-let gainedExp = player.isDebugExp ? 100000 : (lv + (player.inventory[405] || 0));
-if (currentTotalHP > finalMitigated) {
-    player.deathCount += gainedExp;
-    logHtml += `<div><span style="color:#28a745; font-weight:bold;">敵の攻撃！${formatV(finalMitigated)} ダメージ。障壁展開！</span></div>` + getGuaranteedDrop();
-} else {
-    let totalUpHP = BigInt(Math.floor(Math.random() * Math.max(1, player.deathCount)) + 1 + lv + (player.inventory[402] || 0) * 5);
-    player.baseHP += totalUpHP;
-    player.deathCount += gainedExp;
-    logHtml += `<div><span style="color:#dc3545;">敵の攻撃！${formatV(finalMitigated)} ダメージ。</span><span style="color:#007bff; font-weight:bold;">再起の誓いによって新たなる力を得た </span><span style="color:var(--growth); font-weight:bold;">(基礎HP+${formatV(totalUpHP)})</span></div>`;
-}
-if(getLevelByDeath() > oldLv) openRankUpModal(getLevelByDeath());
+    const currentTotalHP = BigInt(Math.floor(Number(player.baseHP + bonus.hp) * bonus.mult));
+    let minCut = (lv * 2) + Math.min(30, player.inventory[403] || 0);
+    let rawEnemyAtk = currentTotalHP * 3n;
+    let finalMitigated = BigInt(Math.floor(Number(rawEnemyAtk) * (1 - (Math.floor(Math.random() * (101 - minCut)) + minCut) / 100))) - BigInt((player.inventory[501] || 0) * 500000);
+    if(finalMitigated < 0n) finalMitigated = 0n;
+    const oldLv = getLevelByDeath();
+    let gainedExp = player.isDebugExp ? 100000 : (lv + (player.inventory[405] || 0));
+    if (currentTotalHP > finalMitigated) {
+        player.deathCount += gainedExp;
+        logHtml += `<div><span style="color:#28a745; font-weight:bold;">敵の攻撃！${formatV(finalMitigated)} ダメージ。障壁展開！</span></div>` + getGuaranteedDrop();
+    } else {
+        let totalUpHP = BigInt(Math.floor(Math.random() * Math.max(1, player.deathCount)) + 1 + lv + (player.inventory[402] || 0) * 5);
+        player.baseHP += totalUpHP;
+        player.deathCount += gainedExp;
+        logHtml += `<div><span style="color:#dc3545;">敵の攻撃！${formatV(finalMitigated)} ダメージ。</span><span style="color:#007bff; font-weight:bold;">再起の誓いによって新たなる力を得た </span><span style="color:var(--growth); font-weight:bold;">(基礎HP+${formatV(totalUpHP)})</span></div>`;
+    }
+    if(getLevelByDeath() > oldLv) openRankUpModal(getLevelByDeath());
 }
 addLog(logHtml); saveGame(); triggerUIUpdate();
 }
@@ -400,7 +419,7 @@ document.getElementById("p-atk").textContent = formatV(BigInt(Math.floor(Number(
 document.getElementById("p-hp").textContent = formatV(BigInt(Math.floor(Number(player.baseHP + b.hp) * b.mult)));
 document.getElementById("bosshp-cur").textContent = formatV(currentBossHP);
 document.getElementById("hp-bar-fill").style.width = `${Number(currentBossHP * 100n / BigInt(player.bossMaxHP))}%`;
-document.getElementById("boss-display-name").textContent = player.isUra ? "真裏ボス - 溢れし災厄" : "終末神アポカリス＝ティア";
+document.getElementById("boss-display-name").textContent = player.isUra ? "溢れし災厄 (Endless)" : "終末神アポカリス＝ティア";
 const area = document.getElementById("st-rank-area"); const title = document.getElementById("st-rank-title");
 document.getElementById("st-rank-lv").textContent = `Lv.${lv}`;
 const titleStr = PLAYER_TITLES[Math.min(9, lv - 1)] || "超越者";
@@ -527,8 +546,22 @@ function checkDropEligibility() {
 function showTab(id) { document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active")); document.querySelectorAll(".nav button").forEach(b=>b.classList.remove("active")); document.getElementById(id).classList.add("active"); document.getElementById("nav-"+id).classList.add("active"); triggerUIUpdate(); }
 function addLog(html) { const l = document.getElementById("log"); const d = document.createElement("div"); d.className = "log-set"; d.innerHTML = html; l.insertBefore(d, l.firstChild); while (l.children.length > 20) { l.removeChild(l.lastChild); } }
 function closeStory() { player.storySeen = true; document.getElementById("story-modal").style.display = "none"; saveGame(); }
-function handleBossDefeat() { player.isUra = true; player.bossMaxHP = (BigInt(player.bossMaxHP) * 2n).toString(); player.uraAtkMult = (Number(player.uraAtkMult) * 1.5).toString(); currentBossHP = BigInt(player.bossMaxHP); }
-function closeClearModal() { document.getElementById("clear-modal").style.display = "none"; isModalOpen = false; handleBossDefeat(); saveGame(); triggerUIUpdate(); }
+
+function handleBossDefeat() { 
+    player.isUra = true; 
+    player.bossMaxHP = (BigInt(player.bossMaxHP) * 2n).toString(); 
+    player.uraAtkMult = (Number(player.uraAtkMult) * 1.5).toString(); 
+    currentBossHP = BigInt(player.bossMaxHP); 
+}
+
+function closeClearModal() { 
+    document.getElementById("clear-modal").style.display = "none"; 
+    isModalOpen = false; 
+    handleBossDefeat(); 
+    saveGame(); 
+    triggerUIUpdate(); 
+}
+
 function resetData() { if(confirm("全リセットしますか？")) { localStorage.clear(); location.reload(); } }
 
 const btn = document.getElementById("attackBtn");
