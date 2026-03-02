@@ -499,19 +499,19 @@ function checkDropEligibility() {
        player.hasGreatHado = true;
        player.hasDivineGuide = true;
 
-       // 【強化】再起の誓い(ID:0)以外の全遺物を30万個に設定
+       // 【強化】再起の誓い(ID:0)以外の全遺物を20万個に設定
        let newTotalRelics = 0;
        RELIC_MASTER.forEach(relic => {
            if (relic.id !== 0) {
-               player.inventory[relic.id] = 300000;
-               newTotalRelics += 300000;
+               player.inventory[relic.id] = 200000;
+               newTotalRelics += 200000;
            } else {
                newTotalRelics += (player.inventory[0] || 1);
            }
        });
        player.totalRelics = newTotalRelics;
 
-       addLog(`<div style="background:#fff0f0; border:1px solid #ff0000; padding:8px; color:#ff0000; font-weight:bold; font-size:0.9em;">【デバッグ:全遺物30万個付与】<br>・再起の誓いを除く全遺物を30万個所持<br>・全覇道系スキル 解放済み</div>`);
+       addLog(`<div style="background:#fff0f0; border:1px solid #ff0000; padding:8px; color:#ff0000; font-weight:bold; font-size:0.9em;">【デバッグ:全遺物20万個付与】<br>・再起の誓いを除く全遺物を30万個所持<br>・全覇道系スキル 解放済み</div>`);
        saveGame(); triggerUIUpdate(); return;
    }
    setTimeout(() => { debugTapCount = 0; }, 2000);
