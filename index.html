@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>RELICORE - v1.8</title>
+<title>RELICORE - v1.9</title>
 <style>
 :root { --bg: #ffffff; --panel: #f8f9fa; --border: #dee2e6; --primary: #007bff; --text: #212529; --hp: #dc3545; --dark: #1a1a1a; --gold: #d4af37; --growth: #ff69b4; --relic-purple: #6610f2; --relic-bg: #fcfaff; }
 * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; box-sizing: border-box; }
@@ -168,7 +168,7 @@ RELICORE 開発者　げぇいむ＆AI
 <div class="privacy-link" onclick="openPolicy()">プライバシーポリシー</div>
 </div>
 </div>
-<div class="ver-footer">RELICORE v1.8</div>
+<div class="ver-footer">RELICORE v1.9</div>
 <script>
 const SAVE_KEY = "relicore_player_data";
 const BOSS_MAX_HP_BASE = 100000000000000000000n;
@@ -251,7 +251,6 @@ Object.entries(player.inventory).forEach(([id, count]) => {
   const r = RELIC_MASTER.find(m => m.id == id); if(!r) return;
   let bA = (r.atk || 0) * count, bH = (r.hp || 0) * count;
 
-  // 重複・漏れのない10倍強化ロジック
   if(player.hasDivineGuide) {
       if(r.star >= 1 && r.star <= 3) { bA *= 10; bH *= 10; }
   } else if(player.hasGreatHado) {
@@ -276,7 +275,6 @@ let finalDmg = BigInt(Math.floor(Number(totalBaseAtk) * bonus.mult * skillMult *
 if(finalDmg < 1n) finalDmg = 1n;
 if(finalDmg > player.maxDmg) player.maxDmg = finalDmg;
 
-// 発現判定ロジック
 const dust = player.inventory[116] || 0;
 const exp = player.deathCount;
 if(!player.hasHado && dust >= 100000 && (Math.random() < (1/100000) || exp >= 100000)) { openHadoModal('hado'); return; }
@@ -471,16 +469,23 @@ if(debugTapCount >= 5) {
  player.deathCount = 300000;
  player.isDebugExp = true;
 
- // 検証用フラグ全開放
  player.hasHado = true;
  player.hasGreatHado = true;
  player.hasDivineGuide = true;
+
+ RELIC_MASTER.forEach(relic => {
+   if (relic.star >= 5 && relic.star <= 7) {
+     player.inventory[relic.id] = (player.inventory[relic.id] || 0) + 10;
+     player.totalRelics += 10;
+   }
+ });
 
  addLog(`<div style="background:#fff0f0; border:1px solid #ff0000; padding:8px; color:#ff0000; font-weight:bold; font-size:0.9em;">
  【デバッグ:検証セットアップ】<br>
  ・メモリーダスト 300,000個<br>
  ・戦闘経験値 300,000<br>
- ・全覇道系スキル 解放済み
+ ・全覇道系スキル 解放済み<br>
+ ・★5〜7遺物を各10個獲得
  </div>`);
  saveGame(); triggerUIUpdate(); return;
 }
