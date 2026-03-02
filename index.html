@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>RELICORE - v3.9</title>
+<title>RELICORE - v4.0</title>
 <style>
 :root { --bg: #ffffff; --panel: #f8f9fa; --border: #dee2e6; --primary: #007bff; --text: #212529; --hp: #dc3545; --dark: #1a1a1a; --gold: #d4af37; --growth: #ff69b4; --relic-purple: #6610f2; --relic-bg: #fcfaff; }
 * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; box-sizing: border-box; }
@@ -177,7 +177,7 @@ RELICORE 開発者　げぇいむ＆AI
 <div class="privacy-link" onclick="openPolicy()">プライバシーポリシー</div>
 </div>
 </div>
-<div class="ver-footer">RELICORE v3.9</div>
+<div class="ver-footer">RELICORE v4.0</div>
 <script>
 const SAVE_KEY = "relicore_player_data";
 const BOSS_MAX_HP_BASE = 100000000000000000000n;
@@ -187,7 +187,7 @@ const HADO_DROP_DATA = { 1:{p:88.8889,cond:0n}, 2:{p:10.0,cond:0n}, 3:{p:1.0,con
 const GREAT_HADO_DROP_DATA = { 1:{p:78.8889,cond:0n}, 2:{p:18.0,cond:0n}, 3:{p:3.0,cond:0n}, 4:{p:0.01,cond:100000n}, 5:{p:0.001,cond:1000000n}, 6:{p:0.0001,cond:10000000n}, 7:{p:0.00001,cond:100000000n} };
 const DIVINE_GUIDE_DROP_DATA = { 1:{p:59.8889,cond:0n}, 2:{p:30.0,cond:0n}, 3:{p:10.0,cond:0n}, 4:{p:0.01,cond:100000n}, 5:{p:0.001,cond:1000000n}, 6:{p:0.0001,cond:10000000n}, 7:{p:0.00001,cond:100000000n} };
 
-let player = { inventory: { 0:1 }, deathCount:0, baseAtk:10n, baseHP:100n, maxDmg:0n, storySeen:false, hasHado:false, hasGreatHado:false, hasDivineGuide:false, isUra:false, bossMaxHP: BOSS_MAX_HP_BASE.toString(), uraAtkMult: "1", totalClicks: 0, totalRelics: 0, isCleared: false, maxDmgReset_v39: false };
+let player = { inventory: { 0:1 }, deathCount:0, baseAtk:10n, baseHP:100n, maxDmg:0n, storySeen:false, hasHado:false, hasGreatHado:false, hasDivineGuide:false, isUra:false, bossMaxHP: BOSS_MAX_HP_BASE.toString(), uraAtkMult: "1", totalClicks: 0, totalRelics: 0, isCleared: false, maxDmgReset_v40: false };
 let currentBossHP = BigInt(player.bossMaxHP);
 let attackInterval = null;
 let isModalOpen = false;
@@ -240,13 +240,14 @@ function loadGame() {
         player.totalRelics = p.totalRelics || 0;
         currentBossHP = p.currentBossHP ? BigInt(p.currentBossHP) : BigInt(player.bossMaxHP);
         
-        if (!player.maxDmgReset_v39) {
+        // v4.0用 最大ダメージ1回リセット処理
+        if (!player.maxDmgReset_v40) {
             player.maxDmg = 0n;
-            player.maxDmgReset_v39 = true;
+            player.maxDmgReset_v40 = true;
         }
     } else {
         currentBossHP = BigInt(player.bossMaxHP);
-        player.maxDmgReset_v39 = true;
+        player.maxDmgReset_v40 = true;
     }
     if(!player.storySeen) document.getElementById("story-modal").style.display = "flex";
 }
@@ -365,28 +366,32 @@ addLog(logHtml); saveGame(); triggerUIUpdate();
 }
 
 function getGuaranteedDrop() {
-const lv = getLevelByDeath();
-const hasZanko = (player.inventory[404] || 0) > 0;
-let results = { 2: 0, 3: 0 };
-const cands2 = RELIC_MASTER.filter(m => m.star === 2);
-const cands3 = RELIC_MASTER.filter(m => m.star === 3);
-const dropCount = Math.floor(Math.random() * lv) + 1;
-for (let i = 0; i < dropCount; i++) {
-   let sel;
-   if (hasZanko && Math.random() < 0.5) {
-       sel = cands3[Math.floor(Math.random() * cands3.length)];
-       results[3]++;
-   } else {
-       sel = cands2[Math.floor(Math.random() * cands2.length)];
-       results[2]++;
-   }
-   player.inventory[sel.id] = (player.inventory[sel.id] || 0) + 1;
-}
-player.totalRelics += dropCount;
-let entries = [];
-if(results[2] > 0) entries.push(`<span class="c2">★2遺物 合計${results[2]}個</span>`);
-if(results[3] > 0) entries.push(`<span class="c3">★3遺物 合計${results[3]}個</span>`);
-return `<div style="font-size:0.82em;">【狼煙】獲得：${entries.join("、")}</div>`;
+    const lv = getLevelByDeath();
+    const hasZanko = (player.inventory[404] || 0) > 0;
+    let localGains = {};
+    const cands2 = RELIC_MASTER.filter(m => m.star === 2);
+    const cands3 = RELIC_MASTER.filter(m => m.star === 3);
+    const dropCount = Math.floor(Math.random() * lv) + 1;
+
+    for (let i = 0; i < dropCount; i++) {
+        let sel;
+        if (hasZanko && Math.random() < 0.5) {
+            sel = cands3[Math.floor(Math.random() * cands3.length)];
+        } else {
+            sel = cands2[Math.floor(Math.random() * cands2.length)];
+        }
+        player.inventory[sel.id] = (player.inventory[sel.id] || 0) + 1;
+        localGains[sel.id] = (localGains[sel.id] || 0) + 1;
+    }
+    player.totalRelics += dropCount;
+
+    let entries = [];
+    Object.entries(localGains).forEach(([id, count]) => {
+        const m = RELIC_MASTER.find(x => x.id == id);
+        entries.push(`<span class="c${m.star}">★${m.star} ${m.name}${count > 1 ? '×' + count : ''}</span>`);
+    });
+
+    return `<div style="font-size:0.82em;">【狼煙】獲得：${entries.join("、 ")}</div>`;
 }
 
 function getDropLog(count) {
