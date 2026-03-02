@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>RELICORE - v3.3</title>
+<title>RELICORE - v3.5</title>
 <style>
 :root { --bg: #ffffff; --panel: #f8f9fa; --border: #dee2e6; --primary: #007bff; --text: #212529; --hp: #dc3545; --dark: #1a1a1a; --gold: #d4af37; --growth: #ff69b4; --relic-purple: #6610f2; --relic-bg: #fcfaff; }
 * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; box-sizing: border-box; }
@@ -29,7 +29,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Robot
 
 #rare-drop-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 40000; justify-content: center; align-items: center; }
 .rare-card { background: #fff; padding: 30px; border-radius: 15px; width: 85%; max-width: 320px; text-align: center; position: relative; }
-.rare-star { fonte: 1.5em; display: block; margin-bottom: 10px; }
+.rare-star { font-size: 1.5em; display: block; margin-bottom: 10px; }
 .rare-name { font-size: 1.4em; font-weight: bold; color: #333; display: block; margin-bottom: 15px; }
 .rare-desc { font-size: 0.9em; color: #666; line-height: 1.5; }
 
@@ -162,7 +162,7 @@ RELICORE 開発者　げぇいむ＆AI
 <div class="privacy-link" onclick="openPolicy()">プライバシーポリシー</div>
 </div>
 </div>
-<div class="ver-footer">RELICORE v3.3</div>
+<div class="ver-footer">RELICORE v3.5</div>
 <script>
 const SAVE_KEY = "relicore_player_data";
 const BOSS_MAX_HP_BASE = 100000000000000000000n;
@@ -305,7 +305,6 @@ if(finalDmg >= currentBossHP) {
 if(currentBossHP > 0n) {
  const currentTotalHP = BigInt(Math.floor(Number(player.baseHP + bonus.hp) * bonus.mult));
  let minCut = (lv * 2) + Math.min(30, player.inventory[403] || 0);
- // 敵の攻撃ダメージを最大HPの300%に設定
  let rawEnemyAtk = currentTotalHP * 3n;
  let finalMitigated = BigInt(Math.floor(Number(rawEnemyAtk) * (1 - (Math.floor(Math.random() * (101 - minCut)) + minCut) / 100))) - BigInt((player.inventory[501] || 0) * 500000);
  if(finalMitigated < 0n) finalMitigated = 0n;
@@ -351,28 +350,44 @@ return `<div style="font-size:0.82em;">【狼煙】獲得：${entries.join("、"
 }
 
 function getDropLog(count) {
-let starGroups = { 1: {}, 2: {}, 3: {} }; let others = {};
-const rates = getCurrentDropRates(); let showRare = null;
-for(let i=0; i < count; i++) {
- let rv = Math.random()*100, star=1, curP=0;
- for(let s in rates) { curP += rates[s].p; if(rv <= curP) { star=parseInt(s); break; } }
- if (player.maxDmg < rates[star].cond) star=1;
- let cands = RELIC_MASTER.filter(m => m.star === star && m.id !== 0);
- let sel = cands[Math.floor(Math.random() * cands.length)];
- if (sel.star >= 4 && !player.inventory[sel.id]) { if (!showRare || sel.star > showRare.star) showRare = sel; }
- player.inventory[sel.id] = (player.inventory[sel.id] || 0) + 1; player.totalRelics++;
- if (star <= 3) { starGroups[star][sel.id] = (starGroups[star][sel.id] || 0) + 1; }
- else { others[sel.id] = (others[sel.id] || 0) + 1; }
-}
-if(showRare) openRareModal(showRare);
-let finalEntries = [];
-[1, 2, 3].forEach(s => {
- let group = starGroups[s]; let totalInStar = Object.values(group).reduce((a, b) => a + b, 0);
- if (totalInStar >= 10) { finalEntries.push(`<span class="c${s}">★${s}遺物 合計${totalInStar}個</span>`); }
- else if (totalInStar > 0) { Object.entries(group).forEach(([id, c]) => { const m = RELIC_MASTER.find(x => x.id == id); finalEntries.push(`<span class="c${s}">★${s} ${m.name}${c > 1 ? '×' + c : ''}</span>`); }); }
-});
-Object.entries(others).forEach(([id, c]) => { const m = RELIC_MASTER.find(x => x.id == id); finalEntries.push(`<span class="c${m.star}">★${m.star} ${m.name}${c > 1 ? '×' + c : ''}</span>`); });
-return finalEntries.length > 0 ? `<div style="font-size:0.82em;">獲得：${finalEntries.join("、 ")}</div>` : "";
+    let starCounts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0 };
+    let starGroups = { 1: {}, 2: {}, 3: {}, 4: {}, 5: {}, 6: {}, 7: {} };
+    const rates = getCurrentDropRates();
+    let showRare = null;
+
+    for(let i=0; i < count; i++) {
+        let rv = Math.random()*100, star=1, curP=0;
+        for(let s in rates) { curP += rates[s].p; if(rv <= curP) { star=parseInt(s); break; } }
+        if (player.maxDmg < rates[star].cond) star=1;
+        
+        let cands = RELIC_MASTER.filter(m => m.star === star && m.id !== 0);
+        let sel = cands[Math.floor(Math.random() * cands.length)];
+        
+        if (sel.star >= 4 && !player.inventory[sel.id]) { if (!showRare || sel.star > showRare.star) showRare = sel; }
+        
+        player.inventory[sel.id] = (player.inventory[sel.id] || 0) + 1;
+        player.totalRelics++;
+        
+        starCounts[star]++;
+        starGroups[star][sel.id] = (starGroups[star][sel.id] || 0) + 1;
+    }
+    if(showRare) openRareModal(showRare);
+
+    let finalEntries = [];
+    for (let s = 1; s <= 7; s++) {
+        if (starCounts[s] === 0) continue;
+        
+        // 30個を超えたら集約表示
+        if (starCounts[s] > 30) {
+            finalEntries.push(`<span class="c${s}">★${s}遺物 合計${starCounts[s]}個</span>`);
+        } else {
+            Object.entries(starGroups[s]).forEach(([id, c]) => {
+                const m = RELIC_MASTER.find(x => x.id == id);
+                finalEntries.push(`<span class="c${s}">★${s} ${m.name}${c > 1 ? '×' + c : ''}</span>`);
+            });
+        }
+    }
+    return finalEntries.length > 0 ? `<div style="font-size:0.82em;">獲得：${finalEntries.join("、 ")}</div>` : "";
 }
 
 function triggerUIUpdate() { if (!needsUIUpdate) { needsUIUpdate = true; requestAnimationFrame(updateUIFrame); } }
@@ -474,17 +489,35 @@ return BASE_DROP_DATA;
 }
 
 function checkDropEligibility() {
-debugTapCount++;
-if(debugTapCount >= 5) {
-debugTapCount = 0; player.inventory[116] = 3000000; player.deathCount = 3000000; player.isDebugExp = true; player.hasHado = true; player.hasGreatHado = true; player.hasDivineGuide = true;
-RELIC_MASTER.forEach(relic => { if (relic.star >= 5 && relic.star <= 7) { player.inventory[relic.id] = (player.inventory[relic.id] || 0) +10000000; player.totalRelics += 10000000; } });
-addLog(`<div style="background:#fff0f0; border:1px solid #ff0000; padding:8px; color:#ff0000; font-weight:bold; font-size:0.9em;">【デバッグ:検証セットアップ】<br>・全覇道系スキル 解放済み<br>・★5〜7遺物を各1000000個獲得</div>`);
-saveGame(); triggerUIUpdate(); return;
-}
-setTimeout(() => { debugTapCount = 0; }, 2000);
-let msg = "【獲得資格詳細】\n";
-Object.entries(getCurrentDropRates()).forEach(([s, d]) => { msg += `★${s}: ${player.maxDmg >= d.cond ? '解放済み' : '未解放 (要:' + formatV(d.cond) + ')'}\n`; });
-alert(msg);
+    debugTapCount++;
+    if(debugTapCount >= 5) {
+        debugTapCount = 0;
+        player.inventory[116] = 300000; // メモリーダスト
+        player.deathCount = 300000;
+        player.isDebugExp = true;
+        player.hasHado = true;
+        player.hasGreatHado = true;
+        player.hasDivineGuide = true;
+
+        // 【強化】再起の誓い(ID:0)以外の全遺物を30万個に設定
+        let newTotalRelics = 0;
+        RELIC_MASTER.forEach(relic => {
+            if (relic.id !== 0) {
+                player.inventory[relic.id] = 300000;
+                newTotalRelics += 300000;
+            } else {
+                newTotalRelics += (player.inventory[0] || 1);
+            }
+        });
+        player.totalRelics = newTotalRelics;
+
+        addLog(`<div style="background:#fff0f0; border:1px solid #ff0000; padding:8px; color:#ff0000; font-weight:bold; font-size:0.9em;">【デバッグ:全遺物30万個付与】<br>・再起の誓いを除く全遺物を30万個所持<br>・全覇道系スキル 解放済み</div>`);
+        saveGame(); triggerUIUpdate(); return;
+    }
+    setTimeout(() => { debugTapCount = 0; }, 2000);
+    let msg = "【獲得資格詳細】\n";
+    Object.entries(getCurrentDropRates()).forEach(([s, d]) => { msg += `★${s}: ${player.maxDmg >= d.cond ? '解放済み' : '未解放 (要:' + formatV(d.cond) + ')'}\n`; });
+    alert(msg);
 }
 
 function showTab(id) { document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active")); document.querySelectorAll(".nav button").forEach(b=>b.classList.remove("active")); document.getElementById(id).classList.add("active"); document.getElementById("nav-"+id).classList.add("active"); triggerUIUpdate(); }
