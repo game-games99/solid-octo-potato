@@ -187,12 +187,11 @@ const HADO_DROP_DATA = { 1:{p:88.8889,cond:0n}, 2:{p:10.0,cond:0n}, 3:{p:1.0,con
 const GREAT_HADO_DROP_DATA = { 1:{p:78.8889,cond:0n}, 2:{p:18.0,cond:0n}, 3:{p:3.0,cond:0n}, 4:{p:0.01,cond:100000n}, 5:{p:0.001,cond:1000000n}, 6:{p:0.0001,cond:10000000n}, 7:{p:0.00001,cond:100000000n} };
 const DIVINE_GUIDE_DROP_DATA = { 1:{p:59.8889,cond:0n}, 2:{p:30.0,cond:0n}, 3:{p:10.0,cond:0n}, 4:{p:0.01,cond:100000n}, 5:{p:0.001,cond:1000000n}, 6:{p:0.0001,cond:10000000n}, 7:{p:0.00001,cond:100000000n} };
 
-let player = { inventory: { 0:1 }, deathCount:0, baseAtk:10n, baseHP:100n, maxDmg:0n, storySeen:false, hasHado:false, hasGreatHado:false, hasDivineGuide:false, isUra:false, bossMaxHP: BOSS_MAX_HP_BASE.toString(), uraAtkMult: "1", totalClicks: 0, totalRelics: 0, isCleared: false, isDebugExp: false, maxDmgReset_v39: false };
+let player = { inventory: { 0:1 }, deathCount:0, baseAtk:10n, baseHP:100n, maxDmg:0n, storySeen:false, hasHado:false, hasGreatHado:false, hasDivineGuide:false, isUra:false, bossMaxHP: BOSS_MAX_HP_BASE.toString(), uraAtkMult: "1", totalClicks: 0, totalRelics: 0, isCleared: false, maxDmgReset_v39: false };
 let currentBossHP = BigInt(player.bossMaxHP);
 let attackInterval = null;
 let isModalOpen = false;
 let needsUIUpdate = false;
-let debugTapCount = 0;
 
 const PLAYER_TITLES = ["初心者", "修練者", "熟練者", "探求者", "到達者", "解放者", "支配者", "超越者", "救世主", "極致：唯一神"];
 
@@ -241,15 +240,13 @@ function loadGame() {
         player.totalRelics = p.totalRelics || 0;
         currentBossHP = p.currentBossHP ? BigInt(p.currentBossHP) : BigInt(player.bossMaxHP);
         
-        // v3.9 アップデートに伴う最高ダメージの1回限定リセット
         if (!player.maxDmgReset_v39) {
             player.maxDmg = 0n;
             player.maxDmgReset_v39 = true;
-            console.log("v3.9: maxDmg has been reset for update balance.");
         }
     } else {
         currentBossHP = BigInt(player.bossMaxHP);
-        player.maxDmgReset_v39 = true; // 新規プレイ時はリセット済み扱い
+        player.maxDmgReset_v39 = true;
     }
     if(!player.storySeen) document.getElementById("story-modal").style.display = "flex";
 }
@@ -327,7 +324,6 @@ const bushinCount = Math.min(50000, player.inventory[401] || 0);
 const gouyokuCount = Math.min(50000, player.inventory[502] || 0);
 let logHtml = `<div><span style="color:#007bff; font-weight:bold;">攻撃！${formatV(finalDmg)} ダメージ！</span></div>` + getDropLog(1 + bushinCount + lv - 1 + (gouyokuCount * 5));
 
-// 神の討伐ギミック
 if(finalDmg >= currentBossHP) {
     if((player.inventory[701] || 0) > 0) {
         currentBossHP = 0n;
@@ -353,7 +349,7 @@ if(currentBossHP > 0n) {
     let finalMitigated = BigInt(Math.floor(Number(rawEnemyAtk) * (1 - (Math.floor(Math.random() * (101 - minCut)) + minCut) / 100))) - BigInt((player.inventory[501] || 0) * 500000);
     if(finalMitigated < 0n) finalMitigated = 0n;
     const oldLv = getLevelByDeath();
-    let gainedExp = player.isDebugExp ? 100000 : (lv + (player.inventory[405] || 0));
+    let gainedExp = lv + (player.inventory[405] || 0);
     if (currentTotalHP > finalMitigated) {
         player.deathCount += gainedExp;
         logHtml += `<div><span style="color:#28a745; font-weight:bold;">敵の攻撃！${formatV(finalMitigated)} ダメージ。障壁展開！</span></div>` + getGuaranteedDrop();
@@ -490,7 +486,7 @@ if(s.id === "futaiten") { highlight = `獲得遺物ボーナス：+${lv - 1 + bu
 else if(s.id === "setsuna") { const setsunaVal = (player.inventory[402] || 0) * 5; highlight = `HP増加幅: +${lv + setsunaVal} / 上限: ${formatV(player.deathCount)} ${setsunaVal > 0 ? '【刹那：+'+setsunaVal+'】' : ''}`; }
 else if(s.id === "inga") { let baseCut = lv * 2; let ingaVal = Math.min(30, player.inventory[403] || 0); highlight = `無効化範囲：${baseCut + ingaVal}% ～ 100% 【因果：+${ingaVal}%】 / 固定軽減: +${formatV((player.inventory[501] || 0) * 500000)}`; }
 else if(s.id === "hangeki") { const zanko = (player.inventory[404] || 0) > 0; highlight = `確定獲得：1 ～ ${lv}個 (★2${zanko ? '/★3' : ''}) ${zanko ? '【勇者の残光】' : ''}`; }
-else if(s.id === "konken") { highlight = `戦闘経験値：+${player.isDebugExp ? formatV(100000) : lv} 【魂研：+${player.inventory[405] || 0}】`; }
+else if(s.id === "konken") { highlight = `戦闘経験値：+${lv} 【魂研：+${player.inventory[405] || 0}】`; }
 else if(s.id === "shikoku") {
   const fixedBonus = (lv * 0.00004) + ((player.inventory[406] || 0) * 0.00004);
   highlight = `加算倍率：+${(fixedBonus * 100).toFixed(4)}% 【固定】`;
@@ -534,32 +530,6 @@ return BASE_DROP_DATA;
 }
 
 function checkDropEligibility() {
-   debugTapCount++;
-   if(debugTapCount >= 5) {
-       debugTapCount = 0;
-       player.inventory[116] = 100000;
-       player.deathCount = 300000;
-       player.isDebugExp = true;
-       player.hasHado = true;
-       player.hasGreatHado = true;
-       player.hasDivineGuide = true;
-       player.baseAtk = 1000000000000000000000000000000n;
-
-       let newTotalRelics = 0;
-       RELIC_MASTER.forEach(relic => {
-           if (relic.id !== 0) {
-               player.inventory[relic.id] = 50000;
-               newTotalRelics += 50000;
-           } else {
-               newTotalRelics += (player.inventory[0] || 1);
-           }
-       });
-       player.totalRelics = newTotalRelics;
-
-       addLog(`<div style="background:#fff0f0; border:1px solid #ff0000; padding:8px; color:#ff0000; font-weight:bold; font-size:0.9em;">【デバッグ:神殺しモード発動】<br>・ATKを極大化（検証用）<br>・全遺物を5万個付与</div>`);
-       saveGame(); triggerUIUpdate(); return;
-   }
-   setTimeout(() => { debugTapCount = 0; }, 2000);
    let msg = "【獲得資格詳細】\n";
    Object.entries(getCurrentDropRates()).forEach(([s, d]) => { msg += `★${s}: ${player.maxDmg >= d.cond ? '解放済み' : '未解放 (要:' + formatV(d.cond) + ')'}\n`; });
    alert(msg);
