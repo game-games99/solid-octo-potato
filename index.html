@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>RELICORE - v2.9</title>
+<title>RELICORE - v3.0</title>
 <style>
 :root { --bg: #ffffff; --panel: #f8f9fa; --border: #dee2e6; --primary: #007bff; --text: #212529; --hp: #dc3545; --dark: #1a1a1a; --gold: #d4af37; --growth: #ff69b4; --relic-purple: #6610f2; --relic-bg: #fcfaff; }
 * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; box-sizing: border-box; }
@@ -162,7 +162,7 @@ RELICORE 開発者　げぇいむ＆AI
 <div class="privacy-link" onclick="openPolicy()">プライバシーポリシー</div>
 </div>
 </div>
-<div class="ver-footer">RELICORE v2.9</div>
+<div class="ver-footer">RELICORE v3.0</div>
 <script>
 const SAVE_KEY = "relicore_player_data";
 const BOSS_MAX_HP_BASE = 100000000000000000000n;
@@ -181,7 +181,33 @@ let debugTapCount = 0;
 
 const PLAYER_TITLES = ["初心者", "修練者", "熟練者", "探求者", "到達者", "解放者", "支配者", "超越者", "救世主", "極致：唯一神"];
 
-function formatV(val) { let n = BigInt(val); return n.toLocaleString(); }
+// 単位変換関数 (軽量化)
+function formatV(val) {
+    let n = BigInt(val);
+    if (n < 1000000000000000n) return n.toLocaleString(); // 1000兆未満は通常
+    
+    const units = ["aa", "ab", "ac", "ad", "ae", "af", "ag", "ah", "ai", "aj", "ak", "al", "am", "an", "ao", "ap", "aq", "ar", "as", "at", "au", "av", "aw", "ax", "ay", "az"];
+    let unitIdx = -1;
+    let base = n;
+    let remainder = 0n;
+
+    // 10^15 (1000兆) をスタート地点とする
+    base /= 1000000000000n; // 一旦1兆で割る
+    while (base >= 1000n && unitIdx < units.length - 1) {
+        remainder = base % 1000n;
+        base /= 1000n;
+        unitIdx++;
+    }
+    
+    if (unitIdx === -1) return n.toLocaleString();
+    // 小数点第2位まで表示
+    let display = base.toString() + "." + remainder.toString().padStart(3, '0').substring(0, 2);
+    return display + units[unitIdx];
+}
+
+// 遺物等の固定値用（単位変換なし）
+function formatFix(val) { return BigInt(Math.floor(Number(val))).toLocaleString(); }
+
 function getExpThreshold(lv) { if (lv <= 1) return 0; let threshold = 1000; for (let i = 2; i < lv; i++) threshold *= i; return threshold; }
 function getLevelByDeath() { let lv = 1; while (lv < 10 && player.deathCount >= getExpThreshold(lv + 1)) lv++; return lv; }
 
@@ -191,7 +217,7 @@ const RELIC_MASTER = [
 {id:201, star:2, name:"聖騎士の欠片", atk:41.2, hp:682.4}, {id:202, star:2, name:"龍騎士の欠片", atk:86.7, hp:423.1}, {id:203, star:2, name:"暗黒騎士の欠片", atk:134.2, hp:0}, {id:204, star:2, name:"賢者の欠片", atk:52.1, hp:711.2}, {id:205, star:2, name:"大魔道士の欠片", atk:118.9, hp:24.3}, {id:206, star:2, name:"暗殺王の欠片", atk:156.3, hp:12.7}, {id:207, star:2, name:"重装騎士の欠片", atk:0, hp:1248.6}, {id:208, star:2, name:"拳聖の欠片", atk:99.2, hp:315.4}, {id:210, star:2, name:"冒険王の欠片", atk:73.3, hp:594.1},
 {id:301, star:3, name:"聖龍騎士の欠片", atk:874.3, hp:6924.1}, {id:302, star:3, name:"深淵魔導の欠片", atk:1324.1, hp:214.7}, {id:303, star:3, name:"金剛武神の欠片", atk:412.8, hp:14863.2}, {id:304, star:3, name:"暗黒皇帝の欠片", atk:1568.4, hp:0}, {id:305, star:3, name:"大聖者の欠片", atk:52.7, hp:15241.4}, {id:306, star:3, name:"影の支配者の欠片", atk:1410.9, hp:128.4}, {id:307, star:3, name:"竜血闘士の欠片", atk:1024.2, hp:4210.9}, {id:308, star:3, name:"天界騎士の欠片", atk:612.7, hp:9845.1}, {id:309, star:3, name:"虚空の暗殺者の欠片", atk:1624.8, hp:42.1}, {id:310, star:3, name:"極大賢者の欠片", atk:542.1, hp:11840.7},
 {id:401, star:4, name:"【不退転】武神の魂", atk:65000, hp:180000, desc:"獲得遺物ボーナス増加。"}, {id:402, star:4, name:"【刹那】聖者の遺志", atk:50000, hp:250000, desc:"HP増加時の増加幅を+5（重複可）。"}, {id:403, star:4, name:"【因果】魔導王の記憶", atk:75000, hp:150000, desc:"攻撃無効化率の下限を底上げ。"}, {id:404, star:4, name:"【反撃】勇者の残光", atk:90000, hp:120000, desc:"反撃の狼煙で★3遺物も獲得。"}, {id:405, star:4, name:"【魂研】賢者の叡智", atk:55000, hp:220000, desc:"獲得戦闘経験値が向上。"}, {id:406, star:4, name:"【死刻】死神の鎌", atk:110000, hp:80000, desc:"最終ダメージ倍率を固定で+0.004%加算する。"},
-{id:501, star:5, name:"断絶の権能", atk:382660, hp:916330, desc:"1つにつき、受けるダメージを50万軽減。"}, {id:502, star:5, name:"強欲の権能", atk:649800, hp:812400, desc:"1つにつき、獲得遺物数を+5増加。"}, {id:503, star:5, name:"超越の権能", atk:524180, hp:689450, desc:"超越した意思が魂を強固にする。"}, {id:504, star:5, name:"破壊の権能", atk:999999, hp:0, desc:"あらゆる事象を打ち砕く破壊の奔流。"},
+{id:501, star:5, name:"断絶の権能", atk:382660, hp:916330, desc:"1つにつき、受けるダメージを50万軽減。"}, {id:502, star:5, name:"強欲의 権能", atk:649800, hp:812400, desc:"1つにつき、獲得遺物数を+5増加。"}, {id:503, star:5, name:"超越の権能", atk:524180, hp:689450, desc:"超越した意思が魂を強固にする。"}, {id:504, star:5, name:"破壊の権能", atk:999999, hp:0, desc:"あらゆる事象を打ち砕く破壊の奔流。"},
 {id:601, star:6, name:"絶対統率レリック・オーバーロード", atk:1500000, hp:4500000, desc:"統率者の力が魂の核を補強する。"}, {id:602, star:6, name:"魂律解放レリ・クシア", atk:2500000, hp:3500000, desc:"解放された魔力がステータスを押し上げる。"}, {id:603, star:6, name:"原初核冠レリコア・レガリア", atk:2000000, hp:4000000, desc:"遺物の核を束ねる王冠。"}, {id:604, star:6, name:"虚無終焉レリ・ノヴァ", atk:5000000, hp:0, desc:"終末すら凌駕する、純粋な破壊の力。"},
 {id:701, star:7, name:"パンドラの箱", atk:150000000, hp:350000000, desc:"神を屠る唯一の条件。災厄の底に希望を宿す。"}, {id:702, star:7, name:"終焉の福音", atk:200000000, hp:450000000, desc:"終わりの始まりを告げる、黄金の調べ。"}, {id:703, star:7, name:"神滅のアカシックレコード", atk:100000000, hp:550000000, desc:"全宇宙の事象を書き換え、神話を否定する。"}
 ];
@@ -201,7 +227,7 @@ function loadGame() { let saved = localStorage.getItem(SAVE_KEY); if(saved) { co
 
 function openRankUpModal(newLv) { stopAttack(); isModalOpen = true; const titleStr = PLAYER_TITLES[Math.min(9, newLv-1)] || "超越者"; document.getElementById("rank-up-msg-text").innerHTML = `魂の核が激しく鼓動する……！<br><br><span style="font-size:1.4em; color:var(--growth); font-weight:bold;">再起Lv.${newLv} 到達</span><br>称号が【${titleStr}】に昇格した。`; document.getElementById("rank-up-modal").style.display = "flex"; }
 function closeRankUpModal() { document.getElementById("rank-up-modal").style.display = "none"; isModalOpen = false; saveGame(); triggerUIUpdate(); }
-function openRareModal(relic) { stopAttack(); isModalOpen = true; const modal = document.getElementById("rare-drop-modal"); const card = document.getElementById("rare-card-content"); card.className = "rare-card glow-" + relic.star; document.getElementById("rare-star-label").innerText = "★" + relic.star; document.getElementById("rare-star-label").className = "rare-star c" + relic.star; document.getElementById("rare-name-label").innerText = relic.name; let detail = (relic.atk ? `ATK +${Math.floor(relic.atk).toLocaleString()} ` : "") + (relic.hp ? `HP +${Math.floor(relic.hp).toLocaleString()} ` : "") + (relic.mult ? `(x${relic.mult})` : ""); document.getElementById("rare-desc-label").innerHTML = detail + (relic.desc ? `<br><br>${relic.desc}` : ""); modal.style.display = "flex"; }
+function openRareModal(relic) { stopAttack(); isModalOpen = true; const modal = document.getElementById("rare-drop-modal"); const card = document.getElementById("rare-card-content"); card.className = "rare-card glow-" + relic.star; document.getElementById("rare-star-label").innerText = "★" + relic.star; document.getElementById("rare-star-label").className = "rare-star c" + relic.star; document.getElementById("rare-name-label").innerText = relic.name; let detail = (relic.atk ? `ATK +${formatFix(relic.atk)} ` : "") + (relic.hp ? `HP +${formatFix(relic.hp)} ` : "") + (relic.mult ? `(x${relic.mult})` : ""); document.getElementById("rare-desc-label").innerHTML = detail + (relic.desc ? `<br><br>${relic.desc}` : ""); modal.style.display = "flex"; }
 function closeRareModal() { document.getElementById("rare-drop-modal").style.display = "none"; isModalOpen = false; }
 
 function openHadoModal(type) {
@@ -315,7 +341,6 @@ let names = [];
 const cands2 = RELIC_MASTER.filter(m => m.star === 2);
 const cands3 = RELIC_MASTER.filter(m => m.star === 3);
 
-// 獲得個数を1から現在の再起Lvの間でランダムに決定
 const dropCount = Math.floor(Math.random() * lv) + 1;
 
 for (let i = 0; i < dropCount; i++) {
@@ -400,7 +425,7 @@ if(tid === 'vow') renderVow(); else if(tid === 'relic') renderRelics(); else if(
 function renderVow() {
 const lv = getLevelByDeath();
 const skills = [
-{ id: "futaiten", nameJp: "不退転の力", desc: "攻撃時に追加の遺物を刻む。" },
+{ id: "futaiten", nameJp: "不退転 of power", desc: "攻撃時に追加の遺物を刻む。" },
 { id: "setsuna", nameJp: "刹那の堆積", desc: "再起するたびにHP増加幅+(Lv)。確かな意思が核に宿る。" },
 { id: "inga", nameJp: "因果の拒絶", desc: "敵の攻撃を無効化する。" },
 { id: "hangeki", nameJp: "反撃の狼煙", desc: "生存ボーナスを固定獲得する。" },
@@ -414,7 +439,7 @@ if(s.id === "futaiten") { highlight = `獲得遺物ボーナス：+${lv - 1} 【
 else if(s.id === "setsuna") { const setsunaVal = (player.inventory[402] || 0) * 5; highlight = `HP増加幅: +${lv + setsunaVal} / 上限: ${formatV(player.deathCount)} ${setsunaVal > 0 ? '【刹那：+'+setsunaVal+'】' : ''}`; }
 else if(s.id === "inga") { let baseCut = lv * 2; let ingaVal = Math.min(30, player.inventory[403] || 0); highlight = `無効化範囲：${baseCut + ingaVal}% ～ 100% 【因果：+${ingaVal}%】 / 固定軽減: +${formatV((player.inventory[501] || 0) * 500000)}`; }
 else if(s.id === "hangeki") { const zanko = (player.inventory[404] || 0) > 0; highlight = `確定獲得：1 ～ ${lv}個 (★2${zanko ? '/★3' : ''}) ${zanko ? '【勇者の残光】' : ''}`; }
-else if(s.id === "konken") { highlight = `戦闘経験値：+${player.isDebugExp ? 100000 : lv} 【魂研：+${player.inventory[405] || 0}】`; }
+else if(s.id === "konken") { highlight = `戦闘経験値：+${player.isDebugExp ? formatV(100000) : lv} 【魂研：+${player.inventory[405] || 0}】`; }
 else if(s.id === "shikoku") {
    const fixedBonus = (lv * 0.00004) + ((player.inventory[406] || 0) * 0.00004);
    highlight = `加算倍率：+${(fixedBonus * 100).toFixed(4)}% 【固定】`;
@@ -436,7 +461,7 @@ if(m.star === 1 && player.hasHado) { baseA *= 10; baseH *= 10; }
 else if(m.star === 2 && player.hasGreatHado) { baseA *= 10; baseH *= 10; }
 else if(m.star === 3 && player.hasDivineGuide) { baseA *= 10; baseH *= 10; }
 
-return `<div class="relic-card ${m.star>=4?'star-high':'star-low'}"><div class="relic-name c${m.star}">★${m.star} ${m.name}×${c.toLocaleString()}</div><div class="relic-effect-box">${(baseA>0?`ATK+${Math.floor(baseA).toLocaleString()} `:'')}${(baseH>0?`HP+${Math.floor(baseH).toLocaleString()}`:'')}${(m.mult?` (x${m.mult})`:'')}${m.desc ? `<span class="relic-desc-line">${m.desc}</span>` : ""}${(id == "116" && !player.hasDivineGuide) ? `<div style="color:#007bff; font-weight:bold;">目標:${(player.hasGreatHado ? 300000 : (player.hasHado ? 200000 : 100000)).toLocaleString()}</div>` : ""}</div></div>`;
+return `<div class="relic-card ${m.star>=4?'star-high':'star-low'}"><div class="relic-name c${m.star}">★${m.star} ${m.name}×${c.toLocaleString()}</div><div class="relic-effect-box">${(baseA>0?`ATK+${formatFix(baseA)} `:'')}${(baseH>0?`HP+${formatFix(baseH)}`:'')}${(m.mult?` (x${m.mult})`:'')}${m.desc ? `<span class="relic-desc-line">${m.desc}</span>` : ""}${(id == "116" && !player.hasDivineGuide) ? `<div style="color:#007bff; font-weight:bold;">目標:${formatV((player.hasGreatHado ? 300000 : (player.hasHado ? 200000 : 100000)))}</div>` : ""}</div></div>`;
 }).join("");
 }
 
