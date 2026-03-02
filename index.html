@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>RELICORE - v2.8</title>
+<title>RELICORE - v2.9</title>
 <style>
 :root { --bg: #ffffff; --panel: #f8f9fa; --border: #dee2e6; --primary: #007bff; --text: #212529; --hp: #dc3545; --dark: #1a1a1a; --gold: #d4af37; --growth: #ff69b4; --relic-purple: #6610f2; --relic-bg: #fcfaff; }
 * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; box-sizing: border-box; }
@@ -162,7 +162,7 @@ RELICORE 開発者　げぇいむ＆AI
 <div class="privacy-link" onclick="openPolicy()">プライバシーポリシー</div>
 </div>
 </div>
-<div class="ver-footer">RELICORE v2.8</div>
+<div class="ver-footer">RELICORE v2.9</div>
 <script>
 const SAVE_KEY = "relicore_player_data";
 const BOSS_MAX_HP_BASE = 100000000000000000000n;
@@ -315,7 +315,10 @@ let names = [];
 const cands2 = RELIC_MASTER.filter(m => m.star === 2);
 const cands3 = RELIC_MASTER.filter(m => m.star === 3);
 
-for (let i = 0; i < lv; i++) {
+// 獲得個数を1から現在の再起Lvの間でランダムに決定
+const dropCount = Math.floor(Math.random() * lv) + 1;
+
+for (let i = 0; i < dropCount; i++) {
     let sel;
     if (hasZanko && Math.random() < 0.5) {
         sel = cands3[Math.floor(Math.random() * cands3.length)];
@@ -326,7 +329,7 @@ for (let i = 0; i < lv; i++) {
     }
     player.inventory[sel.id] = (player.inventory[sel.id] || 0) + 1;
 }
-player.totalRelics += lv;
+player.totalRelics += dropCount;
 
 return `<div style="font-size:0.82em;">【狼煙】獲得：${names.join(", ")}</div>`;
 }
@@ -410,7 +413,7 @@ let highlight = "";
 if(s.id === "futaiten") { highlight = `獲得遺物ボーナス：+${lv - 1} 【不退転：+${player.inventory[401] || 0}】【強欲：+${(player.inventory[502] || 0) * 5}】`; }
 else if(s.id === "setsuna") { const setsunaVal = (player.inventory[402] || 0) * 5; highlight = `HP増加幅: +${lv + setsunaVal} / 上限: ${formatV(player.deathCount)} ${setsunaVal > 0 ? '【刹那：+'+setsunaVal+'】' : ''}`; }
 else if(s.id === "inga") { let baseCut = lv * 2; let ingaVal = Math.min(30, player.inventory[403] || 0); highlight = `無効化範囲：${baseCut + ingaVal}% ～ 100% 【因果：+${ingaVal}%】 / 固定軽減: +${formatV((player.inventory[501] || 0) * 500000)}`; }
-else if(s.id === "hangeki") { const zanko = (player.inventory[404] || 0) > 0; highlight = `確定獲得：合計 ${lv}個 (★2${zanko ? '/★3' : ''}) ${zanko ? '【勇者の残光】' : ''}`; }
+else if(s.id === "hangeki") { const zanko = (player.inventory[404] || 0) > 0; highlight = `確定獲得：1 ～ ${lv}個 (★2${zanko ? '/★3' : ''}) ${zanko ? '【勇者の残光】' : ''}`; }
 else if(s.id === "konken") { highlight = `戦闘経験値：+${player.isDebugExp ? 100000 : lv} 【魂研：+${player.inventory[405] || 0}】`; }
 else if(s.id === "shikoku") {
    const fixedBonus = (lv * 0.00004) + ((player.inventory[406] || 0) * 0.00004);
