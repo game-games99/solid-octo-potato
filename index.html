@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>RELICORE - v1.4</title>
+<title>RELICORE - v1.5</title>
 <style>
 :root { --bg: #ffffff; --panel: #f8f9fa; --border: #dee2e6; --primary: #007bff; --text: #212529; --hp: #dc3545; --dark: #1a1a1a; --gold: #d4af37; --growth: #ff69b4; --relic-purple: #6610f2; --relic-bg: #fcfaff; }
 * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; box-sizing: border-box; }
@@ -27,11 +27,21 @@ body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Robot
 .rank-up-msg { font-size: 1.1em; line-height: 1.8; margin-bottom: 30px; color: #fff; }
 .rank-up-sub { font-size: 0.85em; color: #aaa; margin-top: 10px; }
 
-#rare-drop-modal" onclick="closeRareModal()"><div id="rare-card-content" class="rare-card"><span id="rare-star-label" class="rare-star"></span><span id="rare-name-label" class="rare-name"></span><div id="rare-desc-label" class="rare-desc"></div><div style="margin-top:20px; font-size:0.7em; color:#888;">画面タップで閉じる</div></div></div>
-<div id="rare-drop-modal" onclick="closeRareModal()"><div id="rare-card-content" class="rare-card"><span id="rare-star-label" class="rare-star"></span><span id="rare-name-label" class="rare-name"></span><div id="rare-desc-label" class="rare-desc"></div><div style="margin-top:20px; font-size:0.7em; color:#888;">画面タップで閉じる</div></div></div>
+#rare-drop-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 40000; justify-content: center; align-items: center; }
+.rare-card { background: #fff; border-radius: 15px; width: 280px; padding: 30px 20px; text-align: center; position: relative; box-shadow: 0 0 30px rgba(255,255,255,0.2); }
+.rare-star { font-size: 2.2em; display: block; margin-bottom: 10px; }
+.rare-name { font-size: 1.4em; font-weight: bold; display: block; margin-bottom: 15px; color: #333; }
+.rare-desc { font-size: 0.9em; color: #666; line-height: 1.6; }
+
+.glow-4 { border: 3px solid #6610f2; box-shadow: 0 0 20px rgba(102,16,242,0.5); }
+.glow-5 { border: 3px solid #e83e8c; box-shadow: 0 0 20px rgba(232,62,140,0.5); }
+.glow-6 { border: 3px solid #fd7e14; box-shadow: 0 0 25px rgba(253,126,20,0.6); }
+.glow-7 { border: 3px solid #ff0000; box-shadow: 0 0 30px rgba(255,0,0,0.7); animation: rare-pulse 1s infinite alternate; }
+@keyframes rare-pulse { from { transform: scale(1); } to { transform: scale(1.05); } }
 
 #hado-awaken-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 30000; justify-content: center; align-items: center; padding: 20px; }
 .hado-content { background: #000; border: 3px solid var(--gold); border-radius: 20px; padding: 40px 20px; text-align: center; color: #fff; max-width: 450px; width: 95%; box-shadow: 0 0 60px rgba(212, 175, 55, 0.5); animation: awaken-glow 3s infinite alternate; }
+@keyframes awaken-glow { from { box-shadow: 0 0 30px rgba(212, 175, 55, 0.3); } to { box-shadow: 0 0 70px rgba(212, 175, 55, 0.7); } }
 .hado-title { color: var(--gold); font-size: 1.8em; font-weight: bold; margin-bottom: 25px; text-shadow: 0 0 15px var(--gold); }
 .hado-msg { font-size: 1.0em; line-height: 2.0; margin-bottom: 35px; color: #eee; text-align: left; background: rgba(255,255,255,0.05); padding: 20px; border-radius: 10px; }
 
@@ -158,7 +168,7 @@ RELICORE 開発者　げぇいむ＆AI
 <div class="privacy-link" onclick="openPolicy()">プライバシーポリシー</div>
 </div>
 </div>
-<div class="ver-footer">RELICORE v1.4</div>
+<div class="ver-footer">RELICORE v1.5</div>
 <script>
 const SAVE_KEY = "relicore_player_data";
 const BOSS_MAX_HP_BASE = 100000000000000000000n;
@@ -233,7 +243,9 @@ function attack() {
    let finalDmg = BigInt(Math.floor(Number(totalBaseAtk) * bonus.mult * skillMult * (0.8 + Math.random() * 0.4)));
    if(finalDmg < 1n) finalDmg = 1n;
    if(finalDmg > player.maxDmg) player.maxDmg = finalDmg;
-   if(player.inventory[116] >= 100000 && !player.hasHado && Math.random() < (1/100000)) { openHadoModal(); return; }
+   
+   // 修正：未習得かつ条件達成時のみ低確率で発現するようにガード
+   if(!player.hasHado && player.inventory[116] >= 100000 && Math.random() < (1/100000)) { openHadoModal(); return; }
 
    const lv = getLevelByDeath();
    let logHtml = `<div><span style="color:#007bff; font-weight:bold;">攻撃！${formatV(finalDmg)} ダメージ！</span></div>` + getDropLog(1 + (player.inventory[401] || 0) + lv - 1 + ((player.inventory[502] || 0) * 5));
