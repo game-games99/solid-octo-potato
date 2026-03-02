@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>RELICORE - v1.9</title>
+<title>RELICORE - v2.0</title>
 <style>
 :root { --bg: #ffffff; --panel: #f8f9fa; --border: #dee2e6; --primary: #007bff; --text: #212529; --hp: #dc3545; --dark: #1a1a1a; --gold: #d4af37; --growth: #ff69b4; --relic-purple: #6610f2; --relic-bg: #fcfaff; }
 * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; box-sizing: border-box; }
@@ -177,7 +177,7 @@ RELICORE 開発者　げぇいむ＆AI
 <div class="privacy-link" onclick="openPolicy()">プライバシーポリシー</div>
 </div>
 </div>
-<div class="ver-footer">RELICORE v1.9</div>
+<div class="ver-footer">RELICORE v2.0</div>
 <script>
 const SAVE_KEY = "relicore_player_data";
 const BOSS_MAX_HP_BASE = 100000000000000000000n;
@@ -226,7 +226,7 @@ const RELIC_MASTER = [
 {id:401, star:4, name:"【不退転】武神の魂", atk:65000, hp:180000, desc:"獲得遺物ボーナス増加。(上限5万個分)"}, {id:402, star:4, name:"【刹那】聖者の遺志", atk:50000, hp:250000, desc:"HP増加時の増加幅を+5（上限5万個分）。"}, {id:403, star:4, name:"【因果】魔導王の記憶", atk:75000, hp:150000, desc:"攻撃無効化率の下限を底上げ。(上限20%)"}, {id:404, star:4, name:"【反撃】勇者の残光", atk:90000, hp:120000, desc:"反撃の狼煙で★3遺物も獲得。"}, {id:405, star:4, name:"【魂研】賢者の叡智", atk:55000, hp:220000, desc:"獲得戦闘経験値が向上。"}, {id:406, star:4, name:"【死刻】死神の鎌", atk:110000, hp:80000, desc:"最終ダメージ倍率を固定で+0.004%加算する。"},
 {id:501, star:5, name:"断絶の権能", atk:382660, hp:916330, desc:"1つにつき、受けるダメージを50万軽減。"}, {id:502, star:5, name:"強欲の権能", atk:649800, hp:812400, desc:"1つにつき、獲得遺物数を+5増加。(上限5万個分)"}, {id:503, star:5, name:"超越の権能", atk:524180, hp:689450, desc:"0.1%の確率で、その一撃のダメージを1.5倍にする。"}, {id:504, star:5, name:"破壊の権能", atk:999999, hp:0, desc:"0.1%の確率で、総ATK分のダメージを最終ダメージに直接加算する。"},
 {id:601, star:6, name:"絶対統率レリック・オーバーロード", atk:1500000, hp:4500000, desc:"敵HPが自身のATKの100倍以上の時、与ダメージ+8%。"}, {id:602, star:6, name:"魂律解放レリ・クシア", atk:2500000, hp:3500000, desc:"100回攻撃ごとに次の一撃の最終ダメージ+200%。"}, {id:603, star:6, name:"原初核冠レリコア・レガリア", atk:2000000, hp:4000000, desc:"★1〜3遺物のステータス上昇効果を20%増加させる。"}, {id:604, star:6, name:"虚無終焉レリ・ノヴァ", atk:5000000, hp:0, desc:"攻撃時0.1%の確率で与ダメージ+500%。"},
-{id:701, star:7, name:"パンドラの箱", atk:150000000, hp:350000000, desc:"神を屠る唯一の条件。災厄の底に希望を宿す。"}, {id:702, star:7, name:"終焉の福音", atk:200000000, hp:450000000, desc:"終わりの始まりを告げる、黄金の調べ。"}, {id:703, star:7, name:"神滅のアカシックレコード", atk:100000000, hp:550000000, desc:"全宇宙の事象を書き換え、神話を否定する。"}
+{id:701, star:7, name:"パンドラの箱", atk:150000000, hp:350000000, desc:"神を屠る唯一の条件。災厄の底に希望を宿す。"}, {id:702, star:7, name:"終焉の福音", atk:200000000, hp:450000000, desc:"敵HPが50%以下のとき、与ダメージ+30%。(重複不可)"}, {id:703, star:7, name:"神滅のアカシックレコード", atk:100000000, hp:550000000, desc:"与ダメージの最終倍率にさらに+20%。(重複不可)"}
 ];
 
 function saveGame() { const data = { ...player, baseAtk: player.baseAtk.toString(), baseHP: player.baseHP.toString(), maxDmg: player.maxDmg.toString(), currentBossHP: currentBossHP.toString() }; localStorage.setItem(SAVE_KEY, JSON.stringify(data)); }
@@ -249,13 +249,20 @@ function openRankUpModal(newLv) { stopAttack(); isModalOpen = true; const titleS
 function closeRankUpModal() { document.getElementById("rank-up-modal").style.display = "none"; isModalOpen = false; saveGame(); triggerUIUpdate(); }
 function openRareModal(relic) { stopAttack(); isModalOpen = true; const modal = document.getElementById("rare-drop-modal"); const card = document.getElementById("rare-card-content"); card.className = "rare-card glow-" + relic.star; document.getElementById("rare-star-label").innerText = "★" + relic.star; document.getElementById("rare-star-label").className = "rare-star c" + relic.star; document.getElementById("rare-name-label").innerText = relic.name; let detail = (relic.atk ? `ATK +${formatFix(relic.atk)} ` : "") + (relic.hp ? `HP +${formatFix(relic.hp)} ` : "") + (relic.mult ? `(x${relic.mult})` : ""); document.getElementById("rare-desc-label").innerHTML = detail + (relic.desc ? `<br><br>${relic.desc}` : ""); modal.style.display = "flex"; }
 function closeRareModal() { document.getElementById("rare-drop-modal").style.display = "none"; isModalOpen = false; }
-function openHadoModal(type) { stopAttack(); isModalOpen = true; let title = "", msg = ""; if(type === 'hado') { title = "隠しスキル【破軍の号令】覚醒"; msg = "戦場に漂う数多の記憶……その「残滓」が臨界を超えたとき、王者の魂が呼び覚まされた。<br><br><span style='color:var(--gold); font-weight:bold;'>【効果：覇道の理】</span><br>★1遺物の基礎ステータス上昇値が<span style='color:var(--gold); font-size:1.2em;'> 10倍 </span>に強化される。"; player.hasHado = true; } else if(type === 'great') { title = "隠しスキル【破軍の大号令】覚醒"; msg = "蓄積された意思は、もはや一つの軍勢に匹純する。<br><br><span style='color:var(--gold); font-weight:bold;'>【効果：大覇道の理】</span><br>★2遺物の基礎ステータス上昇値が<span style='color:var(--gold); font-size:1.2em;'> 10倍 </span>に強化される。"; player.hasGreatHado = true; } else if(type === 'divine') { title = "隠しスキル【天帝の導き】覚醒"; msg = "万象を統べる天の理。<br><br><span style='color:var(--gold); font-weight:bold;'>【効果：天帝の理】</span><br>★3遺物の基礎ステータス上昇値が<span style='color:var(--gold); font-size:1.2em;'> 10倍 </span>に強化される。"; player.hasDivineGuide = true; } document.getElementById("hado-modal-title").innerText = title; document.getElementById("hado-modal-msg").innerHTML = msg; document.getElementById("hado-awaken-modal").style.display = "flex"; }
+function openHadoModal(type) { stopAttack(); isModalOpen = true; let title = "", msg = ""; if(type === 'hado') { title = "隠しスキル【破軍の号令】覚醒"; msg = "戦場に漂う数多の記憶……その「残滓」が臨界を超えたとき、王者の魂が呼び覚まされた。<br><br><span style='color:var(--gold); font-weight:bold;'>【効果：覇道の理】</span><br>★1遺物の基礎ステータス上昇値が<span style='color:var(--gold); font-size:1.2em;'> 10倍 </span>に強化される。"; player.hasHado = true; } else if(type === 'great') { title = "隠しスキル【破軍の大号令】覚醒"; msg = "戦場に漂う数多の記憶……その「残滓」が臨界を超えたとき、王者の魂が呼び覚まされた。<br><br><span style='color:var(--gold); font-weight:bold;'>【効果：大覇道の理】</span><br>★2遺物の基礎ステータス上昇値が<span style='color:var(--gold); font-size:1.2em;'> 10倍 </span>に強化される。"; player.hasGreatHado = true; } else if(type === 'divine') { title = "隠しスキル【天帝の導き】覚醒"; msg = "万象を統べる天の理。<br><br><span style='color:var(--gold); font-weight:bold;'>【効果：天帝の理】</span><br>★3遺物の基礎ステータス上昇値が<span style='color:var(--gold); font-size:1.2em;'> 10倍 </span>に強化される。"; player.hasDivineGuide = true; } document.getElementById("hado-modal-title").innerText = title; document.getElementById("hado-modal-msg").innerHTML = msg; document.getElementById("hado-awaken-modal").style.display = "flex"; }
 function closeHadoModal() { document.getElementById("hado-awaken-modal").style.display = "none"; isModalOpen = false; saveGame(); triggerUIUpdate(); }
 function openPolicy() { stopAttack(); isModalOpen = true; document.getElementById("policy-modal").style.display = "flex"; }
 function closePolicy() { document.getElementById("policy-modal").style.display = "none"; isModalOpen = false; }
 function stopAttack() { if (attackInterval) { clearInterval(attackInterval); attackInterval = null; } }
 
-function calcFinalDmgMult() { const lv = getLevelByDeath(); const shikokuFixed = 0.00004 * lv; const kamaFixed = (player.inventory[406] || 0) * 0.00004; return 1.0 + shikokuFixed + kamaFixed; }
+function calcFinalDmgMult() {
+  const lv = getLevelByDeath();
+  const shikokuFixed = 0.00004 * lv;
+  const kamaFixed = (player.inventory[406] || 0) * 0.00004;
+  let mult = 1.0 + shikokuFixed + kamaFixed;
+  if ((player.inventory[703] || 0) > 0) mult += 0.2;
+  return mult;
+}
 
 function getRelicBonus() {
 let atk = 0, hp = 0, mult = 1.0;
@@ -280,6 +287,10 @@ const totalAtkVal = BigInt(Math.floor(Number(player.baseAtk + bonus.atk) * bonus
 let finalDmg = BigInt(Math.floor(Number(totalAtkVal) * (0.8 + Math.random() * 0.4)));
 let specialTags = "";
 
+if ((player.inventory[702] || 0) > 0 && currentBossHP * 2n <= BigInt(player.bossMaxHP)) {
+    finalDmg = BigInt(Math.floor(Number(finalDmg) * 1.3));
+    specialTags += `<span style="color:#ffcc00; font-weight:bold;">【福音】</span>`;
+}
 if((player.inventory[601] || 0) > 0 && currentBossHP >= totalAtkVal * 100n) {
     finalDmg = BigInt(Math.floor(Number(finalDmg) * 1.08));
     specialTags += `<span style="color:#007bff; font-weight:bold;">【統率】</span>`;
@@ -394,7 +405,7 @@ if(tid === 'vow') renderVow(); else if(tid === 'relic') renderRelics(); else if(
 
 function renderVow() {
 const lv = getLevelByDeath(); const bushinCount = Math.min(50000, player.inventory[401] || 0); const gouyokuCount = Math.min(50000, player.inventory[502] || 0);
-const skills = [{ id: "futaiten", nameJp: "不退転の力", desc: "攻撃時に追加の遺物を刻む。" },{ id: "setsuna", nameJp: "刹那の堆積", desc: "再起するたびにHP増加幅+(Lv)。確かな意思が核に宿る。" },{ id: "inga", nameJp: "因果の拒絶", desc: "敵の攻撃を無効化する。" },{ id: "hangeki", nameJp: "反撃の狼煙", desc: "生存ボーナスを固定獲得する。" },{ id: "konken", nameJp: "魂の研磨", desc: "成長速度を加速させる。" },{ id: "shikoku", nameJp: "死を刻む", desc: "経験をダメージに変換する。" }];
+const skills = [{ id: "futaiten", nameJp: "不退転 of Power", desc: "攻撃時に追加の遺物を刻む。" },{ id: "setsuna", nameJp: "刹那の堆積", desc: "再起するたびにHP増加幅+(Lv)。確かな意思が核に宿る。" },{ id: "inga", nameJp: "因果の拒絶", desc: "敵の攻撃を無効化する。" },{ id: "hangeki", nameJp: "反撃の狼煙", desc: "生存ボーナスを固定獲得する。" },{ id: "konken", nameJp: "魂の研磨", desc: "成長速度を加速させる。" },{ id: "shikoku", nameJp: "死を刻む", desc: "経験をダメージに変換する。" }];
 let html = "";
 skills.forEach(s => {
 let highlight = "";
