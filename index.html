@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>RELICORE - v2.1</title>
+<title>RELICORE - v2.2</title>
 <style>
 :root { --bg: #ffffff; --panel: #f8f9fa; --border: #dee2e6; --primary: #007bff; --text: #212529; --hp: #dc3545; --dark: #1a1a1a; --gold: #d4af37; --growth: #ff69b4; --relic-purple: #6610f2; --relic-bg: #fcfaff; }
 * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; box-sizing: border-box; }
@@ -44,11 +44,6 @@ body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Robot
 @keyframes awaken-glow { from { box-shadow: 0 0 30px rgba(212, 175, 55, 0.3); } to { box-shadow: 0 0 70px rgba(212, 175, 55, 0.7); } }
 .hado-title { color: var(--gold); font-size: 1.8em; font-weight: bold; margin-bottom: 25px; text-shadow: 0 0 15px var(--gold); }
 .hado-msg { font-size: 1.0em; line-height: 2.0; margin-bottom: 35px; color: #eee; text-align: left; background: rgba(255,255,255,0.05); padding: 20px; border-radius: 10px; }
-
-#upgrade-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 20000; justify-content: center; align-items: center; padding: 20px; }
-.upgrade-content { background: #1a1a1a; border: 2px solid gold; border-radius: 15px; padding: 30px; text-align: center; color: #fff; max-width: 400px; width: 90%; box-shadow: 0 0 30px rgba(255, 215, 0, 0.4); }
-.upgrade-title { color: gold; font-size: 1.4em; font-weight: bold; margin-bottom: 15px; text-shadow: 0 0 10px gold; }
-.upgrade-msg { font-size: 0.95em; line-height: 1.6; margin-bottom: 25px; color: #eee; }
 
 #story-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 10000; justify-content: center; align-items: center; padding: 20px; }
 .story-content { max-width: 500px; color: #fff; text-align: center; line-height: 2.2; }
@@ -140,7 +135,6 @@ RELICORE 開発者　げぇいむ＆AI
 <div id="rank-up-modal"><div class="rank-up-content"><div class="rank-up-title">覚醒</div><div class="rank-up-msg" id="rank-up-msg-text">魂の核が激しく鼓動する……！</div><button class="story-btn" onclick="closeRankUpModal()">高みへ</button><div class="rank-up-sub">※すべての再起スキルが強化されました。</div></div></div>
 <div id="rare-drop-modal" onclick="closeRareModal()"><div id="rare-card-content" class="rare-card"><span id="rare-star-label" class="rare-star"></span><span id="rare-name-label" class="rare-name"></span><div id="rare-desc-label" class="rare-desc"></div><div style="margin-top:20px; font-size:0.7em; color:#888;">画面タップで閉じる</div></div></div>
 <div id="hado-awaken-modal"><div class="hado-content"><div class="hado-title" id="hado-modal-title">隠しスキル覚醒</div><div class="hado-msg" id="hado-modal-msg"></div><button class="story-btn" onclick="closeHadoModal()">その力を受け入れる</button></div></div>
-<div id="upgrade-modal"><div class="upgrade-content"><div id="upgrade-title" class="upgrade-title"></div><div id="upgrade-msg" class="upgrade-msg"></div><button class="story-btn" onclick="closeUpgradeModal()">承知した</button></div></div>
 <div id="story-modal"><div class="story-content"><div class="story-text"><span class="story-line" style="color:#888;">わたしはすべてをうばわれた</span><span class="story-line" style="color:#4b0082;">奴によって世界は終わりを告げ、すべては虚無に飲まれたはずだった</span><span class="story-line" style="color:#fff;">しかし、それでもまだ諦めることを知らない光がある</span><span class="story-line"><span class="story-vow">『再起の誓い』</span><span style="color:#d4af37;">が魂を激しく鼓動させる</span></span><span class="story-line" style="color:#ff0000; font-weight:bold;">奴を一撃で葬るその日まで、わたしは止まらない</span></div><button class="story-btn" onclick="closeStory()">魂に刻印する</button></div></div>
 <div id="clear-modal"><div class="modal-content"><h3 id="clear-title">討伐成功</h3><p id="clear-msg">終末神アポカリス＝ティアを討伐しました。</p><button class="story-btn" onclick="closeClearModal()">次なる戦いへ</button></div></div>
 <div id="header"><div class="boss-area"><div class="boss-name" id="boss-display-name">終末神アポカリス＝ティア</div><div class="hp-bar-container"><div id="hp-bar-fill"></div></div><div class="hp-val-display" id="bosshp-cur">0</div></div><div class="status-box"><div class="stat-card"><span class="stat-label">ATK</span><div class="stat-val" id="p-atk">0</div></div><div class="stat-card hp-card"><span class="stat-label">HP</span><div class="stat-val" id="p-hp">0</div></div></div></div>
@@ -168,7 +162,7 @@ RELICORE 開発者　げぇいむ＆AI
 <div class="privacy-link" onclick="openPolicy()">プライバシーポリシー</div>
 </div>
 </div>
-<div class="ver-footer">RELICORE v2.1</div>
+<div class="ver-footer">RELICORE v2.2</div>
 <script>
 const SAVE_KEY = "relicore_player_data";
 const BOSS_MAX_HP_BASE = 100000000000000000000n;
@@ -249,12 +243,9 @@ let atk = 0, hp = 0, mult = 1.0;
 Object.entries(player.inventory).forEach(([id, count]) => {
  const r = RELIC_MASTER.find(m => m.id == id); if(!r) return;
  let bA = (r.atk || 0) * count, bH = (r.hp || 0) * count;
-
- // 修正箇所: レアリティごとに強化スキルを独立させる
  if(r.star === 1 && player.hasHado) { bA *= 10; bH *= 10; }
  else if(r.star === 2 && player.hasGreatHado) { bA *= 10; bH *= 10; }
  else if(r.star === 3 && player.hasDivineGuide) { bA *= 10; bH *= 10; }
-
  atk += bA; hp += bH;
  if(r.mult) mult *= Math.pow(r.mult, count);
 });
@@ -334,7 +325,6 @@ return `<div style="font-size:0.82em;">【狼煙】獲得：${itemsStr}</div>`;
 function getDropLog(count) {
 let starGroups = { 1: {}, 2: {}, 3: {} }; let others = {};
 const rates = getCurrentDropRates(); let showRare = null;
-const lv = getLevelByDeath();
 for(let i=0; i < count; i++) {
  let rv = Math.random()*100, star=1, curP=0;
  for(let s in rates) { curP += rates[s].p; if(rv <= curP) { star=parseInt(s); break; } }
@@ -431,12 +421,12 @@ const m = RELIC_MASTER.find(x => x.id == id); if(!m) return "";
 let baseA = m.atk || 0;
 let baseH = m.hp || 0;
 
-// 修正箇所: 表示上の計算もレアリティごとに強化スキルを独立させる
+// 修正箇所: リスト表示を「1個あたりの初期値」に固定
 if(m.star === 1 && player.hasHado) { baseA *= 10; baseH *= 10; }
 else if(m.star === 2 && player.hasGreatHado) { baseA *= 10; baseH *= 10; }
 else if(m.star === 3 && player.hasDivineGuide) { baseA *= 10; baseH *= 10; }
 
-return `<div class="relic-card ${m.star>=4?'star-high':'star-low'}"><div class="relic-name c${m.star}">★${m.star} ${m.name}×${c.toLocaleString()}</div><div class="relic-effect-box">${(baseA>0?`ATK+${Math.floor(baseA * c).toLocaleString()} `:'')}${(baseH>0?`HP+${Math.floor(baseH * c).toLocaleString()}`:'')}${(m.mult?` (x${m.mult})`:'')}${m.desc ? `<span class="relic-desc-line">${m.desc}</span>` : ""}${(id == "116" && !player.hasDivineGuide) ? `<div style="color:#007bff; font-weight:bold;">目標:${(player.hasGreatHado ? 300000 : (player.hasHado ? 200000 : 100000)).toLocaleString()}</div>` : ""}</div></div>`;
+return `<div class="relic-card ${m.star>=4?'star-high':'star-low'}"><div class="relic-name c${m.star}">★${m.star} ${m.name}×${c.toLocaleString()}</div><div class="relic-effect-box">${(baseA>0?`ATK+${Math.floor(baseA).toLocaleString()} `:'')}${(baseH>0?`HP+${Math.floor(baseH).toLocaleString()}`:'')}${(m.mult?` (x${m.mult})`:'')}${m.desc ? `<span class="relic-desc-line">${m.desc}</span>` : ""}${(id == "116" && !player.hasDivineGuide) ? `<div style="color:#007bff; font-weight:bold;">目標:${(player.hasGreatHado ? 300000 : (player.hasHado ? 200000 : 100000)).toLocaleString()}</div>` : ""}</div></div>`;
 }).join("");
 }
 
@@ -485,7 +475,6 @@ function closeStory() { player.storySeen = true; document.getElementById("story-
 function handleBossDefeat() { player.isUra = true; player.bossMaxHP = (BigInt(player.bossMaxHP) * 2n).toString(); player.uraAtkMult = (Number(player.uraAtkMult) * 1.5).toString(); currentBossHP = BigInt(player.bossMaxHP); }
 function closeClearModal() { document.getElementById("clear-modal").style.display = "none"; isModalOpen = false; handleBossDefeat(); saveGame(); triggerUIUpdate(); }
 function resetData() { if(confirm("全リセットしますか？")) { localStorage.clear(); location.reload(); } }
-function closeUpgradeModal() { document.getElementById("upgrade-modal").style.display = "none"; isModalOpen = false; }
 
 const btn = document.getElementById("attackBtn");
 btn.addEventListener("pointerdown", (e) => { e.preventDefault(); if(!attackInterval && !isModalOpen) { attack(); attackInterval = setInterval(attack, 120); } });
