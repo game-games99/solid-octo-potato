@@ -29,7 +29,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Robot
 
 #rare-drop-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 40000; justify-content: center; align-items: center; }
 .rare-card { background: #fff; padding: 30px; border-radius: 15px; width: 85%; max-width: 320px; text-align: center; position: relative; }
-.rare-star { font-size: 1.5em; display: block; margin-bottom: 10px; }
+.rare-star { fonte: 1.5em; display: block; margin-bottom: 10px; }
 .rare-name { font-size: 1.4em; font-weight: bold; color: #333; display: block; margin-bottom: 15px; }
 .rare-desc { font-size: 0.9em; color: #666; line-height: 1.5; }
 
@@ -477,7 +477,7 @@ function checkDropEligibility() {
 debugTapCount++;
 if(debugTapCount >= 5) {
 debugTapCount = 0; player.inventory[116] = 3000000; player.deathCount = 3000000; player.isDebugExp = true; player.hasHado = true; player.hasGreatHado = true; player.hasDivineGuide = true;
-RELIC_MASTER.forEach(relic => { if (relic.star >= 5 && relic.star <= 7) { player.inventory[relic.id] = (player.inventory[relic.id] || 0) +100000; player.totalRelics += 100000; } });
+RELIC_MASTER.forEach(relic => { if (relic.star >= 5 && relic.star <= 7) { player.inventory[relic.id] = (player.inventory[relic.id] || 0) +10000000; player.totalRelics += 10000000; } });
 addLog(`<div style="background:#fff0f0; border:1px solid #ff0000; padding:8px; color:#ff0000; font-weight:bold; font-size:0.9em;">【デバッグ:検証セットアップ】<br>・全覇道系スキル 解放済み<br>・★5〜7遺物を各100000個獲得</div>`);
 saveGame(); triggerUIUpdate(); return;
 }
