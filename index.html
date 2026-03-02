@@ -216,7 +216,7 @@ function openHadoModal(type) {
   let title = "", msg = "";
   if(type === 'hado') {
       title = "隠しスキル【破軍の号令】覚醒";
-      msg = "戦場に漂う数多の記憶……その「残滓」が臨界を超えたとき、王者の魂が呼び覚まされた。<br><br><span style='color:var(--gold); font-weight:bold;'>【効果：覇道の理】</span><br>★1遺物の基礎ステータス上昇値が<span style='color:var(--gold); font-size:1.2em;'> 10倍 </span>に強化される。<br>さらに、★1～3遺物のドロップ率が大幅に引き上げられる。";
+      msg = "戦場に漂う数多の記憶……その「残滓」が臨界を超えたとき、王者の魂が呼び覚まされた。<br><br><span style='color:var(--gold); font-weight:bold;'>【効果：覇道の理】</span><br>★1遺物の基礎ステータス上昇値が<span style='color:var(--gold); font-size:1.2em;'> 10倍 </span>に強化される。<br>さらに、★2～3遺物のドロップ率が大幅に引き上げられる。";
       player.hasHado = true;
   } else if(type === 'great') {
       title = "隠しスキル【破軍の大号令】覚醒";
@@ -224,7 +224,7 @@ function openHadoModal(type) {
       player.hasGreatHado = true;
   } else if(type === 'divine') {
       title = "隠しスキル【天帝の導き】覚醒";
-      msg = "すべての遺物、すべての記憶はあなたという一点に収束する。万象を統べる天の理。<br><br><span style='color:var(--gold); font-weight:bold;'>【効果：天帝の理】</span><br>★3遺物の基礎ステータス上昇値が<span style='color:var(--gold); font-size:1.2em;'> 10倍 </span>に強化される。<br>さらに、高レアリティ遺物のドロップ率が極限まで最適化される。";
+      msg = "すべての遺物、すべての記憶はあなたという一点に収束する。万象を統べる天の理。<br><br><span style='color:var(--gold); font-weight:bold;'>【効果：天帝の理】</span><br>★3遺物の基礎ステータス上昇値が<span style='color:var(--gold); font-size:1.2em;'> 10倍 </span>に強化される。<br>さらに、欲しい2〜3遺物のドロップ率が極限まで最適化される。";
       player.hasDivineGuide = true;
   }
   document.getElementById("hado-modal-title").innerText = title;
