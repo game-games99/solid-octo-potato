@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>RELICORE - v2.7</title>
+<title>RELICORE - v2.8</title>
 <style>
 :root { --bg: #ffffff; --panel: #f8f9fa; --border: #dee2e6; --primary: #007bff; --text: #212529; --hp: #dc3545; --dark: #1a1a1a; --gold: #d4af37; --growth: #ff69b4; --relic-purple: #6610f2; --relic-bg: #fcfaff; }
 * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; box-sizing: border-box; }
@@ -27,8 +27,11 @@ body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Robot
 .rank-up-msg { font-size: 1.1em; line-height: 1.8; margin-bottom: 30px; color: #fff; }
 .rank-up-sub { font-size: 0.85em; color: #aaa; margin-top: 10px; }
 
-#rare-drop-modal" onclick="closeRareModal()"><div id="rare-card-content" class="rare-card"><span id="rare-star-label" class="rare-star"></span><span id="rare-name-label" class="rare-name"></span><div id="rare-desc-label" class="rare-desc"></div><div style="margin-top:20px; font-size:0.7em; color:#888;">画面タップで閉じる</div></div></div>
-<div id="rare-drop-modal" onclick="closeRareModal()"><div id="rare-card-content" class="rare-card"><span id="rare-star-label" class="rare-star"></span><span id="rare-name-label" class="rare-name"></span><div id="rare-desc-label" class="rare-desc"></div><div style="margin-top:20px; font-size:0.7em; color:#888;">画面タップで閉じる</div></div></div>
+#rare-drop-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 40000; justify-content: center; align-items: center; }
+.rare-card { background: #fff; padding: 30px; border-radius: 15px; width: 85%; max-width: 320px; text-align: center; position: relative; }
+.rare-star { font-size: 1.5em; display: block; margin-bottom: 10px; }
+.rare-name { font-size: 1.4em; font-weight: bold; color: #333; display: block; margin-bottom: 15px; }
+.rare-desc { font-size: 0.9em; color: #666; line-height: 1.5; }
 
 .glow-4 { border: 3px solid #6610f2; box-shadow: 0 0 20px rgba(102,16,242,0.5); }
 .glow-5 { border: 3px solid #e83e8c; box-shadow: 0 0 20px rgba(232,62,140,0.5); }
@@ -159,7 +162,7 @@ RELICORE 開発者　げぇいむ＆AI
 <div class="privacy-link" onclick="openPolicy()">プライバシーポリシー</div>
 </div>
 </div>
-<div class="ver-footer">RELICORE v2.7</div>
+<div class="ver-footer">RELICORE v2.8</div>
 <script>
 const SAVE_KEY = "relicore_player_data";
 const BOSS_MAX_HP_BASE = 100000000000000000000n;
@@ -308,37 +311,24 @@ addLog(logHtml); saveGame(); triggerUIUpdate();
 function getGuaranteedDrop() {
 const lv = getLevelByDeath();
 const hasZanko = (player.inventory[404] || 0) > 0;
-let count2 = 0, count3 = 0;
+let names = [];
+const cands2 = RELIC_MASTER.filter(m => m.star === 2);
+const cands3 = RELIC_MASTER.filter(m => m.star === 3);
 
-if (hasZanko) {
-    for (let i = 0; i < lv; i++) {
-        if (Math.random() < 0.5) count3++; else count2++;
+for (let i = 0; i < lv; i++) {
+    let sel;
+    if (hasZanko && Math.random() < 0.5) {
+        sel = cands3[Math.floor(Math.random() * cands3.length)];
+        names.push(`<span class="c3">${sel.name}</span>`);
+    } else {
+        sel = cands2[Math.floor(Math.random() * cands2.length)];
+        names.push(`<span class="c2">${sel.name}</span>`);
     }
-} else {
-    count2 = lv;
+    player.inventory[sel.id] = (player.inventory[sel.id] || 0) + 1;
 }
+player.totalRelics += lv;
 
-let obtainedLogs = [];
-if (count2 > 0) {
-    const cands2 = RELIC_MASTER.filter(m => m.star === 2);
-    for (let i = 0; i < count2; i++) {
-        const sel = cands2[Math.floor(Math.random() * cands2.length)];
-        player.inventory[sel.id] = (player.inventory[sel.id] || 0) + 1;
-    }
-    player.totalRelics += count2;
-    obtainedLogs.push(`<span class="c2">★2遺物×${count2}</span>`);
-}
-if (count3 > 0) {
-    const cands3 = RELIC_MASTER.filter(m => m.star === 3);
-    for (let i = 0; i < count3; i++) {
-        const sel = cands3[Math.floor(Math.random() * cands3.length)];
-        player.inventory[sel.id] = (player.inventory[sel.id] || 0) + 1;
-    }
-    player.totalRelics += count3;
-    obtainedLogs.push(`<span class="c3">★3遺物×${count3}</span>`);
-}
-
-return `<div style="font-size:0.82em;">【狼煙】獲得：${obtainedLogs.join(" / ")}</div>`;
+return `<div style="font-size:0.82em;">【狼煙】獲得：${names.join(", ")}</div>`;
 }
 
 function getDropLog(count) {
@@ -407,7 +397,7 @@ if(tid === 'vow') renderVow(); else if(tid === 'relic') renderRelics(); else if(
 function renderVow() {
 const lv = getLevelByDeath();
 const skills = [
-{ id: "futaiten", nameJp: "不退転の力", desc: "攻撃時に追加の遺物を刻む。" },
+{ id: "futaiten", nameJp: "不退転 of power", desc: "攻撃時に追加の遺物を刻む。" },
 { id: "setsuna", nameJp: "刹那の堆積", desc: "再起するたびにHP増加幅+(Lv)。確かな意思が核に宿る。" },
 { id: "inga", nameJp: "因果の拒絶", desc: "敵の攻撃を無効化する。" },
 { id: "hangeki", nameJp: "反撃の狼煙", desc: "生存ボーナスを固定獲得する。" },
