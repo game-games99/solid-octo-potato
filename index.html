@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>RELICORE - v1.6</title>
+<title>RELICORE - v1.7</title>
 <style>
 :root { --bg: #ffffff; --panel: #f8f9fa; --border: #dee2e6; --primary: #007bff; --text: #212529; --hp: #dc3545; --dark: #1a1a1a; --gold: #d4af37; --growth: #ff69b4; --relic-purple: #6610f2; --relic-bg: #fcfaff; }
 * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; box-sizing: border-box; }
@@ -162,28 +162,21 @@ RELICORE 開発者　げぇいむ＆AI
   最終ダメージ倍率: <span id="st-dmgmult" style="font-weight:bold; color:var(--primary);">x1.00</span><br>
   獲得資格: <span id="st-rank" class="clickable-stat" onclick="checkDropEligibility()">★1まで</span>
 </div>
-<div id="hado-box" class="st-box" style="display:none; border:none; border-left: 4px solid gold;"><span id="hado-status-text" style="color:gold; font-weight:bold;">習得済み：破軍の号令</span><br>★1遺物10倍強化 ＆ ★1～3ドロップ率上昇中</div>
+<div id="hado-box" class="st-box" style="display:none; border:none; border-left: 4px solid gold;"><span id="hado-status-text" style="color:gold; font-weight:bold;">習得済み：破軍の号令</span><br><span id="hado-status-desc">★1遺物10倍強化 ＆ ★1～3ドロップ率上昇中</span></div>
 <div class="st-box"><div class="st-title-flex"><span>遺物出現率</span><span id="st-collection" style="color:#666; font-size:0.9em;">0/54</span></div><table style="width:100%; font-size:0.9em; margin-top:5px;" id="prob-list"></table></div>
 <button class="btn-reset" onclick="resetData()">全データリセット</button>
 <div class="privacy-link" onclick="openPolicy()">プライバシーポリシー</div>
 </div>
 </div>
-<div class="ver-footer">RELICORE v1.6</div>
+<div class="ver-footer">RELICORE v1.7</div>
 <script>
 const SAVE_KEY = "relicore_player_data";
 const BOSS_MAX_HP_BASE = 100000000000000000000n;
 const MAJIN_ATK_BASE = 999999999999n;
 
-// ベース確率
 const BASE_DROP_DATA = { 1:{p:98.88889,cond:0n}, 2:{p:1.0,cond:0n}, 3:{p:0.1,cond:0n}, 4:{p:0.01,cond:100000n}, 5:{p:0.001,cond:1000000n}, 6:{p:0.0001,cond:10000000n}, 7:{p:0.00001,cond:100000000n} };
-
-// 破軍の号令（★3まで限定）
 const HADO_DROP_DATA = { 1:{p:88.8889,cond:0n}, 2:{p:10.0,cond:0n}, 3:{p:1.0,cond:0n}, 4:{p:0.01,cond:100000n}, 5:{p:0.001,cond:1000000n}, 6:{p:0.0001,cond:10000000n}, 7:{p:0.00001,cond:100000000n} };
-
-// 破軍の大号令（★3まで限定・さらに上昇）
 const GREAT_HADO_DROP_DATA = { 1:{p:78.8889,cond:0n}, 2:{p:18.0,cond:0n}, 3:{p:3.0,cond:0n}, 4:{p:0.01,cond:100000n}, 5:{p:0.001,cond:1000000n}, 6:{p:0.0001,cond:10000000n}, 7:{p:0.00001,cond:100000000n} };
-
-// 天帝の導き（★3まで限定・極大上昇）
 const DIVINE_GUIDE_DROP_DATA = { 1:{p:59.8889,cond:0n}, 2:{p:30.0,cond:0n}, 3:{p:10.0,cond:0n}, 4:{p:0.01,cond:100000n}, 5:{p:0.001,cond:1000000n}, 6:{p:0.0001,cond:10000000n}, 7:{p:0.00001,cond:100000000n} };
 
 let player = { inventory: { 0:1 }, deathCount:0, baseAtk:10n, baseHP:100n, maxDmg:0n, storySeen:false, hasHado:false, hasGreatHado:false, hasDivineGuide:false, isUra:false, bossMaxHP: BOSS_MAX_HP_BASE.toString(), uraAtkMult: "1", totalClicks: 0, totalRelics: 0, isCleared: false };
@@ -207,7 +200,7 @@ const RELIC_MASTER = [
 {id:401, star:4, name:"【不退転】武神の魂", atk:65000, hp:180000, desc:"獲得遺物ボーナス増加。"}, {id:402, star:4, name:"【刹那】聖者の遺志", atk:50000, hp:250000, desc:"HP増加時の増加幅を+5（重複可）。"}, {id:403, star:4, name:"【因果】魔導王の記憶", atk:75000, hp:150000, desc:"攻撃無効化率の下限を底上げ。"}, {id:404, star:4, name:"【反撃】勇者の残光", atk:90000, hp:120000, desc:"生存ボーナスで★3以上が出現。"}, {id:405, star:4, name:"【魂研】賢者の叡智", atk:55000, hp:220000, desc:"獲得戦闘経験値が向上。"}, {id:406, star:4, name:"【死刻】死神の鎌", atk:110000, hp:80000, desc:"最終ダメージ倍率を固定で+0.004%加算する。"},
 {id:501, star:5, name:"断絶の権能", atk:382660, hp:916330, desc:"1つにつき、受けるダメージを50万軽減。"}, {id:502, star:5, name:"強欲の権能", atk:649800, hp:812400, desc:"1つにつき、獲得遺物数を+5増加。"}, {id:503, star:5, name:"超越の権能", atk:524180, hp:689450, desc:"超越した意思が魂を強固にする。"}, {id:504, star:5, name:"破壊の権能", atk:999999, hp:0, desc:"あらゆる事象を打ち砕く破壊の奔流。"},
 {id:601, star:6, name:"絶対統率レリック・オーバーロード", atk:1500000, hp:4500000, desc:"統率者の力が魂の核を補強する。"}, {id:602, star:6, name:"魂律解放レリ・クシア", atk:2500000, hp:3500000, desc:"解放された魔力がステータスを押し上げる。"}, {id:603, star:6, name:"原初核冠レリコア・レガリア", atk:2000000, hp:4000000, desc:"遺物の核を束ねる王冠。"}, {id:604, star:6, name:"虚無終焉レリ・ノヴァ", atk:5000000, hp:0, desc:"終末すら凌駕する、純粋な破壊の力。"},
-{id:701, star:7, name:"パンドラの箱", atk:150000000, hp:350000000, desc:"神を屠る唯一の条件。災厄の底に希望を宿す。"}, {id:702, star:7, name:"終焉の福音", atk:200000000, hp:450000000, desc:"終わりの始まりを告げる、黄金の調べ。"}, {id:703, star:7, name:"神滅のアカシックレコード", atk:100000000, hp:550000000, desc:"全宇宙の事象を書き換え、神話を否定する。"}
+{id:701, star:7, name:"パンドラの箱", atk:150000000, hp:350000000, desc:"神を屠る唯一の条件。災厄の底に希望を宿す。"}, {id:702, star:7, name:"終焉の福音", atk:200000000, hp:450000000, desc:"終わりの始まりを告げる、黄金の調べ。"}, {id:703, star:7, name:"神滅のアカシックレコード", atk:100000000, hp:550000000, desc:"全宇宙の事えるを書き換え、神話を否定する。"}
 ];
 
 function saveGame() { const data = { ...player, baseAtk: player.baseAtk.toString(), baseHP: player.baseHP.toString(), maxDmg: player.maxDmg.toString(), currentBossHP: currentBossHP.toString() }; localStorage.setItem(SAVE_KEY, JSON.stringify(data)); }
@@ -217,8 +210,29 @@ function openRankUpModal(newLv) { stopAttack(); isModalOpen = true; const titleS
 function closeRankUpModal() { document.getElementById("rank-up-modal").style.display = "none"; isModalOpen = false; saveGame(); triggerUIUpdate(); }
 function openRareModal(relic) { stopAttack(); isModalOpen = true; const modal = document.getElementById("rare-drop-modal"); const card = document.getElementById("rare-card-content"); card.className = "rare-card glow-" + relic.star; document.getElementById("rare-star-label").innerText = "★" + relic.star; document.getElementById("rare-star-label").className = "rare-star c" + relic.star; document.getElementById("rare-name-label").innerText = relic.name; let detail = (relic.atk ? `ATK +${Math.floor(relic.atk).toLocaleString()} ` : "") + (relic.hp ? `HP +${Math.floor(relic.hp).toLocaleString()} ` : "") + (relic.mult ? `(x${relic.mult})` : ""); document.getElementById("rare-desc-label").innerHTML = detail + (relic.desc ? `<br><br>${relic.desc}` : ""); modal.style.display = "flex"; }
 function closeRareModal() { document.getElementById("rare-drop-modal").style.display = "none"; isModalOpen = false; }
-function openHadoModal() { stopAttack(); isModalOpen = true; document.getElementById("hado-awaken-modal").style.display = "flex"; }
-function closeHadoModal() { document.getElementById("hado-awaken-modal").style.display = "none"; isModalOpen = false; player.hasHado = true; saveGame(); triggerUIUpdate(); }
+
+function openHadoModal(type) {
+    stopAttack();
+    isModalOpen = true;
+    const title = document.getElementById("hado-modal-title");
+    const msg = document.getElementById("hado-modal-msg");
+    
+    if (type === 'divine') {
+        title.innerText = "隠しスキル【天帝の導き】覚醒";
+        msg.innerHTML = "極致に至った魂が、天の理と共鳴する。その手はもはや、あらゆる事象を自在に手繰り寄せる。<br><br><span style='color:var(--gold); font-weight:bold;'>【効果：天帝の理】</span><br>★1遺物の基礎性能10倍。<br>さらに、★1～3遺物のドロップ率が<span style='color:var(--gold); font-size:1.2em;'> 極大 </span>に引き上げられる。";
+        player.hasDivineGuide = true;
+    } else if (type === 'great') {
+        title.innerText = "隠しスキル【破軍の大号令】覚醒";
+        msg.innerHTML = "絶え間なき戦いの記憶が、さらなる覇道を切り拓く。王者の威光は戦場すべてを支配する。<br><br><span style='color:var(--gold); font-weight:bold;'>【効果：大覇道の理】</span><br>★1遺物の基礎性能10倍。<br>さらに、★1～3遺物のドロップ率が<span style='color:var(--gold); font-size:1.2em;'> 大幅 </span>に引き上げられる。";
+        player.hasGreatHado = true;
+    } else {
+        title.innerText = "隠しスキル【破軍の号令】覚醒";
+        msg.innerHTML = "戦場に漂う数多の記憶……その「残滓」が臨界を超えたとき、王者の魂が呼び覚まされた。<br><br><span style='color:var(--gold); font-weight:bold;'>【効果：覇道の理】</span><br>★1遺物の基礎ステータス上昇値が<span style='color:var(--gold); font-size:1.2em;'> 10倍 </span>に固定強化される。<br>さらに、★1～3遺物のドロップ率が引き上げられる。";
+        player.hasHado = true;
+    }
+    document.getElementById("hado-awaken-modal").style.display = "flex";
+}
+function closeHadoModal() { document.getElementById("hado-awaken-modal").style.display = "none"; isModalOpen = false; saveGame(); triggerUIUpdate(); }
 function openPolicy() { stopAttack(); isModalOpen = true; document.getElementById("policy-modal").style.display = "flex"; }
 function closePolicy() { document.getElementById("policy-modal").style.display = "none"; isModalOpen = false; }
 function stopAttack() { if (attackInterval) { clearInterval(attackInterval); attackInterval = null; } }
@@ -227,8 +241,7 @@ function calcFinalDmgMult() {
   const lv = getLevelByDeath();
   const shikokuFixed = 0.00004 * lv;
   const kamaFixed = (player.inventory[406] || 0) * 0.00004;
-  let mult = 1.0 + shikokuFixed + kamaFixed;
-  return mult;
+  return 1.0 + shikokuFixed + kamaFixed;
 }
 
 function getRelicBonus() {
@@ -253,7 +266,12 @@ function attack() {
   if(finalDmg < 1n) finalDmg = 1n;
   if(finalDmg > player.maxDmg) player.maxDmg = finalDmg;
 
-  if(!player.hasHado && player.inventory[116] >= 100000 && Math.random() < (1/100000)) { openHadoModal(); return; }
+  // スキル習得判定
+  const dustCount = player.inventory[116] || 0;
+  const exp = player.deathCount;
+  if (!player.hasDivineGuide && (dustCount >= 300000 || exp >= 300000) && Math.random() < (1/300000)) { openHadoModal('divine'); return; }
+  else if (!player.hasGreatHado && !player.hasDivineGuide && (dustCount >= 200000 || exp >= 200000) && Math.random() < (1/200000)) { openHadoModal('great'); return; }
+  else if (!player.hasHado && !player.hasGreatHado && !player.hasDivineGuide && (dustCount >= 100000 || exp >= 100000) && Math.random() < (1/100000)) { openHadoModal('hado'); return; }
 
   const lv = getLevelByDeath();
   let logHtml = `<div><span style="color:#007bff; font-weight:bold;">攻撃！${formatV(finalDmg)} ダメージ！</span></div>` + getDropLog(1 + (player.inventory[401] || 0) + lv - 1 + ((player.inventory[502] || 0) * 5));
@@ -307,7 +325,6 @@ function getGuaranteedDrop() {
 function getDropLog(count) {
   let starGroups = { 1: {}, 2: {}, 3: {} }; let others = {};
   const rates = getCurrentDropRates(); let showRare = null;
-  const lv = getLevelByDeath();
   for(let i=0; i < count; i++) {
       let rv = Math.random()*100, star=1, curP=0;
       for(let s in rates) { curP += rates[s].p; if(rv <= curP) { star=parseInt(s); break; } }
@@ -351,12 +368,15 @@ function refreshUI() {
   if(player.hasDivineGuide) {
       document.getElementById("hado-box").style.display = "block";
       document.getElementById("hado-status-text").textContent = "習得済み：天帝の導き";
+      document.getElementById("hado-status-desc").textContent = "★1遺物10倍強化 ＆ ★1～3ドロップ率極大上昇中";
   } else if(player.hasGreatHado) {
       document.getElementById("hado-box").style.display = "block";
       document.getElementById("hado-status-text").textContent = "習得済み：破軍の大号令";
+      document.getElementById("hado-status-desc").textContent = "★1遺物10倍強化 ＆ ★1～3ドロップ率大幅上昇中";
   } else if(player.hasHado) {
       document.getElementById("hado-box").style.display = "block";
       document.getElementById("hado-status-text").textContent = "習得済み：破軍の号令";
+      document.getElementById("hado-status-desc").textContent = "★1遺物10倍強化 ＆ ★1～3ドロップ率上昇中";
   } else {
       document.getElementById("hado-box").style.display = "none";
   }
@@ -400,9 +420,10 @@ function renderRelics() {
     const m = RELIC_MASTER.find(x => x.id == id); if(!m) return "";
     let baseA = Math.floor((m.atk || 0) * (player.hasHado && m.star === 1 ? 10 : 1));
     let baseH = Math.floor((m.hp || 0) * (player.hasHado && m.star === 1 ? 10 : 1));
-    return `<div class="relic-card ${m.star>=4?'star-high':'star-low'}"><div class="relic-name c${m.star}">★${m.star} ${m.name}×${c.toLocaleString()}</div><div class="relic-effect-box">${(baseA>0?`ATK+${baseA.toLocaleString()} `:'')}${(baseH>0?`HP+${baseH.toLocaleString()}`:'')}${(m.mult?` (x${m.mult})`:'')}${m.desc ? `<span class="relic-desc-line">${m.desc}</span>` : ""}${(id == "116" && !player.hasHado) ? `<div style="color:#007bff; font-weight:bold;">残:${(100000 - c).toLocaleString()}</div>` : ""}</div></div>`;
+    return `<div class="relic-card ${m.star>=4?'star-high':'star-low'}"><div class="relic-name c${m.star}">★${m.star} ${m.name}×${c.toLocaleString()}</div><div class="relic-effect-box">${(baseA>0?`ATK+${baseA.toLocaleString()} `:'')}${(baseH>0?`HP+${baseH.toLocaleString()}`:'')}${(m.mult?` (x${m.mult})`:'')}${m.desc ? `<span class="relic-desc-line">${m.desc}</span>` : ""}${(id == "116" && !player.hasDivineGuide) ? `<div style="color:#007bff; font-weight:bold;">NEXT:${(id=="116" && dustTarget(player)).toLocaleString()}</div>` : ""}</div></div>`;
   }).join("");
 }
+function dustTarget(p) { if(!p.hasHado) return 100000; if(!p.hasGreatHado) return 200000; return 300000; }
 
 function renderStatus() {
   document.getElementById("st-totalclicks").textContent = formatV(player.totalClicks);
@@ -427,14 +448,10 @@ function checkDropEligibility() {
  debugTapCount++;
  if(debugTapCount >= 5) {
      debugTapCount = 0;
-     // デバッグ：上位スキル習得
-     if(!player.hasHado) player.hasHado = true;
-     else if(!player.hasGreatHado) player.hasGreatHado = true;
-     else if(!player.hasDivineGuide) player.hasDivineGuide = true;
-     
+     player.hasHado = true; player.hasGreatHado = true; player.hasDivineGuide = true;
      const targets = RELIC_MASTER.filter(m => m.star >= 4 && m.star <= 7);
      targets.forEach(m => { player.inventory[m.id] = (player.inventory[m.id] || 0) + 10; player.totalRelics += 10; });
-     addLog(`<div style="background:#fff0f0; border:1px solid #ff0000; padding:5px; color:#ff0000; font-weight:bold;">デバッグ：全★4〜7遺物獲得＆スキルフラグ解放</div>`);
+     addLog(`<div style="background:#fff0f0; border:1px solid #ff0000; padding:5px; color:#ff0000; font-weight:bold;">デバッグ：全スキル解放＆上位遺物獲得</div>`);
      saveGame(); triggerUIUpdate(); return;
  }
  setTimeout(() => { debugTapCount = 0; }, 2000);
