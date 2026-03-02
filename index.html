@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>RELICORE - v3.2</title>
+<title>RELICORE - v3.3</title>
 <style>
 :root { --bg: #ffffff; --panel: #f8f9fa; --border: #dee2e6; --primary: #007bff; --text: #212529; --hp: #dc3545; --dark: #1a1a1a; --gold: #d4af37; --growth: #ff69b4; --relic-purple: #6610f2; --relic-bg: #fcfaff; }
 * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; box-sizing: border-box; }
@@ -162,7 +162,7 @@ RELICORE 開発者　げぇいむ＆AI
 <div class="privacy-link" onclick="openPolicy()">プライバシーポリシー</div>
 </div>
 </div>
-<div class="ver-footer">RELICORE v3.2</div>
+<div class="ver-footer">RELICORE v3.3</div>
 <script>
 const SAVE_KEY = "relicore_player_data";
 const BOSS_MAX_HP_BASE = 100000000000000000000n;
@@ -231,7 +231,7 @@ function openHadoModal(type) {
      player.hasHado = true;
  } else if(type === 'great') {
      title = "隠しスキル【破軍の大号令】覚醒";
-     msg = "蓄積された意思は、もはや一つの軍勢に匹敵する。絶望を塗り潰す進軍が始まる。<br><br><span style='color:var(--gold); font-weight:bold;'>【効果：大覇道の理】</span><br>★2遺物の基礎ステータス上昇値が<span style='color:var(--gold); font-size:1.2em;'> 10倍 </span>に強化される。<br>さらに、★2～3遺物のドロップ率がさらに上昇。";
+     msg = "蓄積された意思は、もはや一つの軍勢に匹純する。絶望を塗り潰す進軍が始まる。<br><br><span style='color:var(--gold); font-weight:bold;'>【効果：大覇道の理】</span><br>★2遺物の基礎ステータス上昇値が<span style='color:var(--gold); font-size:1.2em;'> 10倍 </span>に強化される。<br>さらに、★2～3遺物のドロップ率がさらに上昇。";
      player.hasGreatHado = true;
  } else if(type === 'divine') {
      title = "隠しスキル【天帝の導き】覚醒";
@@ -305,7 +305,8 @@ if(finalDmg >= currentBossHP) {
 if(currentBossHP > 0n) {
  const currentTotalHP = BigInt(Math.floor(Number(player.baseHP + bonus.hp) * bonus.mult));
  let minCut = (lv * 2) + Math.min(30, player.inventory[403] || 0);
- let rawEnemyAtk = (currentTotalHP * 25n / 10n) * BigInt(player.uraAtkMult);
+ // 敵の攻撃ダメージを最大HPの300%に設定
+ let rawEnemyAtk = currentTotalHP * 3n;
  let finalMitigated = BigInt(Math.floor(Number(rawEnemyAtk) * (1 - (Math.floor(Math.random() * (101 - minCut)) + minCut) / 100))) - BigInt((player.inventory[501] || 0) * 500000);
  if(finalMitigated < 0n) finalMitigated = 0n;
  const oldLv = getLevelByDeath();
