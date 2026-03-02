@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>RELICORE - v3.5</title>
+<title>RELICORE - v3.6</title>
 <style>
 :root { --bg: #ffffff; --panel: #f8f9fa; --border: #dee2e6; --primary: #007bff; --text: #212529; --hp: #dc3545; --dark: #1a1a1a; --gold: #d4af37; --growth: #ff69b4; --relic-purple: #6610f2; --relic-bg: #fcfaff; }
 * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; box-sizing: border-box; }
@@ -162,7 +162,7 @@ RELICORE 開発者　げぇいむ＆AI
 <div class="privacy-link" onclick="openPolicy()">プライバシーポリシー</div>
 </div>
 </div>
-<div class="ver-footer">RELICORE v3.5</div>
+<div class="ver-footer">RELICORE v3.6</div>
 <script>
 const SAVE_KEY = "relicore_player_data";
 const BOSS_MAX_HP_BASE = 100000000000000000000n;
@@ -376,8 +376,6 @@ function getDropLog(count) {
    let finalEntries = [];
    for (let s = 1; s <= 7; s++) {
        if (starCounts[s] === 0) continue;
-
-       // 30個を超えたら集約表示
        if (starCounts[s] > 30) {
            finalEntries.push(`<span class="c${s}">★${s}遺物 合計${starCounts[s]}個</span>`);
        } else {
@@ -492,14 +490,15 @@ function checkDropEligibility() {
    debugTapCount++;
    if(debugTapCount >= 5) {
        debugTapCount = 0;
-       player.inventory[116] = 300000; // メモリーダスト
+       player.inventory[116] = 300000;
        player.deathCount = 300000;
        player.isDebugExp = true;
        player.hasHado = true;
        player.hasGreatHado = true;
        player.hasDivineGuide = true;
+       // 【検証用】ベースATKを10^30に設定
+       player.baseAtk = 1000000000000000000000000000000n;
 
-       // 【強化】再起の誓い(ID:0)以外の全遺物を30万個に設定
        let newTotalRelics = 0;
        RELIC_MASTER.forEach(relic => {
            if (relic.id !== 0) {
@@ -511,7 +510,7 @@ function checkDropEligibility() {
        });
        player.totalRelics = newTotalRelics;
 
-       addLog(`<div style="background:#fff0f0; border:1px solid #ff0000; padding:8px; color:#ff0000; font-weight:bold; font-size:0.9em;">【デバッグ:全遺物30万個付与】<br>・再起の誓いを除く全遺物を30万個所持<br>・全覇道系スキル 解放済み</div>`);
+       addLog(`<div style="background:#fff0f0; border:1px solid #ff0000; padding:8px; color:#ff0000; font-weight:bold; font-size:0.9em;">【デバッグ:神殺しモード発動】<br>・ATKを極大化（検証用）<br>・全遺物を30万個付与</div>`);
        saveGame(); triggerUIUpdate(); return;
    }
    setTimeout(() => { debugTapCount = 0; }, 2000);
