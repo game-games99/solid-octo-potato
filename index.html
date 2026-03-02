@@ -353,7 +353,7 @@ if(currentBossHP > 0n) {
        logHtml += `<div><span style="color:#28a745; font-weight:bold;">敵の攻撃！${formatV(finalMitigated)} ダメージ。障壁展開！</span></div>` + getGuaranteedDrop();
    } else {
        let repeatCount = 1;
-       if ((player.inventory[505] || 0) > 0 && Math.random() < 0.001) { repeatCount = 2; specialTags += `【再起】`; }
+       if ((player.inventory[505] || 0) > 0 && Math.random() < 0.1) { repeatCount = 2; specialTags += `【再起】`; }
        
        let totalUpHP = 0n;
        for (let i = 0; i < repeatCount; i++) {
