@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>RELICORE - v1.8</title>
+<title>RELICORE - v1.9</title>
 <style>
 :root { --bg: #ffffff; --panel: #f8f9fa; --border: #dee2e6; --primary: #007bff; --text: #212529; --hp: #dc3545; --dark: #1a1a1a; --gold: #d4af37; --growth: #ff69b4; --relic-purple: #6610f2; --relic-bg: #fcfaff; }
 * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; box-sizing: border-box; }
@@ -43,7 +43,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Robot
 .hado-content { background: #000; border: 3px solid var(--gold); border-radius: 20px; padding: 40px 20px; text-align: center; color: #fff; max-width: 450px; width: 95%; box-shadow: 0 0 60px rgba(212, 175, 55, 0.5); animation: awaken-glow 3s infinite alternate; }
 @keyframes awaken-glow { from { box-shadow: 0 0 30px rgba(212, 175, 55, 0.3); } to { box-shadow: 0 0 70px rgba(212, 175, 55, 0.7); } }
 .hado-title { color: var(--gold); font-size: 1.8em; font-weight: bold; margin-bottom: 25px; text-shadow: 0 0 15px var(--gold); }
-.hado-msg { font-size: 1.0em; line-height: 2.0; margin-bottom: 35px; color: #eee; text-align: left; background: rgba(255,255,255,0.05); padding: 20px; border-radius: 10px; }
+.hado-msg { font-size: 0.95em; line-height: 1.8; margin-bottom: 35px; color: #eee; text-align: left; background: rgba(255,255,255,0.05); padding: 20px; border-radius: 10px; }
 
 #upgrade-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 20000; justify-content: center; align-items: center; padding: 20px; }
 .upgrade-content { background: #1a1a1a; border: 2px solid gold; border-radius: 15px; padding: 30px; text-align: center; color: #fff; max-width: 400px; width: 90%; box-shadow: 0 0 30px rgba(255, 215, 0, 0.4); }
@@ -168,7 +168,7 @@ RELICORE 開発者　げぇいむ＆AI
 <div class="privacy-link" onclick="openPolicy()">プライバシーポリシー</div>
 </div>
 </div>
-<div class="ver-footer">RELICORE v1.8</div>
+<div class="ver-footer">RELICORE v1.9</div>
 <script>
 const SAVE_KEY = "relicore_player_data";
 const BOSS_MAX_HP_BASE = 100000000000000000000n;
@@ -216,15 +216,15 @@ function openHadoModal(type) {
    let title = "", msg = "";
    if(type === 'hado') {
        title = "隠しスキル【破軍の号令】覚醒";
-       msg = "戦場に漂う数多の記憶……その「残滓」が臨界を超えたとき、王者の魂が呼び覚まされた。<br><br><span style='color:var(--gold); font-weight:bold;'>【効果：覇道の理】</span><br>★1遺物の基礎ステータス上昇値が<span style='color:var(--gold); font-size:1.2em;'> 10倍 </span>に固定強化される。<br>さらに、★1～3遺物のドロップ率が大幅に引き上げられる。";
+       msg = "聞こえるか、無念に消えた戦士たちの咆哮を。<br>ただの『欠片』に過ぎなかった記憶が、今、確かな軍勢へと姿を変える。<br><br><span style='color:var(--gold); font-weight:bold;'>反旗を翻せ。弱き者たちの意志こそが、神の理を穿つ最初の楔となる！</span><hr style='border:none; border-top:1px solid #444; margin:15px 0;'><span style='color:var(--gold); font-size:0.9em;'>【効果：覇道の理】<br>★1遺物（下級職の欠片）のステータス上昇値が 10倍 に固定強化される。</span>";
        player.hasHado = true;
    } else if(type === 'great') {
        title = "隠しスキル【破軍の大号令】覚醒";
-       msg = "蓄積された意思は、もはや一つの軍勢に匹敵する。絶望を塗り潰す進軍が始まる。<br><br><span style='color:var(--gold); font-weight:bold;'>【効果：大覇道の理】</span><br>★1および★2遺物のステータスが<span style='color:var(--gold); font-size:1.2em;'> 10倍 </span>に強化される。<br>さらに、★2～3遺物のドロップ率がさらに上昇。";
+       msg = "集え、亡国の英雄たちよ。<br>聖なる盾も、深淵の魔術も、すべてはこの瞬間のために保存されていた。個の記憶は群の力となり、絶望の空を塗り潰す進軍の火蓋が切られる。<br><br><span style='color:var(--gold); font-weight:bold;'>これより始まるは、神への叛逆という名の聖戦である！</span><hr style='border:none; border-top:1px solid #444; margin:15px 0;'><span style='color:var(--gold); font-size:0.9em;'>【効果：大覇道の理】<br>★1および★2遺物のステータスが 10倍 に固定強化される。</span>";
        player.hasGreatHado = true;
    } else if(type === 'divine') {
        title = "隠しスキル【天帝の導き】覚醒";
-       msg = "すべての遺物、すべての記憶はあなたという一点に収束する。万象を統べる天の理。<br><br><span style='color:var(--gold); font-weight:bold;'>【効果：天帝の理】</span><br>★1～★3すべての遺物ステータスが<span style='color:var(--gold); font-size:1.2em;'> 10倍 </span>に強化される。<br>さらに、高レアリティ遺物のドロップ率が極限まで最適化される。";
+       msg = "万象は収束し、失われたすべての時代がこの一撃に宿る。もはやこれはただの記憶ではない。世界の存亡を賭けた、魂の総力戦だ。貴方が歩む道こそが真なる天理。<br><br><span style='color:var(--gold); font-weight:bold;'>神の座を、その手に引きずり下ろす時が来た。</span><hr style='border:none; border-top:1px solid #444; margin:15px 0;'><span style='color:var(--gold); font-size:0.9em;'>【効果：天帝の理】<br>★1～★3すべての遺物（全ジョブの欠片）が 10倍 に強化される。</span>";
        player.hasDivineGuide = true;
    }
    document.getElementById("hado-modal-title").innerText = title;
@@ -251,7 +251,6 @@ Object.entries(player.inventory).forEach(([id, count]) => {
    const r = RELIC_MASTER.find(m => m.id == id); if(!r) return;
    let bA = (r.atk || 0) * count, bH = (r.hp || 0) * count;
 
-   // 重複・漏れのない10倍強化ロジック
    if(player.hasDivineGuide) {
        if(r.star >= 1 && r.star <= 3) { bA *= 10; bH *= 10; }
    } else if(player.hasGreatHado) {
@@ -276,7 +275,6 @@ let finalDmg = BigInt(Math.floor(Number(totalBaseAtk) * bonus.mult * skillMult *
 if(finalDmg < 1n) finalDmg = 1n;
 if(finalDmg > player.maxDmg) player.maxDmg = finalDmg;
 
-// 発現判定ロジック
 const dust = player.inventory[116] || 0;
 const exp = player.deathCount;
 if(!player.hasHado && dust >= 100000 && (Math.random() < (1/100000) || exp >= 100000)) { openHadoModal('hado'); return; }
@@ -315,7 +313,7 @@ if(currentBossHP > 0n) {
        let totalUpHP = BigInt(Math.floor(Math.random() * Math.max(1, player.deathCount)) + 1 + lv + (player.inventory[402] || 0) * 5);
        player.baseHP += totalUpHP;
        player.deathCount += gainedExp;
-       logHtml += `<div><span style="color:#dc3545;">敵の攻撃！${formatV(finalMitigated)} ダメージ。</span><span style="color:#007bff; font-weight:bold;">再起の誓いによって新たなる力を得た </span><span style="color:var(--growth); font-weight:bold;">(基礎HP+${formatV(totalUpHP)})</span></div>`;
+       logHtml += `<div><span style="color:#dc3545;">敵의 攻撃！${formatV(finalMitigated)} ダメージ。</span><span style="color:#007bff; font-weight:bold;">再起の誓いによって新たなる力を得た </span><span style="color:var(--growth); font-weight:bold;">(基礎HP+${formatV(totalUpHP)})</span></div>`;
    }
    if(getLevelByDeath() > oldLv) openRankUpModal(getLevelByDeath());
 }
@@ -470,18 +468,10 @@ if(debugTapCount >= 5) {
   player.inventory[116] = 300000;
   player.deathCount = 300000;
   player.isDebugExp = true;
-
-  // 検証用フラグ全開放
   player.hasHado = true;
   player.hasGreatHado = true;
   player.hasDivineGuide = true;
-
-  addLog(`<div style="background:#fff0f0; border:1px solid #ff0000; padding:8px; color:#ff0000; font-weight:bold; font-size:0.9em;">
-  【デバッグ:検証セットアップ】<br>
-  ・メモリーダスト 300,000個<br>
-  ・戦闘経験値 300,000<br>
-  ・全覇道系スキル 解放済み
-  </div>`);
+  addLog(`<div style="background:#fff0f0; border:1px solid #ff0000; padding:8px; color:#ff0000; font-weight:bold; font-size:0.9em;">【デバッグ:検証セットアップ】<br>・メモリーダスト 300,000個<br>・戦闘経験値 300,000<br>・全覇道系スキル 解放済み</div>`);
   saveGame(); triggerUIUpdate(); return;
 }
 setTimeout(() => { debugTapCount = 0; }, 2000);
