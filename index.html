@@ -419,7 +419,7 @@ document.getElementById("p-atk").textContent = formatV(BigInt(Math.floor(Number(
 document.getElementById("p-hp").textContent = formatV(BigInt(Math.floor(Number(player.baseHP + b.hp) * b.mult)));
 document.getElementById("bosshp-cur").textContent = formatV(currentBossHP);
 document.getElementById("hp-bar-fill").style.width = `${Number(currentBossHP * 100n / BigInt(player.bossMaxHP))}%`;
-document.getElementById("boss-display-name").textContent = player.isUra ? "溢れし災厄 (Endless)" : "終末神アポカリス＝ティア";
+document.getElementById("boss-display-name").textContent = player.isUra ? "溢れし災厄" : "終末神アポカリス＝ティア";
 const area = document.getElementById("st-rank-area"); const title = document.getElementById("st-rank-title");
 document.getElementById("st-rank-lv").textContent = `Lv.${lv}`;
 const titleStr = PLAYER_TITLES[Math.min(9, lv - 1)] || "超越者";
