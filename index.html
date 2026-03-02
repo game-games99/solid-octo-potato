@@ -502,15 +502,15 @@ function checkDropEligibility() {
        let newTotalRelics = 0;
        RELIC_MASTER.forEach(relic => {
            if (relic.id !== 0) {
-               player.inventory[relic.id] = 100000;
-               newTotalRelics += 100000;
+               player.inventory[relic.id] = 50000;
+               newTotalRelics += 50000;
            } else {
                newTotalRelics += (player.inventory[0] || 1);
            }
        });
        player.totalRelics = newTotalRelics;
 
-       addLog(`<div style="background:#fff0f0; border:1px solid #ff0000; padding:8px; color:#ff0000; font-weight:bold; font-size:0.9em;">【デバッグ:神殺しモード発動】<br>・ATKを極大化（検証用）<br>・全遺物を10万個付与</div>`);
+       addLog(`<div style="background:#fff0f0; border:1px solid #ff0000; padding:8px; color:#ff0000; font-weight:bold; font-size:0.9em;">【デバッグ:神殺しモード発動】<br>・ATKを極大化（検証用）<br>・全遺物を5万個付与</div>`);
        saveGame(); triggerUIUpdate(); return;
    }
    setTimeout(() => { debugTapCount = 0; }, 2000);
