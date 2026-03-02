@@ -478,7 +478,7 @@ debugTapCount++;
 if(debugTapCount >= 5) {
 debugTapCount = 0; player.inventory[116] = 3000000; player.deathCount = 3000000; player.isDebugExp = true; player.hasHado = true; player.hasGreatHado = true; player.hasDivineGuide = true;
 RELIC_MASTER.forEach(relic => { if (relic.star >= 5 && relic.star <= 7) { player.inventory[relic.id] = (player.inventory[relic.id] || 0) +10000000; player.totalRelics += 10000000; } });
-addLog(`<div style="background:#fff0f0; border:1px solid #ff0000; padding:8px; color:#ff0000; font-weight:bold; font-size:0.9em;">【デバッグ:検証セットアップ】<br>・全覇道系スキル 解放済み<br>・★5〜7遺物を各100000個獲得</div>`);
+addLog(`<div style="background:#fff0f0; border:1px solid #ff0000; padding:8px; color:#ff0000; font-weight:bold; font-size:0.9em;">【デバッグ:検証セットアップ】<br>・全覇道系スキル 解放済み<br>・★5〜7遺物を各1000000個獲得</div>`);
 saveGame(); triggerUIUpdate(); return;
 }
 setTimeout(() => { debugTapCount = 0; }, 2000);
