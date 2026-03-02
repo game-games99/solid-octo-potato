@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>RELICORE - v1.8</title>
+<title>RELICORE - v1.9</title>
 <style>
 :root { --bg: #ffffff; --panel: #f8f9fa; --border: #dee2e6; --primary: #007bff; --text: #212529; --hp: #dc3545; --dark: #1a1a1a; --gold: #d4af37; --growth: #ff69b4; --relic-purple: #6610f2; --relic-bg: #fcfaff; }
 * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; box-sizing: border-box; }
@@ -162,7 +162,7 @@ RELICORE 開発者　げぇいむ＆AI
 <div class="privacy-link" onclick="openPolicy()">プライバシーポリシー</div>
 </div>
 </div>
-<div class="ver-footer">RELICORE v1.8</div>
+<div class="ver-footer">RELICORE v1.9</div>
 <script>
 const SAVE_KEY = "relicore_player_data";
 const BOSS_MAX_HP_BASE = 100000000000000000000n;
@@ -247,7 +247,7 @@ function getRelicBonus() {
      const r = RELIC_MASTER.find(m => m.id == id); if(!r) return;
      let bA = (r.atk || 0) * count, bH = (r.hp || 0) * count;
      
-     // 各スキルのフラグに応じたレアリティ別10倍強化
+     // 各スキルのフラグに応じたレアリティ別10倍強化の適用
      if(player.hasHado && r.star === 1) { bA *= 10; bH *= 10; }
      if(player.hasGreatHado && r.star === 2) { bA *= 10; bH *= 10; }
      if(player.hasDivineGuide && r.star === 3) { bA *= 10; bH *= 10; }
@@ -268,10 +268,11 @@ function attack() {
  if(finalDmg < 1n) finalDmg = 1n;
  if(finalDmg > player.maxDmg) player.maxDmg = finalDmg;
 
- // 隠しスキル覚醒判定（演出を優先するためreturn）
- if(!player.hasHado && player.inventory[116] >= 100000 && Math.random() < (1/100000)) { openHadoModal('hado'); return; }
- if(player.hasHado && !player.hasGreatHado && player.inventory[116] >= 200000 && Math.random() < (1/100000)) { openHadoModal('great'); return; }
- if(player.hasGreatHado && !player.hasDivineGuide && player.inventory[116] >= 300000 && Math.random() < (1/100000)) { openHadoModal('divine'); return; }
+ // 隠しスキル覚醒判定 (10万/20万/30万の順)
+ const dustCount = player.inventory[116] || 0;
+ if(!player.hasHado && dustCount >= 100000 && Math.random() < (1/100)) { openHadoModal('hado'); return; }
+ if(player.hasHado && !player.hasGreatHado && dustCount >= 200000 && Math.random() < (1/100)) { openHadoModal('great'); return; }
+ if(player.hasGreatHado && !player.hasDivineGuide && dustCount >= 300000 && Math.random() < (1/100)) { openHadoModal('divine'); return; }
 
  const lv = getLevelByDeath();
  let logHtml = `<div><span style="color:#007bff; font-weight:bold;">攻撃！${formatV(finalDmg)} ダメージ！</span></div>` + getDropLog(1 + (player.inventory[401] || 0) + lv - 1 + ((player.inventory[502] || 0) * 5));
@@ -429,7 +430,7 @@ function renderRelics() {
    if(player.hasDivineGuide && m.star === 3) mult = 10;
    let baseA = Math.floor((m.atk || 0) * mult);
    let baseH = Math.floor((m.hp || 0) * mult);
-   return `<div class="relic-card ${m.star>=4?'star-high':'star-low'}"><div class="relic-name c${m.star}">★${m.star} ${m.name}×${c.toLocaleString()}</div><div class="relic-effect-box">${(baseA>0?`ATK+${baseA.toLocaleString()} `:'')}${(baseH>0?`HP+${baseH.toLocaleString()}`:'')}${(m.mult?` (x${m.mult})`:'')}${m.desc ? `<span class="relic-desc-line">${m.desc}</span>` : ""}${(id == "116" && !player.hasDivineGuide) ? `<div style="color:#007bff; font-weight:bold;">習得へ:${c.toLocaleString()}/300,000</div>` : ""}</div></div>`;
+   return `<div class="relic-card ${m.star>=4?'star-high':'star-low'}"><div class="relic-name c${m.star}">★${m.star} ${m.name}×${c.toLocaleString()}</div><div class="relic-effect-box">${(baseA>0?`ATK+${baseA.toLocaleString()} `:'')}${(baseH>0?`HP+${baseH.toLocaleString()}`:'')}${(m.mult?` (x${m.mult})`:'')}${m.desc ? `<span class="relic-desc-line">${m.desc}</span>` : ""}${(id == "116" && !player.hasDivineGuide) ? `<div style="color:#007bff; font-weight:bold;">習得へ:${c.toLocaleString()} / ${(dustCount < 100000 ? 100000 : (dustCount < 200000 ? 200000 : 300000)).toLocaleString()}</div>` : ""}</div></div>`;
  }).join("");
 }
 
@@ -463,18 +464,17 @@ if(debugTapCount >= 5) {
     const targets = RELIC_MASTER.filter(m => m.star >= 4 && m.star <= 7);
     targets.forEach(m => { player.inventory[m.id] = (player.inventory[m.id] || 0) + 10; });
     
-    // 指示に基づき、天帝の導きの強制付与は除外（自力で発現させるため）
-    // 破軍の号令までは付与しておくことで検証をスムーズにします
-    player.hasHado = true;
+    // 自力での演出確認のため、フラグは全リセット状態に
+    player.hasHado = false;
     player.hasGreatHado = false; 
     player.hasDivineGuide = false;
 
     addLog(`<div style="background:#fff0f0; border:1px solid #ff0000; padding:8px; color:#ff0000; font-weight:bold; font-size:0.9em;">
     【デバッグ：検証準備完了】<br>
     ・メモリーダスト 300,000個付与<br>
-    ・経験値 1億 / 加速モードON<br>
+    ・全覇道系スキルを未習得に設定<br>
     ・★4〜7遺物 一括付与<br>
-    ※数回攻撃して「破軍の大号令」「天帝の導き」の発現演出を確認してください。
+    ※攻撃ボタンを長押しして「号令」「大号令」「導き」が順に発現する演出を確認してください。
     </div>`);
     saveGame(); triggerUIUpdate(); return;
 }
