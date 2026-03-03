@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>RELICORE - v1.11</title>
+<title>RELICORE - v1.10</title>
 <style>
 :root { --bg: #ffffff; --panel: #f8f9fa; --border: #dee2e6; --primary: #007bff; --text: #212529; --hp: #dc3545; --dark: #1a1a1a; --gold: #d4af37; --growth: #ff69b4; --relic-purple: #6610f2; --relic-bg: #fcfaff; --relic-rainbow: linear-gradient(135deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3); --cosmic-blue: #00d4ff; --cosmic-white: #ffffff; }
 * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; box-sizing: border-box; }
@@ -184,7 +184,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Robot
 <div class="privacy-link" onclick="openPolicy()">プライバシーポリシー</div>
 </div>
 </div>
-<div class="ver-footer">RELICORE v1.11</div>
+<div class="ver-footer">RELICORE v1.10</div>
 <script>
 const SAVE_KEY = "relicore_player_data";
 const BOSS_MAX_HP_BASE = 100000000000000000000n;
@@ -245,7 +245,7 @@ const RELIC_MASTER = [
 {id:601, star:6, name:"絶対統率レリック・オーバーロード", atk:1500000, hp:4500000, desc:"敵HPが自身のATKの100倍以上の時、与ダメージ+8%。"}, {id:602, star:6, name:"魂律解放レリ・クシア", atk:2500000, hp:3500000, desc:"100回攻撃ごとに次の一撃の最終ダメージ+200%。"}, {id:603, star:6, name:"原初核冠レリコア・レガリア", atk:2000000, hp:4000000, desc:"★1〜3遺物のステータス上昇効果を20%増加させる。"}, {id:604, star:6, name:"虚無終焉レリ・ノヴァ", atk:5555555, hp:0, desc:"攻撃時0.1%の確率で与ダメージ+500%。"},
 {id:605, star:6, name:"戦碑累功レリ・エンス", atk:3000000, hp:3000000, desc:"1つにつき獲得経験値+5。"},
 {id:701, star:7, name:"パンドラの箱", atk:155528931, hp:355528931, desc:"神を屠る唯一の条件。災厄の底に希望を宿す。"}, {id:702, star:7, name:"終焉の福音", atk:200000000, hp:450000000, desc:"敵HPが50%以下のとき、与ダメージ+30%。(重複不可)"}, {id:703, star:7, name:"神滅のアカシックレコード", atk:100000000, hp:550000000, desc:"与ダメージの最終倍率にさらに+20%。(重複不可)"},
-{id:704, star:7, name:"災厄の残滓", atk:500000000, hp:500000000, desc:"すべての遺物のステータス上昇値を10倍にする。(効果は重複しない)"},
+{id:704, star:7, name:"災厄의 잔재", atk:500000000, hp:500000000, desc:"すべての遺物のステータス上昇値を10倍にする。(効果は重複しない)"},
 {id:801, star:999, name:"秩序のリバランス", atk:0, hp:0, desc:"【超越】低ダメージを敵最大HP割合の絶対ダメージに変換。討伐数に応じて威力が上昇。"}
 ];
 
@@ -517,7 +517,6 @@ for(let i=0; i < count; i++) {
    if (player.maxDmg < rates[star].cond) star=1;
 
    let sel;
-   // 【修正】メモリースターダストのドロップ判定：天帝の導きが発動している場合のみ、★2ドロップの10%で出現
    if (star === 2 && player.hasDivineGuide && Math.random() < 0.1) { 
        sel = RELIC_MASTER.find(m => m.id === 117); 
    }
@@ -587,7 +586,6 @@ if(hadoText !== "") {
  document.getElementById("hado-status-text").textContent = hadoText;
  document.getElementById("hado-status-desc").textContent = "各種遺物の強化及びドロップ率が大幅に上昇中";
  
- // 【復元】ステータスタブのカウントダウン
  let countText = "";
  const dust = player.inventory[116] || 0;
  const stardust = player.inventory[117] || 0;
@@ -618,7 +616,6 @@ let html = "";
 skills.forEach(s => {
 let hlContent = "";
 if(s.id === "futaiten") {
-  // 【復元】メモリーダストのカウントダウン
   let nextHado = "";
   if(!player.hasHado) nextHado = ` (号令まであと${(100000-dust).toLocaleString()}個)`;
   else if(!player.hasGreatHado) nextHado = ` (大号令まであと${(200000-dust).toLocaleString()}個)`;
@@ -639,7 +636,6 @@ else if(s.id === "hangeki") {
   hlContent = `<span class="vow-tag">確定：1 ～ ${lv}個</span><span class="vow-tag">(★2${zanko ? '/★3' : ''})</span><span class="vow-tag">【勇者の残光】</span>`;
 }
 else if(s.id === "konken") {
-  // 【復元】メモリースターダストのカウントダウン
   let nextCosmic = "";
   if(player.hasDivineGuide) {
       if(!player.hasWorldOrder) nextCosmic = ` (秩序まであと${(100000-stardust).toLocaleString()}個)`;
@@ -680,7 +676,20 @@ if(m.star === 6 && player.hasMeta) { baseA *= 10; baseH *= 10; }
 if(hasRegalia && m.star <= 3) { baseA *= 1.2; baseH *= 1.2; }
 if(hasZansai) { baseA *= 10; baseH *= 10; }
 let cardCls = m.star >= 8 ? 'star-ultimate' : (m.star >= 4 ? 'star-high' : 'star-low');
-return `<div class="relic-card ${cardCls}"><div class="relic-name c${m.star}">★${m.star} ${m.name}×${c.toLocaleString()}</div><div class="relic-effect-box">${(baseA>0?`ATK+${formatFix(baseA)} `:'')}${(baseH>0?`HP+${formatFix(baseH)}`:'')}${(m.mult?` (x${m.mult})`:'')}${m.desc ? `<span class="relic-desc-line">${m.desc}</span>` : ""}</div></div>`;
+
+// カウントダウンロジックの追加
+let countdown = "";
+if (m.name === "メモリーダスト") {
+    if (c < 100000) countdown = `<div style="color:#ffcc00; font-size:0.8em; margin-top:4px;">号令まで: ${(100000 - c).toLocaleString()}</div>`;
+    else if (c < 200000) countdown = `<div style="color:#ffcc00; font-size:0.8em; margin-top:4px;">大号令まで: ${(200000 - c).toLocaleString()}</div>`;
+    else if (c < 300000) countdown = `<div style="color:#ffcc00; font-size:0.8em; margin-top:4px;">天帝まで: ${(300000 - c).toLocaleString()}</div>`;
+} else if (m.name === "メモリースターダスト") {
+    if (c < 100000) countdown = `<div style="color:#00d4ff; font-size:0.8em; margin-top:4px;">秩序まで: ${(100000 - c).toLocaleString()}</div>`;
+    else if (c < 200000) countdown = `<div style="color:#00d4ff; font-size:0.8em; margin-top:4px;">権威まで: ${(200000 - c).toLocaleString()}</div>`;
+    else if (c < 300000) countdown = `<div style="color:#00d4ff; font-size:0.8em; margin-top:4px;">超克まで: ${(300000 - c).toLocaleString()}</div>`;
+}
+
+return `<div class="relic-card ${cardCls}"><div class="relic-name c${m.star}">★${m.star} ${m.name}×${c.toLocaleString()}</div><div class="relic-effect-box">${(baseA>0?`ATK+${formatFix(baseA)} `:'')}${(baseH>0?`HP+${formatFix(baseH)}`:'')}${(m.mult?` (x${m.mult})`:'')}${m.desc ? `<span class="relic-desc-line">${m.desc}</span>` : ""}${countdown}</div></div>`;
 }).join("");
 }
 
