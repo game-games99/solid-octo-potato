@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>RELICORE - v1.7</title>
+<title>RELICORE - v1.8</title>
 <style>
 :root { --bg: #ffffff; --panel: #f8f9fa; --border: #dee2e6; --primary: #007bff; --text: #212529; --hp: #dc3545; --dark: #1a1a1a; --gold: #d4af37; --growth: #ff69b4; --relic-purple: #6610f2; --relic-bg: #fcfaff; --relic-rainbow: linear-gradient(135deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3); }
 * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; box-sizing: border-box; }
@@ -141,7 +141,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Robot
    <button class="story-btn" onclick="closeClearModal()">災厄に立ち向かう</button>
 </div></div>
 
-<div id="header"><div class="boss-area"><div class="boss-name" id="boss-display-name">終末神アポカリス＝ティア</div><div class="hp-bar-container"><div id="hp-bar-fill"></div></div><div class="hp-val-display" id="bosshp-cur">0</div></div><div class="status-box"><div class="stat-card"><span class="stat-label">ATK</span><div class="stat-val" id="p-atk">0</div></div><div class="stat-card hp-card"><span class="stat-label">HP</span><div class="stat-label">HP</div><div class="stat-val" id="p-hp">0</div></div></div></div>
+<div id="header"><div class="boss-area"><div class="boss-name" id="boss-display-name">終末神アポカリス＝ティア</div><div class="hp-bar-container"><div id="hp-bar-fill"></div></div><div class="hp-val-display" id="bosshp-cur">0</div></div><div class="status-box"><div class="stat-card"><span class="stat-label">ATK</span><div class="stat-val" id="p-atk">0</div></div><div class="stat-card hp-card"><span class="stat-label">HP</span><div class="stat-val" id="p-hp">0</div></div></div></div>
 <div class="nav"><button onclick="showTab('battle')" id="nav-battle" class="active">討伐</button><button onclick="showTab('vow')" id="nav-vow">再起</button><button onclick="showTab('relic')" id="nav-relic">遺物</button><button onclick="showTab('status')" id="nav-status">詳細</button></div>
 <div id="content-area">
 <div id="battle" class="tab active"><button class="btn-attack" id="attackBtn">こうげき</button><div id="log"></div></div>
@@ -166,7 +166,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Robot
 <div class="privacy-link" onclick="openPolicy()">プライバシーポリシー</div>
 </div>
 </div>
-<div class="ver-footer">RELICORE v1.7</div>
+<div class="ver-footer">RELICORE v1.8</div>
 <script>
 const SAVE_KEY = "relicore_player_data";
 const BOSS_MAX_HP_BASE = 100000000000000000000n;
