@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>RELICORE - v1.9</title>
+<title>RELICORE - v1.0</title>
 <style>
 :root { --bg: #ffffff; --panel: #f8f9fa; --border: #dee2e6; --primary: #007bff; --text: #212529; --hp: #dc3545; --dark: #1a1a1a; --gold: #d4af37; --growth: #ff69b4; --relic-purple: #6610f2; --relic-bg: #fcfaff; --relic-rainbow: linear-gradient(135deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3); --cosmic-blue: #00d4ff; --cosmic-white: #ffffff; }
 * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; box-sizing: border-box; }
@@ -176,7 +176,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Robot
 <div class="privacy-link" onclick="openPolicy()">プライバシーポリシー</div>
 </div>
 </div>
-<div class="ver-footer">RELICORE v1.9</div>
+<div class="ver-footer">RELICORE v1.0</div>
 <script>
 const SAVE_KEY = "relicore_player_data";
 const BOSS_MAX_HP_BASE = 100000000000000000000n;
@@ -489,6 +489,23 @@ function getDropLog(count) {
          let cands = RELIC_MASTER.filter(m => m.star === star && m.id !== 0 && m.star < 8 && m.id !== 117);
          if(cands.length === 0) cands = RELIC_MASTER.filter(m => m.star === 1);
          sel = cands[Math.floor(Math.random() * cands.length)];
+         
+         // 災厄の残滓(704)の特殊ドロップロジック
+         if(sel.id === 704) {
+             // 初回かつ溢れし災厄の時のみ 0.000001% 判定
+             if(!player.inventory[704] && player.isCleared) {
+                 if(Math.random() > 0.001) { // ★7当選(0.00001)のさらに1/1000 = 0.000001%
+                     sel = RELIC_MASTER.find(m => m.star === 1); // 失敗時は★1に
+                     star = 1;
+                 }
+             }
+             // 神を倒す前なら絶対ドロップしない(通常抽選から除外)
+             else if(!player.isCleared) {
+                 sel = RELIC_MASTER.find(m => m.star === 1);
+                 star = 1;
+             }
+             // 2個目以降（所持済み）は通常確率のまま
+         }
      }
      if (sel.star >= 4 && !player.inventory[sel.id]) { if (!showRare || sel.star > showRare.star) showRare = sel; }
      player.inventory[sel.id] = (player.inventory[sel.id] || 0) + 1; player.totalRelics++; starCounts[star]++; starGroups[star][sel.id] = (starGroups[star][sel.id] || 0) + 1;
@@ -524,7 +541,7 @@ else if (rankIdx >= 9) { area.classList.add("rank-glow-max"); title.style.color 
 
 let hadoText = "";
 if(player.hasMeta) hadoText = "宇宙的覚醒：全理の超克";
-else if(player.hasCrown) hadoText = "宇宙的覚醒：絶対的権威";
+else if(player.hasCrown) hadoText = "宇宙적覚醒：絶対的権威";
 else if(player.hasWorldOrder) hadoText = "宇宙的覚醒：秩序の法";
 else if(player.hasDivineGuide) hadoText = "隠しスキル：天帝の導き";
 else if(player.hasGreatHado) hadoText = "隠しスキル：破軍の大号令";
@@ -636,8 +653,7 @@ function closeClearModal() {
    isModalOpen = false;
    player.rebalanceSeen = true;
    if(!player.isCleared) {
-       player.inventory[704] = 1;
-       openRareModal(RELIC_MASTER.find(m => m.id === 704));
+       // クリア報酬としての災厄の残滓付与を削除し、純粋なドロップ品のみにする
        handleBossDefeat();
    }
    saveGame();
