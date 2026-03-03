@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>RELICORE - v2.3</title>
+<title>RELICORE - v2.4</title>
 <style>
-:root { --bg: #ffffff; --panel: #f8f9fa; --border: #dee2e6; --primary: #007bff; --text: #212529; --hp: #dc3545; --dark: #1a1a1a; --gold: #d4af37; --growth: #ff69b4; --relic-purple: #6610f2; --relic-bg: #fcfaff; }
+:root { --bg: #ffffff; --panel: #f8f9fa; --border: #dee2e6; --primary: #007bff; --text: #212529; --hp: #dc3545; --dark: #1a1a1a; --gold: #d4af37; --growth: #ff69b4; --relic-purple: #6610f2; --relic-bg: #fcfaff; --relic-rainbow: linear-gradient(135deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3); }
 * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; box-sizing: border-box; }
 body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; position: relative; }
 
@@ -37,6 +37,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Robot
 .glow-5 { border: 3px solid #e83e8c; box-shadow: 0 0 20px rgba(232,62,140,0.5); }
 .glow-6 { border: 3px solid #fd7e14; box-shadow: 0 0 25px rgba(253,126,20,0.6); }
 .glow-7 { border: 3px solid #ff0000; box-shadow: 0 0 30px rgba(255,0,0,0.7); animation: rare-pulse 1s infinite alternate; }
+.glow-8 { border: 3px solid transparent; border-image: var(--relic-rainbow) 1; box-shadow: 0 0 30px rgba(255,255,255,0.8); animation: rare-pulse 0.8s infinite alternate; }
 @keyframes rare-pulse { from { transform: scale(1); } to { transform: scale(1.05); } }
 
 #hado-awaken-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 30000; justify-content: center; align-items: center; padding: 20px; }
@@ -51,7 +52,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Robot
 .story-vow { color: gold; font-weight: bold; display: inline-block; animation: heart-beat 1.5s infinite; text-shadow: 0 0 10px rgba(212, 175, 55, 0.8); }
 @keyframes heart-beat { 0% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1); opacity: 0.8; } }
 .story-btn { background: none; border: 1px solid gold; color: gold; padding: 12px 40px; font-size: 1em; cursor: pointer; transition: 0.3s; }
-.c1 { color: #888888; font-weight: bold; } .c2 { color: #28a745; font-weight: bold; } .c3 { color: #007bff; font-weight: bold; } .c4 { color: #6610f2; font-weight: bold; } .c5 { color: #e83e8c; font-weight: bold; } .c6 { color: #fd7e14; font-weight: bold; } .c7 { color: #ff0000; font-weight: bold; } .c8 { color: gold; font-weight: bold; text-shadow: 0 0 2px rgba(255,215,0,0.5); }
+.c1 { color: #888888; font-weight: bold; } .c2 { color: #28a745; font-weight: bold; } .c3 { color: #007bff; font-weight: bold; } .c4 { color: #6610f2; font-weight: bold; } .c5 { color: #e83e8c; font-weight: bold; } .c6 { color: #fd7e14; font-weight: bold; } .c7 { color: #ff0000; font-weight: bold; } .c8 { color: #fff; font-weight: bold; text-shadow: 0 0 5px #fff, 0 0 10px #9400d3; }
 #header { background: var(--dark); color: #fff; padding: 12px 10px; border-bottom: 2px solid #000; flex-shrink: 0; }
 .boss-area { text-align: center; width: 100%; }
 .boss-name { font-size: 1.0em; font-weight: bold; color: #888; letter-spacing: 2px; margin-bottom: 4px; }
@@ -89,8 +90,10 @@ body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Robot
 .relic-card { position: relative; border: 1px solid #e0d5f0; padding: 6px 6px 6px 10px; border-radius: 6px; background: var(--relic-bg); display: flex; flex-direction: column; min-height: 70px; box-shadow: 0 2px 4px rgba(102, 16, 242, 0.05); }
 .relic-card.star-low { grid-column: span 2; }
 .relic-card.star-high { grid-column: span 3; border-width: 2px; background: #fff; }
+.relic-card.star-ultimate { grid-column: span 6; border: 2px solid transparent; border-image: var(--relic-rainbow) 1; background: #fff; box-shadow: 0 0 15px rgba(148,0,211,0.2); }
 
 .relic-card::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--relic-purple); border-radius: 6px 0 0 6px; }
+.relic-card.star-ultimate::before { background: var(--relic-rainbow); }
 .relic-name { font-weight: bold; font-size: 0.65em; min-height: 2.4em; line-height: 1.2; }
 .relic-effect-box { font-size: 0.6em; color: #444; margin-top: 2px; line-height: 1.3; }
 .relic-desc-line { color: #666; font-style: italic; display: block; margin-top: 4px; border-top: 1px solid #f0f0f0; padding-top: 2px; }
@@ -112,40 +115,19 @@ body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Robot
 </style>
 </head>
 <body>
-<div id="policy-modal"><div class="policy-content"><div class="policy-title">プライバシーポリシー</div><div class="policy-text">
-RELICORE（以下「本サービス」）は、ユーザーのプライバシーを尊重し、適切な取り扱いと保護に努めます。<br><hr class="policy-divider">
-<strong>1. 取得する情報について</strong><br>
-本サービスでは、以下の情報を取得する場合があります。
-<ul>
-<li>ブラウザのローカルストレージに保存されるゲームデータ</li>
-<li>アクセス解析ツールにより収集される匿名のアクセス情報</li>
-<li>サーバーの標準ログ情報（IPアドレス、閲覧日時など）</li>
-</ul>
-<strong>2. 情報の利用目的</strong><br>
-取得した情報は以下の目的で利用します。
-<ul>
-<li>ゲームの進行状況保存</li>
-<li>不具合調査および改善</li>
-</ul><hr class="policy-divider">
-<strong>6. 免責事項</strong><br>
-本サービスの利用により生じた損害について、開発者は一切の責任を負いません。<br>
-<div class="policy-footer">
-制定日：2026年3月1日<br>
-RELICORE 開発者　げぇいむ＆AI
-</div>
-</div><button class="btn-attack" style="padding:10px; font-size:1em;" onclick="closePolicy()">閉じる</button></div></div>
+<div id="policy-modal"><div class="policy-content"><div class="policy-title">プライバシーポリシー</div><div class="policy-text">RELICORE（以下「本サービス」）は、ユーザーのプライバシーを尊重し、適切な取り扱いと保護に努めます。<br><hr class="policy-divider"><strong>1. 取得する情報について</strong><br>本サービスでは、以下の情報を取得する場合があります。<ul><li>ブラウザのローカルストレージに保存されるゲームデータ</li><li>アクセス解析ツールにより収集される匿名のアクセス情報</li><li>サーバーの標準ログ情報（IPアドレス、閲覧日時など）</li></ul><strong>2. 情報の利用目的</strong><br>取得した情報は以下の目的で利用します。<ul><li>ゲームの進行状況保存</li><li>不具合調査および改善</li></ul><hr class="policy-divider"><strong>6. 免責事項</strong><br>本サービスの利用により生じた損害について、開発者は一切の責任を負いません。<br><div class="policy-footer">制定日：2026年3月1日<br>RELICORE 開発者　げぇいむ＆AI</div></div><button class="btn-attack" style="padding:10px; font-size:1em;" onclick="closePolicy()">閉じる</button></div></div>
 <div id="rank-up-modal"><div class="rank-up-content"><div class="rank-up-title">覚醒</div><div class="rank-up-msg" id="rank-up-msg-text">魂の核が激しく鼓動する……！</div><button class="story-btn" onclick="closeRankUpModal()">高みへ</button><div class="rank-up-sub">※すべての再起スキルが強化されました。</div></div></div>
 <div id="rare-drop-modal" onclick="closeRareModal()"><div id="rare-card-content" class="rare-card"><span id="rare-star-label" class="rare-star"></span><span id="rare-name-label" class="rare-name"></span><div id="rare-desc-label" class="rare-desc"></div><div style="margin-top:20px; font-size:0.7em; color:#888;">画面タップで閉じる</div></div></div>
 <div id="hado-awaken-modal"><div class="hado-content"><div class="hado-title" id="hado-modal-title">隠しスキル覚醒</div><div class="hado-msg" id="hado-modal-msg"></div><button class="story-btn" onclick="closeHadoModal()">その力を受け入れる</button></div></div>
 <div id="story-modal"><div class="story-content"><div class="story-text"><span class="story-line" style="color:#888;">わたしはすべてをうばわれた</span><span class="story-line" style="color:#4b0082;">奴によって世界は終わりを告げ、すべては虚無に飲まれたはずだった</span><span class="story-line" style="color:#fff;">しかし、それでもまだ諦めることを知らない光がある</span><span class="story-line"><span class="story-vow">『再起の誓い』</span><span style="color:#d4af37;">が魂を激しく鼓動させる</span></span><span class="story-line" style="color:#ff0000; font-weight:bold;">奴を一撃で葬るその日まで、わたしは止まらない</span></div><button class="story-btn" onclick="closeStory()">魂に刻印する</button></div></div>
 
 <div id="clear-modal"><div class="modal-content">
-   <h3 style="color:var(--gold); font-size:1.6em; letter-spacing:3px;">神話の終焉</h3>
-   <div class="clear-main-msg">
+   <h3 id="clear-modal-title" style="color:var(--gold); font-size:1.6em; letter-spacing:3px;">神話の終焉</h3>
+   <div id="clear-modal-msg" class="clear-main-msg">
        終末神アポカリス＝ティアは、あなたの放った一撃の前に霧散した。<br><br>
        しかし、その瞬間に所持していた<span style="color:var(--gold); font-weight:bold;">『パンドラの箱』</span>が激しく震え、蓋が跳ね上がる。<br><br>
        中から溢れ出したのは希望ではなく、底知れぬ混沌。<br>
-       <span style="color:#ff4444; font-weight:bold;">「溢れし災厄」</span>が今,世界を再び塗り潰そうとしている。<br><br>
+       <span style="color:#ff4444; font-weight:bold;">「溢れし災厄」</span>が今、世界を再び塗り潰そうとしている。<br><br>
        <hr style="border:0; border-top:1px solid #444; margin:15px 0;">
        <span style="color:var(--growth);">ここからはエンドレスモードです。<br>遊んでくれてありがとうございます！</span>
    </div>
@@ -172,12 +154,12 @@ RELICORE 開発者　げぇいむ＆AI
 獲得資格: <span id="st-rank" class="clickable-stat" onclick="checkDropEligibility()">★1まで</span>
 </div>
 <div id="hado-box" class="st-box" style="display:none; border:none; border-left: 4px solid gold;"><span id="hado-status-text" style="color:gold; font-weight:bold;"></span><br><span id="hado-status-desc"></span></div>
-<div class="st-box"><div class="st-title-flex"><span>遺物出現率</span><span id="st-collection" style="color:#666; font-size:0.9em;">0/57</span></div><table style="width:100%; font-size:0.9em; margin-top:5px;" id="prob-list"></table></div>
+<div class="st-box"><div class="st-title-flex"><span>遺物出現率</span><span id="st-collection" style="color:#666; font-size:0.9em;">0/58</span></div><table style="width:100%; font-size:0.9em; margin-top:5px;" id="prob-list"></table></div>
 <button class="btn-reset" onclick="resetData()">全データリセット</button>
 <div class="privacy-link" onclick="openPolicy()">プライバシーポリシー</div>
 </div>
 </div>
-<div class="ver-footer">RELICORE v2.3</div>
+<div class="ver-footer">RELICORE v2.4</div>
 <script>
 const SAVE_KEY = "relicore_player_data";
 const BOSS_MAX_HP_BASE = 100000000000000000000n;
@@ -225,10 +207,11 @@ const RELIC_MASTER = [
 {id:301, star:3, name:"聖龍騎士の欠片", atk:874.3, hp:6924.1}, {id:302, star:3, name:"深淵魔導の欠片", atk:1324.1, hp:214.7}, {id:303, star:3, name:"金剛武神の欠片", atk:412.8, hp:14863.2}, {id:304, star:3, name:"暗黒皇帝の欠片", atk:1568.4, hp:0}, {id:305, star:3, name:"大聖者の欠片", atk:52.7, hp:15241.4}, {id:306, star:3, name:"影の支配者の欠片", atk:1410.9, hp:128.4}, {id:307, star:3, name:"竜血闘士の欠片", atk:1024.2, hp:4210.9}, {id:308, star:3, name:"天界騎士の欠片", atk:612.7, hp:9845.1}, {id:309, star:3, name:"虚空の暗殺者の欠片", atk:1624.8, hp:42.1}, {id:310, star:3, name:"極大賢者の欠片", atk:542.1, hp:11840.7},
 {id:401, star:4, name:"【不退転】武神の魂", atk:65000, hp:180000, desc:"獲得遺物ボーナス増加。(上限5万個分)"}, {id:402, star:4, name:"【刹那】聖者の遺志", atk:50000, hp:250000, desc:"HP増加時の増加幅を+5（上限5万個分）。"}, {id:403, star:4, name:"【因果】魔導王の記憶", atk:75000, hp:150000, desc:"攻撃無効化率の下限を底上げ。(上限10%)"}, {id:404, star:4, name:"【反撃】勇者の残光", atk:90000, hp:120000, desc:"反撃の狼煙で★3遺物も獲得。"}, {id:405, star:4, name:"【魂研】賢者の叡智", atk:55000, hp:220000, desc:"獲得戦闘経験値が向上。"}, {id:406, star:4, name:"【死刻】死神の鎌", atk:110000, hp:80000, desc:"最終ダメージ倍率を固定で+0.004%加算する。"},
 {id:501, star:5, name:"断絶の権能", atk:382660, hp:916330, desc:"1つにつき、受けるダメージを50万軽減。"}, {id:502, star:5, name:"強欲の権能", atk:649800, hp:812400, desc:"1つにつき、獲得遺物数を+5増加。(上限5万個分)"}, {id:503, star:5, name:"超越の権能", atk:524180, hp:689450, desc:"0.1%の確率で、その一撃のダメージを1.5倍にする。"}, {id:504, star:5, name:"破壊の権能", atk:999999, hp:0, desc:"0.1%の確率で、総ATK分のダメージを最終ダメージに直接加算する。"},
-{id:505, star:5, name:"再輪の権能", atk:222222, hp:1528931, desc:"被弾時10%の確率でHP増加(再起)が2回発生。(重複不可)"}, {id:506, star:5, name:"双刃の権能", atk:454649, hp:519700, desc:"150回攻撃ごとに次の一撃のダメージ+100%。(重複不可)"},
+{id:505, star:5, name:"再輪의 権能", atk:222222, hp:1528931, desc:"被弾時10%の確率でHP増加(再起)が2回発生。(重複不可)"}, {id:506, star:5, name:"双刃の権能", atk:454649, hp:519700, desc:"150回攻撃ごとに次の一撃のダメージ+100%。(重複不可)"},
 {id:601, star:6, name:"絶対統率レリック・オーバーロード", atk:1500000, hp:4500000, desc:"敵HPが自身のATKの100倍以上の時、与ダメージ+8%。"}, {id:602, star:6, name:"魂律解放レリ・クシア", atk:2500000, hp:3500000, desc:"100回攻撃ごとに次の一撃の最終ダメージ+200%。"}, {id:603, star:6, name:"原初核冠レリコア・レガリア", atk:2000000, hp:4000000, desc:"★1〜3遺物のステータス上昇効果を20%増加させる。"}, {id:604, star:6, name:"虚無終焉レリ・ノヴァ", atk:5555555, hp:0, desc:"攻撃時0.1%の確率で与ダメージ+500%。"},
-{id:605, star:6, name:"戦碑累功レリ・エンス", atk:3000000, hp:3000000, desc:"刻まれた戦いの記憶が魂を研磨する。1つにつき獲得経験値+5。"},
-{id:701, star:7, name:"パンドラの箱", atk:155528931, hp:355528931, desc:"神を屠る唯一の条件。災厄の底に希望を宿す。"}, {id:702, star:7, name:"終焉の福音", atk:200000000, hp:450000000, desc:"敵HPが50%以下のとき、与ダメージ+30%。(重複不可)"}, {id:703, star:7, name:"神滅のアカシックレコード", atk:100000000, hp:550000000, desc:"与ダメージの最終倍率にさらに+20%。(重複不可)"}
+{id:605, star:6, name:"戦碑累功レリ・エンス", atk:3000000, hp:3000000, desc:"1つにつき獲得経験値+5。"},
+{id:701, star:7, name:"パンドラの箱", atk:155528931, hp:355528931, desc:"神を屠る唯一の条件。災厄の底に希望を宿す。"}, {id:702, star:7, name:"終焉の福音", atk:200000000, hp:450000000, desc:"敵HPが50%以下のとき、与ダメージ+30%。(重複不可)"}, {id:703, star:7, name:"神滅のアカシックレコード", atk:100000000, hp:550000000, desc:"与ダメージの最終倍率にさらに+20%。(重複不可)"},
+{id:801, star:8, name:"秩序のリバランス", atk:0, hp:0, desc:"【応急対応】敵HPがATKの1e6倍以上のとき、与ダメージを敵HPの0.5%に変換する。"}
 ];
 
 function saveGame() { const data = { ...player, baseAtk: player.baseAtk.toString(), baseHP: player.baseHP.toString(), maxDmg: player.maxDmg.toString(), currentBossHP: currentBossHP.toString() }; localStorage.setItem(SAVE_KEY, JSON.stringify(data)); }
@@ -245,7 +228,21 @@ function loadGame() {
        currentBossHP = p.currentBossHP ? BigInt(p.currentBossHP) : BigInt(player.bossMaxHP);
        if (!player.maxDmgReset_v21) { player.maxDmg = 0n; player.maxDmgReset_v21 = true; }
    } else { currentBossHP = BigInt(player.bossMaxHP); player.maxDmgReset_v21 = true; }
+   
+   if(player.isCleared) {
+       player.inventory[801] = 1;
+       player.bossMaxHP = BOSS_MAX_HP_BASE.toString();
+       if(currentBossHP > BigInt(player.bossMaxHP)) currentBossHP = BigInt(player.bossMaxHP);
+       showClearStartMsg();
+   }
    if(!player.storySeen) document.getElementById("story-modal").style.display = "flex";
+}
+
+function showClearStartMsg() {
+    isModalOpen = true;
+    document.getElementById("clear-modal-title").innerText = "救世主の帰還";
+    document.getElementById("clear-modal-msg").innerHTML = `終末神を討ちし者よ、再び世界へようこそ。<br><br>混沌は静まり、災厄のHPは初期状態へリバランスされました。<br><br><span style="color:var(--gold); font-weight:bold;">【特別遺物付与】</span><br>★8 <span class="c8">秩序のリバランス</span> を魂に刻みました。<br>これより、理外の存在との戦いが始まります。`;
+    document.getElementById("clear-modal").style.display = "flex";
 }
 
 function openRankUpModal(newLv) { stopAttack(); isModalOpen = true; const titleStr = PLAYER_TITLES[Math.min(9, newLv-1)] || "超越者"; document.getElementById("rank-up-msg-text").innerHTML = `魂の核が激しく鼓動する……！<br><br><span style="font-size:1.4em; color:var(--growth); font-weight:bold;">再起Lv.${newLv} 到達</span><br>称号が【${titleStr}】に昇格した。`; document.getElementById("rank-up-modal").style.display = "flex"; }
@@ -290,36 +287,22 @@ const totalAtkVal = BigInt(Math.floor(Number(player.baseAtk + bonus.atk) * bonus
 let finalDmg = BigInt(Math.floor(Number(totalAtkVal) * (0.8 + Math.random() * 0.4)));
 let specialTags = "";
 
-if ((player.inventory[506] || 0) > 0) {
-    player.soujinCounter++;
-    if (player.soujinCounter >= 150) {
-        finalDmg *= 2n;
-        specialTags += `<span style="color:#00ff00; font-weight:bold;">【双刃】</span>`;
-        player.soujinCounter = 0;
+if ((player.inventory[801] || 0) > 0 && currentBossHP >= totalAtkVal * 1000000n) {
+    finalDmg = currentBossHP / 200n;
+    if(finalDmg < 1n) finalDmg = 1n;
+    specialTags += `<span class="c8">【均衡】</span>`;
+} else {
+    if ((player.inventory[506] || 0) > 0) {
+        player.soujinCounter++;
+        if (player.soujinCounter >= 150) { finalDmg *= 2n; specialTags += `<span style="color:#00ff00; font-weight:bold;">【双刃】</span>`; player.soujinCounter = 0; }
     }
+    if ((player.inventory[702] || 0) > 0 && currentBossHP * 2n <= BigInt(player.bossMaxHP)) { finalDmg = BigInt(Math.floor(Number(finalDmg) * 1.3)); specialTags += `<span style="color:#ffcc00; font-weight:bold;">【福音】</span>`; }
+    if((player.inventory[601] || 0) > 0 && currentBossHP >= totalAtkVal * 100n) { finalDmg = BigInt(Math.floor(Number(finalDmg) * 1.08)); specialTags += `<span style="color:#007bff; font-weight:bold;">【統率】</span>`; }
+    if((player.inventory[602] || 0) > 0) { kushiaCounter++; if(kushiaCounter >= 100) { finalDmg *= 3n; specialTags += `<span style="color:var(--gold); font-weight:bold;">【魂律】</span>`; kushiaCounter = 0; } }
+    if((player.inventory[604] || 0) > 0 && Math.random() < 0.001) { finalDmg *= 6n; specialTags += `<span style="color:#fd7e14; font-weight:bold;">【虚無】</span>`; }
+    if ((player.inventory[504] || 0) > 0 && Math.random() < 0.001) { finalDmg += totalAtkVal; specialTags += `<span style="color:#ff0000; font-weight:bold;">【破壊】</span>`; }
+    if ((player.inventory[503] || 0) > 0 && Math.random() < 0.001) { finalDmg = BigInt(Math.floor(Number(finalDmg) * 1.5)); specialTags += `<span style="color:var(--growth); font-weight:bold;">【超越】</span>`; }
 }
-if ((player.inventory[702] || 0) > 0 && currentBossHP * 2n <= BigInt(player.bossMaxHP)) {
-    finalDmg = BigInt(Math.floor(Number(finalDmg) * 1.3));
-    specialTags += `<span style="color:#ffcc00; font-weight:bold;">【福音】</span>`;
-}
-if((player.inventory[601] || 0) > 0 && currentBossHP >= totalAtkVal * 100n) {
-    finalDmg = BigInt(Math.floor(Number(finalDmg) * 1.08));
-    specialTags += `<span style="color:#007bff; font-weight:bold;">【統率】</span>`;
-}
-if((player.inventory[602] || 0) > 0) {
-    kushiaCounter++;
-    if(kushiaCounter >= 100) {
-        finalDmg *= 3n; 
-        specialTags += `<span style="color:var(--gold); font-weight:bold;">【魂律】</span>`;
-        kushiaCounter = 0;
-    }
-}
-if((player.inventory[604] || 0) > 0 && Math.random() < 0.001) {
-    finalDmg *= 6n;
-    specialTags += `<span style="color:#fd7e14; font-weight:bold;">【虚無】</span>`;
-}
-if ((player.inventory[504] || 0) > 0 && Math.random() < 0.001) { finalDmg += totalAtkVal; specialTags += `<span style="color:#ff0000; font-weight:bold;">【破壊】</span>`; }
-if ((player.inventory[503] || 0) > 0 && Math.random() < 0.001) { finalDmg = BigInt(Math.floor(Number(finalDmg) * 1.5)); specialTags += `<span style="color:var(--growth); font-weight:bold;">【超越】</span>`; }
 
 if(finalDmg < 1n) finalDmg = 1n;
 if(finalDmg > player.maxDmg) player.maxDmg = finalDmg;
@@ -356,7 +339,6 @@ if(currentBossHP > 0n) {
    } else {
        let repeatCount = 1;
        if ((player.inventory[505] || 0) > 0 && Math.random() < 0.1) { repeatCount = 2; specialTags += `【再起】`; }
-       
        let totalUpHP = 0n;
        for (let i = 0; i < repeatCount; i++) {
            let up = BigInt(Math.floor(Math.random() * Math.max(1, player.deathCount)) + 1 + lv + Math.min(50000, player.inventory[402] || 0) * 5);
@@ -383,7 +365,7 @@ function getDropLog(count) {
   for(let i=0; i < count; i++) {
       let rv = Math.random()*100, star=1, curP=0; for(let s in rates) { curP += rates[s].p; if(rv <= curP) { star=parseInt(s); break; } }
       if (player.maxDmg < rates[star].cond) star=1;
-      let cands = RELIC_MASTER.filter(m => m.star === star && m.id !== 0); let sel = cands[Math.floor(Math.random() * cands.length)];
+      let cands = RELIC_MASTER.filter(m => m.star === star && m.id !== 0 && m.star < 8); let sel = cands[Math.floor(Math.random() * cands.length)];
       if (sel.star >= 4 && !player.inventory[sel.id]) { if (!showRare || sel.star > showRare.star) showRare = sel; }
       player.inventory[sel.id] = (player.inventory[sel.id] || 0) + 1; player.totalRelics++; starCounts[star]++; starGroups[star][sel.id] = (starGroups[star][sel.id] || 0) + 1;
   }
@@ -448,14 +430,15 @@ const m = RELIC_MASTER.find(x => x.id == id); if(!m) return "";
 let baseA = m.atk || 0, baseH = m.hp || 0;
 if(m.star === 1 && player.hasHado) { baseA *= 10; baseH *= 10; } else if(m.star === 2 && player.hasGreatHado) { baseA *= 10; baseH *= 10; } else if(m.star === 3 && player.hasDivineGuide) { baseA *= 10; baseH *= 10; }
 if(hasRegalia && m.star <= 3) { baseA *= 1.2; baseH *= 1.2; }
-return `<div class="relic-card ${m.star>=4?'star-high':'star-low'}"><div class="relic-name c${m.star}">★${m.star} ${m.name}×${c.toLocaleString()}</div><div class="relic-effect-box">${(baseA>0?`ATK+${formatFix(baseA)} `:'')}${(baseH>0?`HP+${formatFix(baseH)}`:'')}${(m.mult?` (x${m.mult})`:'')}${m.desc ? `<span class="relic-desc-line">${m.desc}</span>` : ""}${(id == "116" && !player.hasDivineGuide) ? `<div style="color:#007bff; font-weight:bold;">目標:${formatV((player.hasGreatHado ? 300000 : (player.hasHado ? 200000 : 100000)))}</div>` : ""}${id=="602" ? `<div style="color:var(--primary); font-weight:bold;">連鎖まで: ${100-kushiaCounter}撃</div>`:""}${id=="506" ? `<div style="color:#00ff00; font-weight:bold;">双刃まで: ${150-player.soujinCounter}撃</div>`:""}</div></div>`;
+let cardCls = m.star >= 8 ? 'star-ultimate' : (m.star >= 4 ? 'star-high' : 'star-low');
+return `<div class="relic-card ${cardCls}"><div class="relic-name c${m.star}">★${m.star} ${m.name}×${c.toLocaleString()}</div><div class="relic-effect-box">${(baseA>0?`ATK+${formatFix(baseA)} `:'')}${(baseH>0?`HP+${formatFix(baseH)}`:'')}${(m.mult?` (x${m.mult})`:'')}${m.desc ? `<span class="relic-desc-line">${m.desc}</span>` : ""}${(id == "116" && !player.hasDivineGuide) ? `<div style="color:#007bff; font-weight:bold;">目標:${formatV((player.hasGreatHado ? 300000 : (player.hasHado ? 200000 : 100000)))}</div>` : ""}${id=="602" ? `<div style="color:var(--primary); font-weight:bold;">連鎖まで: ${100-kushiaCounter}撃</div>`:""}${id=="506" ? `<div style="color:#00ff00; font-weight:bold;">双刃まで: ${150-player.soujinCounter}撃</div>`:""}</div></div>`;
 }).join("");
 }
 
 function renderStatus() {
 document.getElementById("st-totalclicks").textContent = formatV(player.totalClicks); document.getElementById("v-death").textContent = formatV(player.deathCount); document.getElementById("st-totalrelics").textContent = formatV(player.totalRelics || 0); document.getElementById("st-maxdmg").textContent = formatV(player.maxDmg); document.getElementById("st-dmgmult").textContent = "x" + (calcFinalDmgMult() * getRelicBonus().mult).toFixed(8);
 const rates = getCurrentDropRates(); let maxStar = 1; for(let s in rates) { if(player.maxDmg >= rates[s].cond) maxStar = Math.max(maxStar, parseInt(s)); }
-document.getElementById("st-rank").textContent = `★${maxStar}まで`; document.getElementById("st-collection").textContent = `${Object.keys(player.inventory).length}/57`;
+document.getElementById("st-rank").textContent = `★${maxStar}まで`; document.getElementById("st-collection").textContent = `${Object.keys(player.inventory).length}/58`;
 document.getElementById("prob-list").innerHTML = Object.entries(rates).map(([s,d])=>`<tr><td class="c${s}">★${s}</td><td style="text-align:right;">${d.p.toFixed(6)}%</td></tr>`).join("");
 }
 
@@ -465,7 +448,7 @@ function showTab(id) { document.querySelectorAll(".tab").forEach(t=>t.classList.
 function addLog(html) { const l = document.getElementById("log"); const d = document.createElement("div"); d.className = "log-set"; d.innerHTML = html; l.insertBefore(d, l.firstChild); while (l.children.length > 20) { l.removeChild(l.lastChild); } }
 function closeStory() { player.storySeen = true; document.getElementById("story-modal").style.display = "none"; saveGame(); }
 function handleBossDefeat() { player.isUra = true; player.bossMaxHP = (BigInt(player.bossMaxHP) * 2n).toString(); player.uraAtkMult = (Number(player.uraAtkMult) * 1.5).toString(); currentBossHP = BigInt(player.bossMaxHP); }
-function closeClearModal() { document.getElementById("clear-modal").style.display = "none"; isModalOpen = false; handleBossDefeat(); saveGame(); triggerUIUpdate(); }
+function closeClearModal() { document.getElementById("clear-modal").style.display = "none"; isModalOpen = false; if(!player.isCleared) handleBossDefeat(); saveGame(); triggerUIUpdate(); }
 function resetData() { if(confirm("全リセットしますか？")) { localStorage.clear(); location.reload(); } }
 
 const btn = document.getElementById("attackBtn");
