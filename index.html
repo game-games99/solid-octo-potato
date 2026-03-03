@@ -291,7 +291,7 @@ const totalAtkVal = BigInt(Math.floor(Number(player.baseAtk + bonus.atk) * bonus
 let finalDmg = BigInt(Math.floor(Number(totalAtkVal) * (0.8 + Math.random() * 0.4)));
 let specialTags = "";
 
-if ((player.inventory[801] || 0) > 0 && currentBossHP >= totalAtkVal * 1000n) {
+if ((player.inventory[801] || 0) > 0 && currentBossHP >= totalAtkVal * 1000000n) {
     finalDmg = currentBossHP / 200n;
     if(finalDmg < 1n) finalDmg = 1n;
     specialTags += `<span class="c8">【均衡】</span>`;
