@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>RELICORE - v2.1</title>
+<title>RELICORE - v2.2</title>
 <style>
 :root { --bg: #ffffff; --panel: #f8f9fa; --border: #dee2e6; --primary: #007bff; --text: #212529; --hp: #dc3545; --dark: #1a1a1a; --gold: #d4af37; --growth: #ff69b4; --relic-purple: #6610f2; --relic-bg: #fcfaff; }
 * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; box-sizing: border-box; }
@@ -172,12 +172,12 @@ RELICORE 開発者　げぇいむ＆AI
 獲得資格: <span id="st-rank" class="clickable-stat" onclick="checkDropEligibility()">★1まで</span>
 </div>
 <div id="hado-box" class="st-box" style="display:none; border:none; border-left: 4px solid gold;"><span id="hado-status-text" style="color:gold; font-weight:bold;"></span><br><span id="hado-status-desc"></span></div>
-<div class="st-box"><div class="st-title-flex"><span>遺物出現率</span><span id="st-collection" style="color:#666; font-size:0.9em;">0/56</span></div><table style="width:100%; font-size:0.9em; margin-top:5px;" id="prob-list"></table></div>
+<div class="st-box"><div class="st-title-flex"><span>遺物出現率</span><span id="st-collection" style="color:#666; font-size:0.9em;">0/57</span></div><table style="width:100%; font-size:0.9em; margin-top:5px;" id="prob-list"></table></div>
 <button class="btn-reset" onclick="resetData()">全データリセット</button>
 <div class="privacy-link" onclick="openPolicy()">プライバシーポリシー</div>
 </div>
 </div>
-<div class="ver-footer">RELICORE v2.1</div>
+<div class="ver-footer">RELICORE v2.2</div>
 <script>
 const SAVE_KEY = "relicore_player_data";
 const BOSS_MAX_HP_BASE = 100000000000000000000n;
@@ -227,6 +227,7 @@ const RELIC_MASTER = [
 {id:501, star:5, name:"断絶の権能", atk:382660, hp:916330, desc:"1つにつき、受けるダメージを50万軽減。"}, {id:502, star:5, name:"強欲の権能", atk:649800, hp:812400, desc:"1つにつき、獲得遺物数を+5増加。(上限5万個分)"}, {id:503, star:5, name:"超越の権能", atk:524180, hp:689450, desc:"0.1%の確率で、その一撃のダメージを1.5倍にする。"}, {id:504, star:5, name:"破壊の権能", atk:999999, hp:0, desc:"0.1%の確率で、総ATK分のダメージを最終ダメージに直接加算する。"},
 {id:505, star:5, name:"再輪の権能", atk:222222, hp:1528931, desc:"被弾時10%の確率でHP増加(再起)が2回発生。(重複不可)"}, {id:506, star:5, name:"双刃の権能", atk:454649, hp:519700, desc:"150回攻撃ごとに次の一撃のダメージ+100%。(重複不可)"},
 {id:601, star:6, name:"絶対統率レリック・オーバーロード", atk:1500000, hp:4500000, desc:"敵HPが自身のATKの100倍以上の時、与ダメージ+8%。"}, {id:602, star:6, name:"魂律解放レリ・クシア", atk:2500000, hp:3500000, desc:"100回攻撃ごとに次の一撃の最終ダメージ+200%。"}, {id:603, star:6, name:"原初核冠レリコア・レガリア", atk:2000000, hp:4000000, desc:"★1〜3遺物のステータス上昇効果を20%増加させる。"}, {id:604, star:6, name:"虚無終焉レリ・ノヴァ", atk:5555555, hp:0, desc:"攻撃時0.1%の確率で与ダメージ+500%。"},
+{id:605, star:6, name:"戦碑累功レリ・エンス", atk:3000000, hp:3000000, desc:"刻まれた戦いの記憶が魂を研磨する。1つにつき獲得経験値+20。"},
 {id:701, star:7, name:"パンドラの箱", atk:155528931, hp:355528931, desc:"神を屠る唯一の条件。災厄の底に希望を宿す。"}, {id:702, star:7, name:"終焉の福音", atk:200000000, hp:450000000, desc:"敵HPが50%以下のとき、与ダメージ+30%。(重複不可)"}, {id:703, star:7, name:"神滅のアカシックレコード", atk:100000000, hp:550000000, desc:"与ダメージの最終倍率にさらに+20%。(重複不可)"}
 ];
 
@@ -347,7 +348,8 @@ if(currentBossHP > 0n) {
    let rawEnemyAtk = currentTotalHP * 3n;
    let finalMitigated = BigInt(Math.floor(Number(rawEnemyAtk) * (1 - (Math.floor(Math.random() * (101 - minCut)) + minCut) / 100))) - BigInt((player.inventory[501] || 0) * 500000);
    if(finalMitigated < 0n) finalMitigated = 0n;
-   const oldLv = getLevelByDeath(); let gainedExp = lv + (player.inventory[405] || 0);
+   const oldLv = getLevelByDeath(); 
+   let gainedExp = lv + (player.inventory[405] || 0) + ((player.inventory[605] || 0) * 20);
    if (currentTotalHP > finalMitigated) {
        player.deathCount += gainedExp;
        logHtml += `<div><span style="color:#28a745; font-weight:bold;">敵の攻撃！${formatV(finalMitigated)} ダメージ。障壁展開！</span></div>` + getGuaranteedDrop();
@@ -430,7 +432,7 @@ if(s.id === "futaiten") { highlight = `獲得遺物ボーナス：+${lv - 1 + bu
 else if(s.id === "setsuna") { const setsunaVal = Math.min(50000, player.inventory[402] || 0) * 5; highlight = `HP増加幅: +${lv + setsunaVal} / 上限: ${formatV(player.deathCount)} ${setsunaVal > 0 ? '【刹那：+'+setsunaVal+'】' : ''}`; }
 else if(s.id === "inga") { let baseCut = lv * 2; let ingaVal = Math.min(10, player.inventory[403] || 0); highlight = `無効化範囲：${baseCut + ingaVal}% ～ 100% 【因果：+${ingaVal}%】 / 固定軽減: +${formatV((player.inventory[501] || 0) * 500000)}`; }
 else if(s.id === "hangeki") { const zanko = (player.inventory[404] || 0) > 0; highlight = `確定獲得：1 ～ ${lv}個 (★2${zanko ? '/★3' : ''}) ${zanko ? '【勇者の残光】' : ''}`; }
-else if(s.id === "konken") { highlight = `戦闘経験値：+${lv} 【魂研：+${player.inventory[405] || 0}】`; }
+else if(s.id === "konken") { const ensCount = (player.inventory[605] || 0) * 20; highlight = `戦闘経験値：+${lv} 【魂研：+${player.inventory[405] || 0}】${ensCount > 0 ? '【累功：+' + ensCount + '】' : ''}`; }
 else if(s.id === "shikoku") { const fixedBonus = (lv * 0.00004) + ((player.inventory[406] || 0) * 0.00004); highlight = `加算倍率：+${(fixedBonus * 100).toFixed(4)}% 【固定】`; }
 const isMax = lv >= 10; html += `<div class="vow-item"><div class="vow-header"><span class="vow-name">${s.nameJp}</span>${isMax ? '<span class="vow-lv max">極 (Lv.'+lv+')</span>' : '<span class="vow-lv">Lv.'+lv+'</span>'}</div><span class="vow-highlight">${highlight}</span><span class="vow-sub">${s.desc}</span></div>`;
 });
@@ -453,7 +455,7 @@ return `<div class="relic-card ${m.star>=4?'star-high':'star-low'}"><div class="
 function renderStatus() {
 document.getElementById("st-totalclicks").textContent = formatV(player.totalClicks); document.getElementById("v-death").textContent = formatV(player.deathCount); document.getElementById("st-totalrelics").textContent = formatV(player.totalRelics || 0); document.getElementById("st-maxdmg").textContent = formatV(player.maxDmg); document.getElementById("st-dmgmult").textContent = "x" + (calcFinalDmgMult() * getRelicBonus().mult).toFixed(8);
 const rates = getCurrentDropRates(); let maxStar = 1; for(let s in rates) { if(player.maxDmg >= rates[s].cond) maxStar = Math.max(maxStar, parseInt(s)); }
-document.getElementById("st-rank").textContent = `★${maxStar}まで`; document.getElementById("st-collection").textContent = `${Object.keys(player.inventory).length}/56`;
+document.getElementById("st-rank").textContent = `★${maxStar}まで`; document.getElementById("st-collection").textContent = `${Object.keys(player.inventory).length}/57`;
 document.getElementById("prob-list").innerHTML = Object.entries(rates).map(([s,d])=>`<tr><td class="c${s}">★${s}</td><td style="text-align:right;">${d.p.toFixed(6)}%</td></tr>`).join("");
 }
 
