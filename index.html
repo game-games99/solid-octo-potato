@@ -118,10 +118,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Robot
 .relic-name { font-weight: bold; font-size: 0.65em; min-height: 2.4em; line-height: 1.2; }
 .relic-effect-box { font-size: 0.6em; color: #444; margin-top: 2px; line-height: 1.3; }
 .relic-desc-line { color: #666; font-style: italic; display: block; margin-top: 4px; border-top: 1px solid #f0f0f0; padding-top: 2px; }
-
-/* 進捗表示用スタイル */
-.relic-progress-box { font-size: 0.55em; margin-top: 4px; padding: 2px 4px; background: rgba(0,0,0,0.05); border-radius: 4px; color: #777; line-height: 1.2; }
-.progress-label { display: block; font-weight: bold; color: var(--gold); margin-bottom: 1px; }
+.relic-countdown { font-size: 0.85em; color: var(--growth); font-weight: bold; margin-top: 4px; border-top: 1px dashed #ddd; padding-top: 2px; }
 
 .st-box { background: #fff; border: none; border-left: 4px solid #28a745; border-radius: 8px; padding: 8px 10px; margin-bottom: 8px; font-size: 0.82em; line-height: 1.5; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
 .clickable-stat { display: inline-block; color: var(--primary); border: 1px solid var(--primary); padding: 2px 8px; border-radius: 12px; font-size: 0.85em; cursor: pointer; text-decoration: none; margin-left: 5px; background: #f0f7ff; transition: 0.2s; }
@@ -521,9 +518,10 @@ for(let i=0; i < count; i++) {
   if (player.maxDmg < rates[star].cond) star=1;
 
   let sel;
-  // 【修正】天帝の導きを所持している時のみ、★2ドロップ判定時に低確率でメモリースターダストへ変換
-  if (star === 2 && player.hasDivineGuide && Math.random() < 0.1) { sel = RELIC_MASTER.find(m => m.id === 117); }
-  else {
+  // ★2が選ばれた際、天帝の導き（★3強化）を持っている場合のみメモリースターダストが10%で出現
+  if (star === 2 && player.hasDivineGuide && Math.random() < 0.1) {
+      sel = RELIC_MASTER.find(m => m.id === 117);
+  } else {
       let cands = RELIC_MASTER.filter(m => m.star === star && m.id !== 0 && m.star < 8 && m.id !== 117);
       if(cands.length === 0) cands = RELIC_MASTER.filter(m => m.star === 1);
       sel = cands[Math.floor(Math.random() * cands.length)];
@@ -601,7 +599,7 @@ const rawLv = player.totalLevel;
 const lv = Math.min(10, rawLv);
 const bushinCount = Math.min(50000, player.inventory[401] || 0);
 const gouyokuCount = Math.min(50000, player.inventory[502] || 0);
-const skills = [{ id: "futaiten", nameJp: "不退転 of Force", desc: "戦闘を経験するたびにランダムな遺物を (1+所持数) つ獲得する。攻撃するたびに深淵に漂う遺物を魂に刻む。" },{ id: "setsuna", nameJp: "刹那の堆積", desc: "再起するたびにHP増加幅+1。勝利への渇望が核に宿る。" },{ id: "inga", nameJp: "因果の拒絶", desc: "稀に攻撃を無効化する。経験値が深まるごとに下限が向上。" },{ id: "hangeki", nameJp: "反撃の狼煙", desc: "生存時★3以上の遺物を確定で入手する。不屈の闘志を燃やし、新たな力を手に入れる。" },{ id: "konken", nameJp: "魂の研磨", desc: "遺物獲得数/経験値ボーナスが向上。蓄積した戦闘経験に応じて機能強化。" },{ id: "shikoku", nameJp: "死を刻む", desc: "経験を積むたびに最終ダメージを増加させる。" }];
+const skills = [{ id: "futaiten", nameJp: "不退転の力", desc: "戦闘を経験するたびにランダムな遺物を (1+所持数) つ獲得する。攻撃するたびに深淵に漂う遺物を魂に刻む。" },{ id: "setsuna", nameJp: "刹那の堆積", desc: "再起するたびにHP増加幅+1。勝利への渇望が核に宿る。" },{ id: "inga", nameJp: "因果の拒絶", desc: "稀に攻撃を無効化する。経験値が深まるごとに下限が向上。" },{ id: "hangeki", nameJp: "反撃の狼煙", desc: "生存時★3以上の遺物を確定で入手する。不屈の闘志を燃やし、新たな力を手に入れる。" },{ id: "konken", nameJp: "魂の研磨", desc: "遺物獲得数/経験値ボーナスが向上。蓄積した戦闘経験に応じて機能強化。" },{ id: "shikoku", nameJp: "死を刻む", desc: "経験を積むたびに最終ダメージを増加させる。" }];
 let html = "";
 skills.forEach(s => {
 let hlContent = "";
@@ -658,19 +656,23 @@ if(hasRegalia && m.star <= 3) { baseA *= 1.2; baseH *= 1.2; }
 if(hasZansai) { baseA *= 10; baseH *= 10; }
 let cardCls = m.star >= 8 ? 'star-ultimate' : (m.star >= 4 ? 'star-high' : 'star-low');
 
-// 【追加】進捗表示ロジック
-let progressHtml = "";
-if(m.id == 116) { // メモリーダスト
-    let targets = [100000, 200000, 300000];
-    let activeTarget = targets.find(t => c < t) || 300000;
-    progressHtml = `<div class="relic-progress-box"><span class="progress-label">隠し覚醒まで</span>残り: ${(activeTarget - c).toLocaleString()}個</div>`;
-} else if(m.id == 117) { // メモリースターダスト
-    let targets = [100000, 200000, 300000];
-    let activeTarget = targets.find(t => c < t) || 300000;
-    progressHtml = `<div class="relic-progress-box"><span class="progress-label" style="color:var(--cosmic-blue)">高位覚醒まで</span>残り: ${(activeTarget - c).toLocaleString()}個</div>`;
+// カウントダウン表示の生成
+let countdownHtml = "";
+if (m.id == 116) { // メモリーダスト
+    let target = 0, label = "";
+    if (!player.hasHado) { target = 100000; label = "号令覚醒まで"; }
+    else if (!player.hasGreatHado) { target = 200000; label = "大号令覚醒まで"; }
+    else if (!player.hasDivineGuide) { target = 300000; label = "天帝覚醒まで"; }
+    if (target > 0) countdownHtml = `<div class="relic-countdown">${label}: ${Math.max(0, target - c).toLocaleString()}</div>`;
+} else if (m.id == 117) { // メモリースターダスト
+    let target = 0, label = "";
+    if (!player.hasWorldOrder) { target = 100000; label = "秩序覚醒まで"; }
+    else if (!player.hasCrown) { target = 200000; label = "権威覚醒まで"; }
+    else if (!player.hasMeta) { target = 300000; label = "超克覚醒まで"; }
+    if (target > 0) countdownHtml = `<div class="relic-countdown">${label}: ${Math.max(0, target - c).toLocaleString()}</div>`;
 }
 
-return `<div class="relic-card ${cardCls}"><div class="relic-name c${m.star}">★${m.star} ${m.name}×${c.toLocaleString()}</div><div class="relic-effect-box">${(baseA>0?`ATK+${formatFix(baseA)} `:'')}${(baseH>0?`HP+${formatFix(baseH)}`:'')}${(m.mult?` (x${m.mult})`:'')}${m.desc ? `<span class="relic-desc-line">${m.desc}</span>` : ""} ${progressHtml}</div></div>`;
+return `<div class="relic-card ${cardCls}"><div class="relic-name c${m.star}">★${m.star} ${m.name}×${c.toLocaleString()}</div><div class="relic-effect-box">${(baseA>0?`ATK+${formatFix(baseA)} `:'')}${(baseH>0?`HP+${formatFix(baseH)}`:'')}${(m.mult?` (x${m.mult})`:'')}${m.desc ? `<span class="relic-desc-line">${m.desc}</span>` : ""}${countdownHtml}</div></div>`;
 }).join("");
 }
 
