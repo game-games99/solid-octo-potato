@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>RELICORE - v1.0</title>
+<title>RELICORE - v1.1</title>
 <style>
 :root { --bg: #ffffff; --panel: #f8f9fa; --border: #dee2e6; --primary: #007bff; --text: #212529; --hp: #dc3545; --dark: #1a1a1a; --gold: #d4af37; --growth: #ff69b4; --relic-purple: #6610f2; --relic-bg: #fcfaff; --relic-rainbow: linear-gradient(135deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3); --cosmic-blue: #00d4ff; --cosmic-white: #ffffff; }
 * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; box-sizing: border-box; }
@@ -88,18 +88,21 @@ body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Robot
 #log { height: 400px; font-size: 0.82em; background: #fafafa; border: 1px solid var(--border); padding: 10px; overflow-y: auto; border-radius: 8px; line-height: 1.4; }
 .log-set { border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 8px; }
 
-/* 再起タブ用グリッドレイアウト */
 .vow-list-container { display: grid; grid-template-columns: 1fr; gap: 10px; }
 @media(min-width: 600px) { .vow-list-container { grid-template-columns: 1fr 1fr; } }
 
-.vow-item { position: relative; background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 10px 10px 10px 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; flex-direction: column; min-height: 100px; justify-content: space-between; }
+.vow-item { position: relative; background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 10px 10px 10px 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; flex-direction: column; min-height: 100px; }
 .vow-item::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: gold; border-radius: 8px 0 0 8px; }
 .vow-header { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1px solid #f0f0f0; margin-bottom: 6px; padding-bottom: 4px; }
 .vow-name { font-weight: bold; font-size: 0.9em; color: #333; }
 .vow-lv { font-size: 0.75em; font-weight: bold; color: #888; }
 .vow-lv.max { color: var(--gold); text-shadow: 0 0 2px rgba(212,175,55,0.5); }
-.vow-highlight { font-weight: bold; font-size: 0.82em; display: block; line-height: 1.4; color: var(--primary); background: #f0f7ff; padding: 4px; border-radius: 4px; margin-bottom: 4px; }
-.vow-sub { font-size: 0.72em; color: #666; display: block; line-height: 1.3; }
+
+/* 再起スキルのハイライト表示調整 */
+.vow-highlight { font-weight: bold; font-size: 0.82em; display: block; line-height: 1.5; color: var(--primary); background: #f0f7ff; padding: 6px; border-radius: 4px; margin-bottom: 6px; word-break: normal; }
+.vow-tag { display: inline-block; white-space: nowrap; margin-right: 4px; } /* 各項目をひとかたまりで保持 */
+
+.vow-sub { font-size: 0.72em; color: #666; display: block; line-height: 1.4; }
 
 #clear-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; justify-content: center; align-items: center; padding: 20px; }
 .modal-content { background: #000; border: 2px solid var(--gold); border-radius: 20px; padding: 35px 25px; text-align: center; color: #fff; max-width: 450px; width: 95%; box-shadow: 0 0 30px rgba(212,175,55,0.4); }
@@ -181,7 +184,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Robot
 <div class="privacy-link" onclick="openPolicy()">プライバシーポリシー</div>
 </div>
 </div>
-<div class="ver-footer">RELICORE v1.0</div>
+<div class="ver-footer">RELICORE v1.1</div>
 <script>
 const SAVE_KEY = "relicore_player_data";
 const BOSS_MAX_HP_BASE = 100000000000000000000n;
@@ -563,36 +566,36 @@ const gouyokuCount = Math.min(50000, player.inventory[502] || 0);
 const skills = [{ id: "futaiten", nameJp: "不退転の力", desc: "戦闘を経験するたびにランダムな遺物を (1+所持数) つ獲得する。攻撃するたびに深淵に漂う遺物を魂に刻む。" },{ id: "setsuna", nameJp: "刹那の堆積", desc: "HP 1 ～ (戦闘経験値) の間でランダムに上昇。戦闘経験を積むたびにHP増加幅+1。確かな意思が核に宿る。" },{ id: "inga", nameJp: "因果の拒絶", desc: "稀に攻撃を無効化する。経験値が深まるごとに下限が向上。" },{ id: "hangeki", nameJp: "反撃の狼煙", desc: "生存時★3以上の遺物を確定で入手する。不屈の闘志を燃やし、新たな力を手に入れる。" },{ id: "konken", nameJp: "魂の研磨", desc: "遺物獲得数/経験値ボーナスが向上。蓄積した戦闘経験に応じて機能強化。" },{ id: "shikoku", nameJp: "死を刻む", desc: "経験を積むたびに最終ダメージを増加させる。" }];
 let html = "";
 skills.forEach(s => {
-let highlight = "";
+let hlContent = "";
 if(s.id === "futaiten") { 
-    highlight = `ボーナス：+${lv + bushinCount + (gouyokuCount * 5)} 【不退転：+${bushinCount}】【強欲：+${gouyokuCount * 5}】`; 
+    hlContent = `<span class="vow-tag">ボーナス：+${lv + bushinCount + (gouyokuCount * 5)}</span><span class="vow-tag">【不退転：+${bushinCount}】</span><span class="vow-tag">【強欲：+${gouyokuCount * 5}】</span>`; 
 }
 else if(s.id === "setsuna") { 
     const setsunaVal = Math.min(50000, player.inventory[402] || 0) * 5; 
-    highlight = `HP増加：+${lv + setsunaVal} / 上限：${formatV(player.deathCount || 100)} 【刹那：+${setsunaVal}】`; 
+    hlContent = `<span class="vow-tag">HP増加：+${lv + setsunaVal}</span><span class="vow-tag">/ 上限：${formatV(player.deathCount || 100)}</span><span class="vow-tag">【刹那：+${setsunaVal}】</span>`; 
 }
 else if(s.id === "inga") { 
     let baseCut = Math.min(20, Math.floor(lv/5) * 5); 
     let ingaVal = Math.min(10, player.inventory[403] || 0); 
-    highlight = `無効化：${Math.min(95, baseCut + (ingaVal * 2))}% ～ 100% 【因果：+${ingaVal * 2}%】`; 
+    hlContent = `<span class="vow-tag">無効化：${Math.min(95, baseCut + (ingaVal * 2))}% ～ 100%</span><span class="vow-tag">【因果：+${ingaVal * 2}%】</span>`; 
 }
 else if(s.id === "hangeki") { 
     const zanko = (player.inventory[404] || 0) > 0; 
-    highlight = `確定：1 ～ ${lv}個 (★2${zanko ? '/★3' : ''}) 【勇者の残光】`; 
+    hlContent = `<span class="vow-tag">確定：1 ～ ${lv}個</span><span class="vow-tag">(★2${zanko ? '/★3' : ''})</span><span class="vow-tag">【勇者の残光】</span>`; 
 }
 else if(s.id === "konken") { 
     const ensCount = (player.inventory[605] || 0) * 5; 
-    highlight = `経験値：+${lv + (player.inventory[405] || 0) + ensCount} 【賢者：+${player.inventory[405] || 0}】【戦碑：+${ensCount}】`; 
+    hlContent = `<span class="vow-tag">経験値：+${lv + (player.inventory[405] || 0) + ensCount}</span><span class="vow-tag">【賢者：+${player.inventory[405] || 0}】</span><span class="vow-tag">【戦碑：+${ensCount}】</span>`; 
 }
 else if(s.id === "shikoku") { 
     const kamaFixed = (player.inventory[406] || 0) * 0.00004;
     const totalBonus = (lv * 0.00004) + kamaFixed;
-    highlight = `最終ダメ：+${(totalBonus * 100).toFixed(4)}% 【死神：+${(kamaFixed * 100).toFixed(4)}%】`; 
+    hlContent = `<span class="vow-tag">最終ダメ：+${(totalBonus * 100).toFixed(4)}%</span><span class="vow-tag">【死神：+${(kamaFixed * 100).toFixed(4)}%】</span>`; 
 }
 
 let lvClass = lv >= 10 ? "max" : "";
 let lvText = lv >= 10 ? "Lv.10 (MAX)" : `Lv.${lv}`;
-html += `<div class="vow-item"><div class="vow-header"><span class="vow-name">${s.nameJp}</span><span class="vow-lv ${lvClass}">${lvText}</span></div><div><span class="vow-highlight">${highlight}</span><span class="vow-sub">${s.desc}</span></div></div>`;
+html += `<div class="vow-item"><div class="vow-header"><span class="vow-name">${s.nameJp}</span><span class="vow-lv ${lvClass}">${lvText}</span></div><div><div class="vow-highlight">${hlContent}</div><span class="vow-sub">${s.desc}</span></div></div>`;
 });
 document.getElementById('vow-list').innerHTML = html;
 }
