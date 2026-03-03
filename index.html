@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>RELICORE - v1.8</title>
+<title>RELICORE - v1.9</title>
 <style>
 :root { --bg: #ffffff; --panel: #f8f9fa; --border: #dee2e6; --primary: #007bff; --text: #212529; --hp: #dc3545; --dark: #1a1a1a; --gold: #d4af37; --growth: #ff69b4; --relic-purple: #6610f2; --relic-bg: #fcfaff; --relic-rainbow: linear-gradient(135deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3); --cosmic-blue: #00d4ff; --cosmic-white: #ffffff; }
 * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; box-sizing: border-box; }
@@ -177,7 +177,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Robot
 <div class="privacy-link" onclick="openPolicy()">プライバシーポリシー</div>
 </div>
 </div>
-<div class="ver-footer">RELICORE v1.8</div>
+<div class="ver-footer">RELICORE v1.9</div>
 <script>
 const SAVE_KEY = "relicore_player_data";
 const BOSS_MAX_HP_BASE = 100000000000000000000n;
@@ -338,7 +338,7 @@ function openRareModal(relic) {
 }
 
 function calcFinalDmgMult() {
- const lv = player.totalLevel;
+ const lv = Math.min(10, player.totalLevel); // 再起スキルLv10制限
  const shikokuFixed = 0.00004 * lv;
  const kamaFixed = (player.inventory[406] || 0) * 0.00004;
  let mult = (1.0 + (lv * 0.01)) + shikokuFixed + kamaFixed;
@@ -420,8 +420,9 @@ if(!player.hasWorldOrder && stardust >= 100000 && (Math.random() < (1/100000) ||
 if(player.hasWorldOrder && !player.hasCrown && stardust >= 200000 && (Math.random() < (1/200000) || expTotal >= 2000000)) { openCosmicModal('crown'); return; }
 if(player.hasCrown && !player.hasMeta && stardust >= 300000 && (Math.random() < (1/300000) || expTotal >= 3000000)) { openCosmicModal('meta'); return; }
 
-const lv = player.totalLevel; const bushinCount = Math.min(50000, player.inventory[401] || 0); const gouyokuCount = Math.min(50000, player.inventory[502] || 0);
-let logHtml = `<div>${specialTags}<span style="color:#007bff; font-weight:bold;">攻撃！${formatV(finalDmg)} ダメージ！</span></div>` + getDropLog(1 + bushinCount + Math.floor(lv/10) + (gouyokuCount * 5));
+const skillLv = Math.min(10, player.totalLevel); // 再起スキルLv制限
+const bushinCount = Math.min(50000, player.inventory[401] || 0); const gouyokuCount = Math.min(50000, player.inventory[502] || 0);
+let logHtml = `<div>${specialTags}<span style="color:#007bff; font-weight:bold;">攻撃！${formatV(finalDmg)} ダメージ！</span></div>` + getDropLog(1 + bushinCount + Math.floor(skillLv/10) + (gouyokuCount * 5));
 
 if(finalDmg >= currentBossHP) {
   if((player.inventory[701] || 0) > 0) {
@@ -442,8 +443,8 @@ if(finalDmg >= currentBossHP) {
 
 if(currentBossHP > 0n) {
   const currentTotalHP = BigInt(Math.floor(Number(player.baseHP + bonus.hp) * bonus.mult));
-  // 因果の拒絶: レベルによる下限上昇を最大20%に制限
-  let baseCut = Math.min(20, Math.floor(lv/5) * 2);
+  // 因果の拒絶: レベルによる下限上昇を最大20%に制限 (Lv10なら8%)
+  let baseCut = Math.min(20, Math.floor(skillLv/5) * 2);
   let ingaVal = Math.min(10, player.inventory[403] || 0);
   let minCut = baseCut + ingaVal;
   
@@ -451,7 +452,7 @@ if(currentBossHP > 0n) {
   let finalMitigated = BigInt(Math.floor(Number(rawEnemyAtk) * (1 - (Math.floor(Math.random() * (101 - Math.min(95, minCut))) + Math.min(95, minCut)) / 100))) - BigInt((player.inventory[501] || 0) * 500000);
   if(finalMitigated < 0n) finalMitigated = 0n;
 
-  let gainedExp = Math.floor(lv / 2) + 1 + (player.inventory[405] || 0) + ((player.inventory[605] || 0) * 5);
+  let gainedExp = Math.floor(skillLv / 2) + 1 + (player.inventory[405] || 0) + ((player.inventory[605] || 0) * 5);
   if (currentTotalHP > finalMitigated) {
       player.deathCount += gainedExp;
       logHtml += `<div><span style="color:#28a745; font-weight:bold;">敵の攻撃！${formatV(finalMitigated)} ダメージ。障壁展開！</span></div>` + getGuaranteedDrop();
@@ -460,7 +461,7 @@ if(currentBossHP > 0n) {
       if ((player.inventory[505] || 0) > 0 && Math.random() < 0.1) { repeatCount = 2; specialTags += `【再起】`; }
       let totalUpHP = 0n;
       for (let i = 0; i < repeatCount; i++) {
-          let up = BigInt(Math.floor(Math.random() * Math.max(1, lv * 10)) + 1 + lv + Math.min(50000, player.inventory[402] || 0) * 5);
+          let up = BigInt(Math.floor(Math.random() * Math.max(1, skillLv * 10)) + 1 + skillLv + Math.min(50000, player.inventory[402] || 0) * 5);
           totalUpHP += up;
       }
       player.baseHP += totalUpHP; player.deathCount += gainedExp;
@@ -472,7 +473,7 @@ addLog(logHtml); saveGame(); triggerUIUpdate();
 }
 
 function getGuaranteedDrop() {
-  const lv = player.totalLevel; const hasZanko = (player.inventory[404] || 0) > 0; let localGains = {}; const cands2 = RELIC_MASTER.filter(m => m.star === 2); const cands3 = RELIC_MASTER.filter(m => m.star === 3); const dropCount = Math.floor(lv / 20) + 1;
+  const lv = Math.min(10, player.totalLevel); const hasZanko = (player.inventory[404] || 0) > 0; let localGains = {}; const cands2 = RELIC_MASTER.filter(m => m.star === 2); const cands3 = RELIC_MASTER.filter(m => m.star === 3); const dropCount = Math.floor(lv / 20) + 1;
   for (let i = 0; i < dropCount; i++) { let sel; if (hasZanko && Math.random() < 0.5) { sel = cands3[Math.floor(Math.random() * cands3.length)]; } else { sel = cands2[Math.floor(Math.random() * cands2.length)]; } player.inventory[sel.id] = (player.inventory[sel.id] || 0) + 1; localGains[sel.id] = (localGains[sel.id] || 0) + 1; }
   player.totalRelics += dropCount; let entries = []; Object.entries(localGains).forEach(([id, count]) => { const m = RELIC_MASTER.find(x => x.id == id); entries.push(`<span class="c${m.star}">★${m.star} ${m.name}${count > 1 ? '×' + count : ''}</span>`); });
   return `<div style="font-size:0.82em;">【狼煙】獲得：${entries.join("、 ")}</div>`;
@@ -533,7 +534,7 @@ else if (rankIdx >= 9) { area.classList.add("rank-glow-max"); title.style.color 
 let hadoText = "";
 if(player.hasMeta) hadoText = "宇宙的覚醒：全理の超克";
 else if(player.hasCrown) hadoText = "宇宙的覚醒：絶対的権威";
-else if(player.hasWorldOrder) hadoText = "宇宙적覚醒：秩序の法";
+else if(player.hasWorldOrder) hadoText = "宇宙的覚醒：秩序の法";
 else if(player.hasDivineGuide) hadoText = "隠しスキル：天帝の導き";
 else if(player.hasGreatHado) hadoText = "隠しスキル：破軍の大号令";
 else if(player.hasHado) hadoText = "隠しスキル：破軍の号令";
@@ -551,7 +552,9 @@ if(tid === 'vow') renderVow(); else if(tid === 'relic') renderRelics(); else if(
 }
 
 function renderVow() {
-const lv = player.totalLevel; const bushinCount = Math.min(50000, player.inventory[401] || 0); const gouyokuCount = Math.min(50000, player.inventory[502] || 0);
+const rawLv = player.totalLevel;
+const lv = Math.min(10, rawLv); // 計算用
+const bushinCount = Math.min(50000, player.inventory[401] || 0); const gouyokuCount = Math.min(50000, player.inventory[502] || 0);
 const skills = [{ id: "futaiten", nameJp: "不退転の力", desc: "戦闘を経験するたびにランダムな遺物を (1+所持数) つ獲得する。攻撃するたびに深淵に漂う遺物を魂に刻む。" },{ id: "setsuna", nameJp: "刹那の堆積", desc: "HP 1 ～ (戦闘経験値) の間でランダムに上昇。戦闘経験を積むたびにHP増加幅+1。確かな意思が核に宿る。" },{ id: "inga", nameJp: "因果の拒絶", desc: "稀に攻撃を無効化する。経験値が深まるごとに下限が向上。" },{ id: "hangeki", nameJp: "反撃の狼煙", desc: "生存時★3以上の遺物を確定で入手する。不屈の闘志を燃やし、新たな力を手に入れる。" },{ id: "konken", nameJp: "魂の研磨", desc: "遺物獲得数/経験値ボーナスが向上。蓄積した戦闘経験に応じて機能強化。" },{ id: "shikoku", nameJp: "死を刻む", desc: "経験を積むたびに最終ダメージを増加させる。" }];
 let html = "";
 skills.forEach(s => {
@@ -566,7 +569,10 @@ else if(s.id === "inga") {
 else if(s.id === "hangeki") { const zanko = (player.inventory[404] || 0) > 0; highlight = `確定：${Math.floor(lv/20) + 1}個 (★2${zanko ? '/★3' : ''})`; }
 else if(s.id === "konken") { const ensCount = (player.inventory[605] || 0) * 5; highlight = `経験値：+${Math.floor(lv/2) + 1 + (player.inventory[405] || 0) + ensCount}`; }
 else if(s.id === "shikoku") { const fixedBonus = (lv * 0.00004) + ((player.inventory[406] || 0) * 0.00004); highlight = `最終ダメージ：+${(fixedBonus * 100).toFixed(4)}%`; }
-html += `<div class="vow-item"><div class="vow-header"><span class="vow-name">${s.nameJp}</span><span class="vow-lv">Lv.${lv}</span></div><span class="vow-highlight">${highlight}</span><span class="vow-sub">${s.desc}</span></div>`;
+
+let lvClass = lv >= 10 ? "max" : "";
+let lvText = lv >= 10 ? "Lv.10 (MAX)" : `Lv.${lv}`;
+html += `<div class="vow-item"><div class="vow-header"><span class="vow-name">${s.nameJp}</span><span class="vow-lv ${lvClass}">${lvText}</span></div><span class="vow-highlight">${highlight}</span><span class="vow-sub">${s.desc}</span></div>`;
 });
 document.getElementById('vow-list').innerHTML = html;
 }
