@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>RELICORE - v1.1</title>
+<title>RELICORE - v1.2</title>
 <style>
 :root { --bg: #ffffff; --panel: #f8f9fa; --border: #dee2e6; --primary: #007bff; --text: #212529; --hp: #dc3545; --dark: #1a1a1a; --gold: #d4af37; --growth: #ff69b4; --relic-purple: #6610f2; --relic-bg: #fcfaff; --relic-rainbow: linear-gradient(135deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3); --cosmic-blue: #00d4ff; --cosmic-white: #ffffff; }
 * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; box-sizing: border-box; }
@@ -184,10 +184,10 @@ body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Robot
 <div class="privacy-link" onclick="openPolicy()">プライバシーポリシー</div>
 </div>
 </div>
-<div class="ver-footer">RELICORE v1.1</div>
+<div class="ver-footer">RELICORE v1.2</div>
 <script>
 /**
-* RELICORE v1.1
+* RELICORE v1.2
 */
 
 const SAVE_KEY = "relicore_player_data";
@@ -398,9 +398,9 @@ return {
 }
 
 function getCalculatedDropBonus() {
-  const skillLv = Math.min(10, player.totalLevel); // 不退転の力
-  const bushinCount = Math.min(250, player.inventory[401] || 0); // 武神の魂
-  const gouyokuCount = Math.min(50, player.inventory[502] || 0); // 強欲の権能
+  const skillLv = Math.min(10, player.totalLevel); 
+  const bushinCount = Math.min(250, player.inventory[401] || 0); 
+  const gouyokuCount = Math.min(50, player.inventory[502] || 0); 
 
   return Math.min(500, skillLv + bushinCount + (gouyokuCount * 5));
 }
@@ -417,6 +417,7 @@ let finalDmg = rawDmg;
 let specialTags = "";
 
 const bossMaxHP = BigInt(player.bossMaxHP);
+const isGod = (!player.isCleared); // クリア前が神
 
 if ((player.inventory[801] || 0) > 0) {
  const threshold = bossMaxHP / 10000n;
@@ -459,20 +460,34 @@ const dropBonus = getCalculatedDropBonus();
 let logHtml = `<div>${specialTags}<span style="color:#007bff; font-weight:bold;">攻撃！${formatV(finalDmg)} ダメージ！</span></div>` + getDropLog(dropBonus);
 
 if(finalDmg >= currentBossHP) {
-if((player.inventory[701] || 0) > 0) {
-   currentBossHP = 0n;
-   player.killCount++;
-   if(!player.isCleared) {
+if(isGod) {
+   const hasPandora = inventory.some(item => item.name === "パンドラの箱" && item.rarity === 7) || (player.inventory[701] || 0) > 0;
+   if(hasPandora && finalDmg >= BigInt(player.bossMaxHP)) {
+       currentBossHP = 0n;
+       player.killCount++;
        stopAttack();
        isModalOpen = true;
        document.getElementById("clear-modal").style.display = "flex";
    } else {
-       handleBossDefeat();
+       currentBossHP = BigInt(player.bossMaxHP);
+       logHtml += `<div><span style="color:#ff0000; font-weight:bold;">再起の誓いによって新たなる力を得た</span></div>`;
    }
-} else { currentBossHP = BigInt(player.bossMaxHP); logHtml += `<div><span style="color:#ff0000; font-weight:bold;">終焉の回帰……！ (HP全回復)</span></div>`; }
+} else {
+   currentBossHP = 0n;
+   player.killCount++;
+   handleBossDefeat();
+}
 } else {
 currentBossHP -= finalDmg;
-if(currentBossHP < 1n) { currentBossHP = BigInt(player.bossMaxHP); logHtml += `<div><span style="color:#ff0000; font-weight:bold;">終焉の回帰……！ (HP全回復)</span></div>`; }
+if(currentBossHP < 1n) {
+    if(isGod) {
+        currentBossHP = BigInt(player.bossMaxHP);
+        logHtml += `<div><span style="color:#ff0000; font-weight:bold;">再起の誓いによって新たなる力を得た</span></div>`;
+    } else {
+        currentBossHP = 0n;
+        handleBossDefeat();
+    }
+}
 }
 
 if(currentBossHP > 0n) {
@@ -542,7 +557,7 @@ let finalEntries = [];
 for (let s = 1; s <= 7; s++) {
   if (starCounts[s] === 0) continue;
   if (starCounts[s] > 30) { finalEntries.push(`<span class="c${s}">★${s}遺物 合計${starCounts[s]}個</span>`); }
-  else { Object.entries(starGroups[s]).forEach(([id, c]) => { const m = RELIC_MASTER.find(x => x.id == id); finalEntries.push(`<span class="c${s}">★${s} ${m.name}${c > 1 ? '×' + c : ''}</span>`); }); }
+  else { Object.entries(starGroups[s]).forEach(([id, c]) => { const m = RELIC_MASTER.find(x => x.id == id); finalEntries.push(`<span class="c${s}">★${s} ${m.name}${c > 1 ? '×' + count : ''}</span>`); }); }
 }
 return finalEntries.length > 0 ? `<div style="font-size:0.82em;">獲得：${finalEntries.join("、 ")}</div>` : "";
 }
@@ -554,10 +569,17 @@ function refreshUI() {
 const b = getRelicBonus(); const skillMult = calcFinalDmgMult(); const lv = player.totalLevel;
 document.getElementById("p-atk").textContent = formatV(BigInt(Math.floor(Number(player.baseAtk + b.atk) * b.mult * skillMult)));
 document.getElementById("p-hp").textContent = formatV(BigInt(Math.floor(Number(player.baseHP + b.hp) * b.mult)));
-// 神のHP表示：formatVではなく三桁区切り数字(formatFix)を使用
-document.getElementById("bosshp-cur").textContent = formatFix(currentBossHP);
+
+const isGod = (!player.isCleared);
+if(isGod) {
+    document.getElementById("bosshp-cur").textContent = formatFix(currentBossHP);
+    document.getElementById("boss-display-name").textContent = "終末神アポカリス＝ティア";
+} else {
+    document.getElementById("bosshp-cur").textContent = formatV(currentBossHP);
+    document.getElementById("boss-display-name").textContent = "溢れし災厄";
+}
+
 document.getElementById("hp-bar-fill").style.width = `${Number(currentBossHP * 100n / BigInt(player.bossMaxHP))}%`;
-document.getElementById("boss-display-name").textContent = player.isCleared ? "溢れし災厄" : "終末神アポカリス＝ティア";
 const area = document.getElementById("st-rank-area"); const title = document.getElementById("st-rank-title");
 const rankIdx = getCurrentRankIndex();
 document.getElementById("st-rank-lv").textContent = `${RANK_NAMES[rankIdx]} Lv.${lv}`;
