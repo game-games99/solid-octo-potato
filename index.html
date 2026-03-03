@@ -365,8 +365,8 @@ function getRelicBonus() {
           compCount++;
       }
   }
-  // ボーナス係数を 1.1 から 3.0 へ引き上げ
-  const compBonus = Math.pow(3.0, compCount);
+  // ボーナス係数を 1.1 から 5.0 へ引き上げ
+  const compBonus = Math.pow(5.0, compCount);
 
   Object.entries(player.inventory).forEach(([id, count]) => {
       const r = RELIC_MASTER.find(m => m.id == id); if(!r) return;
