@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>RELICORE - v1.8</title>
+<title>RELICORE - v1.9</title>
 <style>
 :root { --bg: #ffffff; --panel: #f8f9fa; --border: #dee2e6; --primary: #007bff; --text: #212529; --hp: #dc3545; --dark: #1a1a1a; --gold: #d4af37; --growth: #ff69b4; --relic-purple: #6610f2; --relic-bg: #fcfaff; --relic-rainbow: linear-gradient(135deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3); --cosmic-blue: #00d4ff; --cosmic-white: #ffffff; }
 * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; box-sizing: border-box; }
@@ -176,7 +176,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Robot
 <div class="privacy-link" onclick="openPolicy()">プライバシーポリシー</div>
 </div>
 </div>
-<div class="ver-footer">RELICORE v1.8</div>
+<div class="ver-footer">RELICORE v1.9</div>
 <script>
 const SAVE_KEY = "relicore_player_data";
 const BOSS_MAX_HP_BASE = 100000000000000000000n;
@@ -237,7 +237,7 @@ const RELIC_MASTER = [
 {id:601, star:6, name:"絶対統率レリック・オーバーロード", atk:1500000, hp:4500000, desc:"敵HPが自身のATKの100倍以上の時、与ダメージ+8%。"}, {id:602, star:6, name:"魂律解放レリ・クシア", atk:2500000, hp:3500000, desc:"100回攻撃ごとに次の一撃の最終ダメージ+200%。"}, {id:603, star:6, name:"原初核冠レリコア・レガリア", atk:2000000, hp:4000000, desc:"★1〜3遺物のステータス上昇効果を20%増加させる。"}, {id:604, star:6, name:"虚無終焉レリ・ノヴァ", atk:5555555, hp:0, desc:"攻撃時0.1%の確率で与ダメージ+500%。"},
 {id:605, star:6, name:"戦碑累功レリ・エンス", atk:3000000, hp:3000000, desc:"1つにつき獲得経験値+5。"},
 {id:701, star:7, name:"パンドラの箱", atk:155528931, hp:355528931, desc:"神を屠る唯一の条件。災厄の底に希望を宿す。"}, {id:702, star:7, name:"終焉の福音", atk:200000000, hp:450000000, desc:"敵HPが50%以下のとき、与ダメージ+30%。(重複不可)"}, {id:703, star:7, name:"神滅のアカシックレコード", atk:100000000, hp:550000000, desc:"与ダメージの最終倍率にさらに+20%。(重複不可)"},
-{id:704, star:7, name:"災厄の残滓", atk:500000000, hp:500000000, desc:"すべての遺物のステータス上昇値を10倍にする。(所持制限1)"},
+{id:704, star:7, name:"災厄の残滓", atk:500000000, hp:500000000, desc:"すべての遺物のステータス上昇値を10倍にする。(効果は重複しない)"},
 {id:801, star:999, name:"秩序のリバランス", atk:0, hp:0, desc:"【超越】低ダメージを敵最大HP割合の絶対ダメージに変換。討伐数に応じて威力が上昇。"}
 ];
 
@@ -339,7 +339,7 @@ function openRareModal(relic) {
 function calcFinalDmgMult() {
  const lv = Math.min(10, player.totalLevel); 
  const kamaFixed = (player.inventory[406] || 0) * 0.00004;
- let mult = (1.0 + (lv * 0.00004)) + kamaFixed; // 基礎倍率
+ let mult = (1.0 + (lv * 0.00004)) + kamaFixed; 
  if ((player.inventory[703] || 0) > 0) mult += 0.2;
  return mult;
 }
@@ -441,7 +441,7 @@ if(finalDmg >= currentBossHP) {
 
 if(currentBossHP > 0n) {
   const currentTotalHP = BigInt(Math.floor(Number(player.baseHP + bonus.hp) * bonus.mult));
-  let baseCut = Math.min(20, Math.floor(skillLv/5) * 5); // 因果の下限
+  let baseCut = Math.min(20, Math.floor(skillLv/5) * 5); 
   let ingaVal = Math.min(10, player.inventory[403] || 0);
   let minCut = baseCut + (ingaVal * 2);
   
@@ -487,14 +487,8 @@ function getDropLog(count) {
      if (star === 2 && player.hasDivineGuide && Math.random() < 0.1) { sel = RELIC_MASTER.find(m => m.id === 117); }
      else {
          let cands = RELIC_MASTER.filter(m => m.star === star && m.id !== 0 && m.star < 8 && m.id !== 117);
-         if (star === 7) {
-             const isZansaiLottery = player.inventory[704] > 0 && Math.random() < 0.001;
-             if (isZansaiLottery) { sel = RELIC_MASTER.find(m => m.id === 704); }
-             else { let cands7 = cands.filter(m => m.id !== 704); sel = cands7[Math.floor(Math.random() * cands7.length)]; }
-         } else {
-             if(cands.length === 0) cands = RELIC_MASTER.filter(m => m.star === 1);
-             sel = cands[Math.floor(Math.random() * cands.length)];
-         }
+         if(cands.length === 0) cands = RELIC_MASTER.filter(m => m.star === 1);
+         sel = cands[Math.floor(Math.random() * cands.length)];
      }
      if (sel.star >= 4 && !player.inventory[sel.id]) { if (!showRare || sel.star > showRare.star) showRare = sel; }
      player.inventory[sel.id] = (player.inventory[sel.id] || 0) + 1; player.totalRelics++; starCounts[star]++; starGroups[star][sel.id] = (starGroups[star][sel.id] || 0) + 1;
