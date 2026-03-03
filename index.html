@@ -87,14 +87,19 @@ body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Robot
 .btn-attack { width: 100%; padding: 16px; background: var(--primary); color: #fff; font-size: 1.3em; font-weight: bold; border: none; border-radius: 12px; margin-bottom: 10px; box-shadow: 0 4px 0 #0056b3; flex-shrink: 0; touch-action: none; }
 #log { height: 400px; font-size: 0.82em; background: #fafafa; border: 1px solid var(--border); padding: 10px; overflow-y: auto; border-radius: 8px; line-height: 1.4; }
 .log-set { border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 8px; }
-.vow-item { position: relative; background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px 8px 16px; margin-bottom: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+
+/* 再起タブ用グリッドレイアウト */
+.vow-list-container { display: grid; grid-template-columns: 1fr; gap: 10px; }
+@media(min-width: 600px) { .vow-list-container { grid-template-columns: 1fr 1fr; } }
+
+.vow-item { position: relative; background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 10px 10px 10px 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; flex-direction: column; min-height: 100px; justify-content: space-between; }
 .vow-item::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: gold; border-radius: 8px 0 0 8px; }
-.vow-header { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1px solid #f0f0f0; margin-bottom: 4px; padding-bottom: 2px; }
+.vow-header { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1px solid #f0f0f0; margin-bottom: 6px; padding-bottom: 4px; }
 .vow-name { font-weight: bold; font-size: 0.9em; color: #333; }
 .vow-lv { font-size: 0.75em; font-weight: bold; color: #888; }
 .vow-lv.max { color: var(--gold); text-shadow: 0 0 2px rgba(212,175,55,0.5); }
-.vow-highlight { font-weight: bold; font-size: 0.82em; display: block; line-height: 1.4; color: var(--primary); }
-.vow-sub { font-size: 0.72em; color: #888; display: block; margin-top: 2px; line-height: 1.3; }
+.vow-highlight { font-weight: bold; font-size: 0.82em; display: block; line-height: 1.4; color: var(--primary); background: #f0f7ff; padding: 4px; border-radius: 4px; margin-bottom: 4px; }
+.vow-sub { font-size: 0.72em; color: #666; display: block; line-height: 1.3; }
 
 #clear-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; justify-content: center; align-items: center; padding: 20px; }
 .modal-content { background: #000; border: 2px solid var(--gold); border-radius: 20px; padding: 35px 25px; text-align: center; color: #fff; max-width: 450px; width: 95%; box-shadow: 0 0 30px rgba(212,175,55,0.4); }
@@ -155,7 +160,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Robot
 <div class="nav"><button onclick="showTab('battle')" id="nav-battle" class="active">討伐</button><button onclick="showTab('vow')" id="nav-vow">再起</button><button onclick="showTab('relic')" id="nav-relic">遺物</button><button onclick="showTab('status')" id="nav-status">詳細</button></div>
 <div id="content-area">
 <div id="battle" class="tab active"><button class="btn-attack" id="attackBtn">こうげき</button><div id="log"></div></div>
-<div id="vow" class="tab"><div id="vow-list"></div></div>
+<div id="vow" class="tab"><div id="vow-list" class="vow-list-container"></div></div>
 <div id="relic" class="tab"><div class="relic-list-container" id="relic-list"></div></div>
 <div id="status" class="tab">
 <div class="rank-display" id="st-rank-area">
@@ -490,21 +495,12 @@ function getDropLog(count) {
          if(cands.length === 0) cands = RELIC_MASTER.filter(m => m.star === 1);
          sel = cands[Math.floor(Math.random() * cands.length)];
          
-         // 災厄の残滓(704)の特殊ドロップロジック
          if(sel.id === 704) {
-             // 初回かつ溢れし災厄の時のみ 0.000001% 判定
              if(!player.inventory[704] && player.isCleared) {
-                 if(Math.random() > 0.001) { // ★7当選(0.00001)のさらに1/1000 = 0.000001%
-                     sel = RELIC_MASTER.find(m => m.star === 1); // 失敗時は★1に
-                     star = 1;
-                 }
+                 if(Math.random() > 0.001) { sel = RELIC_MASTER.find(m => m.star === 1); star = 1; }
+             } else if(!player.isCleared) {
+                 sel = RELIC_MASTER.find(m => m.star === 1); star = 1;
              }
-             // 神を倒す前なら絶対ドロップしない(通常抽選から除外)
-             else if(!player.isCleared) {
-                 sel = RELIC_MASTER.find(m => m.star === 1);
-                 star = 1;
-             }
-             // 2個目以降（所持済み）は通常確率のまま
          }
      }
      if (sel.star >= 4 && !player.inventory[sel.id]) { if (!showRare || sel.star > showRare.star) showRare = sel; }
@@ -569,20 +565,20 @@ let html = "";
 skills.forEach(s => {
 let highlight = "";
 if(s.id === "futaiten") { 
-    highlight = `獲得遺物ボーナス：+${lv + bushinCount + (gouyokuCount * 5)} 【不退転：+${bushinCount}】【強欲：+${gouyokuCount * 5}】`; 
+    highlight = `ボーナス：+${lv + bushinCount + (gouyokuCount * 5)} 【不退転：+${bushinCount}】【強欲：+${gouyokuCount * 5}】`; 
 }
 else if(s.id === "setsuna") { 
     const setsunaVal = Math.min(50000, player.inventory[402] || 0) * 5; 
-    highlight = `HP増加幅: +${lv + setsunaVal} / 上限：${formatV(player.deathCount || 100)} 【刹那：+${setsunaVal}】`; 
+    highlight = `HP増加：+${lv + setsunaVal} / 上限：${formatV(player.deathCount || 100)} 【刹那：+${setsunaVal}】`; 
 }
 else if(s.id === "inga") { 
     let baseCut = Math.min(20, Math.floor(lv/5) * 5); 
     let ingaVal = Math.min(10, player.inventory[403] || 0); 
-    highlight = `無効化範囲：${Math.min(95, baseCut + (ingaVal * 2))}% ～ 100% 【因果：+${ingaVal * 2}%】`; 
+    highlight = `無効化：${Math.min(95, baseCut + (ingaVal * 2))}% ～ 100% 【因果：+${ingaVal * 2}%】`; 
 }
 else if(s.id === "hangeki") { 
     const zanko = (player.inventory[404] || 0) > 0; 
-    highlight = `確定獲得：1 ～ ${lv}個 (★2${zanko ? '/★3' : ''}) 【勇者の残光】`; 
+    highlight = `確定：1 ～ ${lv}個 (★2${zanko ? '/★3' : ''}) 【勇者の残光】`; 
 }
 else if(s.id === "konken") { 
     const ensCount = (player.inventory[605] || 0) * 5; 
@@ -591,12 +587,12 @@ else if(s.id === "konken") {
 else if(s.id === "shikoku") { 
     const kamaFixed = (player.inventory[406] || 0) * 0.00004;
     const totalBonus = (lv * 0.00004) + kamaFixed;
-    highlight = `最終ダメージ：+${(totalBonus * 100).toFixed(4)}% 【死神：+${(kamaFixed * 100).toFixed(4)}%】`; 
+    highlight = `最終ダメ：+${(totalBonus * 100).toFixed(4)}% 【死神：+${(kamaFixed * 100).toFixed(4)}%】`; 
 }
 
 let lvClass = lv >= 10 ? "max" : "";
 let lvText = lv >= 10 ? "Lv.10 (MAX)" : `Lv.${lv}`;
-html += `<div class="vow-item"><div class="vow-header"><span class="vow-name">${s.nameJp}</span><span class="vow-lv ${lvClass}">${lvText}</span></div><span class="vow-highlight">${highlight}</span><span class="vow-sub">${s.desc}</span></div>`;
+html += `<div class="vow-item"><div class="vow-header"><span class="vow-name">${s.nameJp}</span><span class="vow-lv ${lvClass}">${lvText}</span></div><div><span class="vow-highlight">${highlight}</span><span class="vow-sub">${s.desc}</span></div></div>`;
 });
 document.getElementById('vow-list').innerHTML = html;
 }
@@ -652,12 +648,8 @@ function closeClearModal() {
    document.getElementById("clear-modal").style.display = "none";
    isModalOpen = false;
    player.rebalanceSeen = true;
-   if(!player.isCleared) {
-       // クリア報酬としての災厄の残滓付与を削除し、純粋なドロップ品のみにする
-       handleBossDefeat();
-   }
-   saveGame();
-   triggerUIUpdate();
+   if(!player.isCleared) { handleBossDefeat(); }
+   saveGame(); triggerUIUpdate();
 }
 
 function resetData() { if(confirm("全リセットしますか？")) { localStorage.clear(); location.reload(); } }
