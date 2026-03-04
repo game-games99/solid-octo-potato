@@ -638,6 +638,11 @@ for(let i=0; i < count; i++) {
      let cands = RELIC_MASTER.filter(m => m.star === star && m.id !== 0 && m.star < 8 && m.id !== 117);
      if(cands.length === 0) cands = RELIC_MASTER.filter(m => m.star === 1);
      sel = cands[Math.floor(Math.random() * cands.length)];
+    if ((sel.id === 888 || sel.id === 701) && (player.inventory[sel.id] || 0) > 0) {
+        const cands1 = RELIC_MASTER.filter(m => m.star === 1);
+        sel = cands1[Math.floor(Math.random() * cands1.length)];
+        star = 1;
+    }
 
      if(sel.id === 704) {
          if(!player.inventory[704] && player.isCleared) {
