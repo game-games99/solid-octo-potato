@@ -398,11 +398,11 @@ function openSerialModal() { stopAttack(); isModalOpen = true; document.getEleme
 function closeSerialModal() { document.getElementById("serial-modal").style.display = "none"; isModalOpen = false; }
 
 function applySerialCode() {
-   const code = document.getElementById("serial-input-box").value.trim().toUpperCase();
+   const val = document.getElementById("serial-input-box").value.trim();
+   const code = val.toUpperCase();
    const resultMsg = document.getElementById("serial-result-msg");
    const inputArea = document.getElementById("serial-input-area");
    const resultArea = document.getElementById("serial-result-area");
-
    let success = false;
    let message = "";
 
@@ -412,44 +412,40 @@ function applySerialCode() {
                player.inventory[801] = 1;
                player.rebalanceSeen = true;
                success = true;
-               message = `シリアルコード承認。<br><br><span style="color:var(--gold); font-weight:bold;">【特別遺物付与】</span><br><span class="unique-relic-text">秩序のリバランス</span> を獲得しました。<br>理の崩壊を止める力としてお使いください。`;
-           } else {
-               message = "このコードはすでに適用されています。";
-           }
-       } else {
-           message = `<span style="color:#ff4444;">「まだその時ではない……」</span><br><br>このコードは神（アポカリス＝ティア）を討ちし者のみが使用可能です。`;
-       }
+               message = "特別遺物【秩序のリバランス】を獲得。";
+           } else { message = "適用済みです。"; }
+       } else { message = "まだその時ではない。"; }
    } else if (code === "FIX_GENESIS") {
-       // 神の異常ステータスを現在の基本設定値にリセット
        player.bossMaxHP = BOSS_MAX_HP_BASE.toString();
        currentBossHP = BOSS_MAX_HP_BASE;
        success = true;
-       message = `シリアルコード承認：ステータス初期化。<br><br><span style="color:var(--hp); font-weight:bold;">終末神の異常活性を抑制しました。</span><br>神のHPがリバランス後の初期値へ正常化されました。`;
-     } else if (code === "TTT") {
+       message = "ステータスを正常化しました。";
+   } else if (code === "TTT") {
+        // 文字列として定義し、BigIntで確実に変換（カンマ抜き）
         player.baseAtk = BigInt("19000000000000000000000").toString();
         player.baseHp = BigInt("400000000000000000000000").toString();
         player.omegaLevel = 200;
         player.memoryDust = 300000;
-        for (let i = 0; i <= 5; i++) {
-            player.skills[i] = 10;
-        }
+        for (let i = 0; i <= 5; i++) player.skills[i] = 10;
         RELIC_MASTER.forEach(m => {
             if (m.id === 0) return;
             player.inventory[m.id] = (m.id === 888 || m.id === 701) ? 1 : 300000;
         });
         success = true;
-        message = "シリアル承認：【TTT】最強の勇者が再起しました。";
-    } else {
-        message = "無効なシリアルコードです。";
-    }
+        message = "最強の勇者が再起しました。";
+   } else {
+        message = "無効なコードです。";
+   }
 
-    resultMsg.innerHTML = message;
-    inputArea.style.display = "none";
-    resultArea.style.display = "block";
-        if(success) { saveGame(); triggerUIUpdate(); }
+   resultMsg.innerHTML = message;
+   inputArea.style.display = "none";
+   resultArea.style.display = "block";
+   if(success) {
+       saveGame();
+       if(typeof triggerUIUpdate === 'function') triggerUIUpdate();
+   }
 }
 
-function calcFinalDmgMult() {
 
 
 
