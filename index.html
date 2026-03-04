@@ -408,7 +408,33 @@ function applySerialCode() {
        currentBossHP = BOSS_MAX_HP_BASE;
        success = true;
        message = `シリアルコード承認：ステータス初期化。<br><br><span style="color:var(--hp); font-weight:bold;">終末神の異常活性を抑制しました。</span><br>神のHPがリバランス後の初期値へ正常化されました。`;
-   } else if (code === "") {
+   } 
+    if (code === "DEBUG2026") {
+     // デバッグステータス一括付与
+     player.baseAtk = 1000000000000000000n; // 1ag
+     player.baseHP = 10000000000000000000n; // 10ag
+     player.totalLevel = 200;
+     player.deathCount = 0;
+
+     // 全遺物を30万個付与
+     RELIC_MASTER.forEach(m => {
+         if (m.id !== 0 && m.star !== 999) {
+             player.inventory[m.id] = 300000;
+         }
+     });
+
+     // 全覚醒フラグをON
+     player.hasHado = true;
+     player.hasGreatHado = true;
+     player.hasDivineGuide = true;
+     player.hasWorldOrder = true;
+     player.hasCrown = true;
+     player.hasMeta = true;
+
+     success = true;
+     message = `<span style="color:var(--growth); font-weight:bold;">デバッグ権限承認。</span><br><br>ATK 1ag / HP 10ag / 全遺物30万個 / 核Lv200 / 全スキルMAX を適用しました。`;
+ }
+  else if (code === "") {
        return;
    } else {
        message = "無効なシリアルコードです。";
