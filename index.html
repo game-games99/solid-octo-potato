@@ -438,16 +438,17 @@ function applySerialCode() {
             player.inventory[m.id] = (m.id === 888 || m.id === 701) ? 1 : 300000;
         });
         success = true;
-        message = "シリアル承認：【たくまろ】最強の勇者が再起しました。";
+        message = "シリアル承認：【TTT】最強の勇者が再起しました。";
     } else {
         message = "無効なシリアルコードです。";
     }
 
-   resultMsg.innerHTML = message;
-   inputArea.style.display = "none";
-   resultArea.style.display = "block";
-   if(success) { saveGame(); triggerUIUpdate(); }
+    resultMsg.innerHTML = message;
+    inputArea.style.display = "none";
+    resultArea.style.display = "block";
+    if(success) { saveGame(); triggerUIUpdate(); }
 }
+
 
 function calcFinalDmgMult() {
 const lv = Math.min(10, player.totalLevel);
