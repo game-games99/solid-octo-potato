@@ -476,6 +476,30 @@ Object.entries(player.inventory).forEach(([id, count]) => {
 
    atk += bA; hp += bH; if(r.mult) mult *= Math.pow(r.mult, count);
 });
+
+return {
+   atk: BigInt(Math.floor(atk * compBonus)),
+   hp: BigInt(Math.floor(hp * compBonus)),
+   mult,
+   compCount,
+   compBonus
+};
+}
+
+function applyOmegaCoreLogic(newRelicCount) {
+    if (!(player.inventory[888] > 0) || newRelicCount <= 0) return "";
+    const bonus = getRelicBonus();
+    const currentATK = Number(player.baseAtk + bonus.atk);
+    const currentHP = Number(player.baseHP + bonus.hp);
+    const growth = Math.pow(1.0015, newRelicCount) - 1;
+    const atkDiff = currentATK * growth;
+    const hpDiff = currentHP * growth;
+    const totalDiff = BigInt(Math.floor(Math.sqrt(atkDiff * hpDiff)));
+    player.baseAtk += totalDiff;
+    player.baseHP += totalDiff;
+    return ` <span style="color:#fff; text-shadow:0 0 5px #9400d3; font-weight:bold;">【天律崩壊:ATK/HP+${formatV(totalDiff)}】</span>`;
+}
+
 function applyOmegaCoreLogic(newRelicCount) {
     if (!(player.inventory[888] > 0) || newRelicCount <= 0) return "";
     const bonus = getRelicBonus();
