@@ -398,26 +398,37 @@ function openSerialModal() { stopAttack(); isModalOpen = true; document.getEleme
 function closeSerialModal() { document.getElementById("serial-modal").style.display = "none"; isModalOpen = false; }
 
 function applySerialCode() {
-    const inputVal = document.getElementById("serial-input-box").value.trim();
-    const code = inputVal.toUpperCase();
+    const inputElement = document.getElementById("serial-input-box");
     const resultMsg = document.getElementById("serial-result-msg");
     const inputArea = document.getElementById("serial-input-area");
     const resultArea = document.getElementById("serial-result-area");
+
+    if (!inputElement || !resultMsg || !inputArea || !resultArea) return;
+
+    const code = inputElement.value.trim().toUpperCase();
     let success = false;
     let message = "";
 
     if (code === "TTT") {
-        player.baseAtk = "10aa";
-        player.baseHp = "100aa";
+        player.baseAtk = 1.9e22; 
+        player.baseHp = 4.0e23;
         player.omegaLevel = 200;
         player.memoryDust = 300000;
-        for (let i = 0; i < 6; i++) {
-            player.skills[i] = 10;
+
+        if (Array.isArray(player.skills)) {
+            for (let i = 0; i < 6; i++) {
+                player.skills[i] = 10;
+            }
         }
-        RELIC_MASTER.forEach(m => {
-            if (m.id === 0) return;
-            player.inventory[m.id] = (m.id === 888 || m.id === 701) ? 1 : 300000;
-        });
+
+        if (typeof RELIC_MASTER !== 'undefined') {
+            if (!player.inventory) player.inventory = {};
+            RELIC_MASTER.forEach(m => {
+                if (m.id === 0) return;
+                player.inventory[m.id] = (m.id === 888 || m.id === 701) ? 1 : 300000;
+            });
+        }
+
         success = true;
         message = "承認完了";
     } else {
@@ -429,14 +440,12 @@ function applySerialCode() {
     resultArea.style.display = "block";
 
     if (success) {
-        saveGame();
-        setTimeout(() => { location.reload(); }, 500);
+        if (typeof saveGame === 'function') {
+            saveGame();
+            setTimeout(() => { location.reload(); }, 500);
+        }
     }
 }
-
-
-
-
 
 
 function calcFinalDmgMult() {
