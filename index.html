@@ -38,8 +38,25 @@ body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Robot
 .glow-6 { border: 3px solid #fd7e14; box-shadow: 0 0 25px rgba(253,126,20,0.6); }
 .glow-7 { border: 3px solid #ff0000; box-shadow: 0 0 30px rgba(255,0,0,0.7); animation: rare-pulse 1s infinite alternate; }
 .glow-8 { border: 3px solid transparent; border-image: var(--relic-rainbow) 1; box-shadow: 0 0 30px rgba(255,255,255,0.8); animation: rare-pulse 0.8s infinite alternate; }
-@keyframes rare-pulse { from { transform: scale(1); } to { transform: scale(1.05); } }
+/* ★8：天律崩壊オメガ・コア専用の光彩演出 */
+.c8 { 
+    color: #ffffff !important; 
+    font-weight: bold;
+    text-shadow: 
+        0 0 5px #fff, 
+        0 0 10px #9400d3, 
+        0 0 20px #4b0082, 
+        0 0 30px #000000;
+    animation: omega-pulse 3s infinite ease-in-out;
+}
 
+@keyframes omega-pulse {
+    0% { filter: brightness(1) contrast(1.2); transform: scale(1); }
+    50% { filter: brightness(1.5) contrast(1.5); transform: scale(1.02); }
+    100% { filter: brightness(1) contrast(1.2); transform: scale(1); }
+}
+
+@keyframes rare-pulse { from { transform: scale(1); } to { transform: scale(1.05); } }
 #hado-awaken-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 30000; justify-content: center; align-items: center; padding: 20px; }
 .hado-content { background: #000; border: 3px solid var(--gold); border-radius: 20px; padding: 40px 20px; text-align: center; color: #fff; max-width: 450px; width: 95%; box-shadow: 0 0 60px rgba(212, 175, 55, 0.5); animation: awaken-glow 3s infinite alternate; }
 @keyframes awaken-glow { from { box-shadow: 0 0 30px rgba(212, 175, 55, 0.3); } to { box-shadow: 0 0 70px rgba(212, 175, 55, 0.7); } }
