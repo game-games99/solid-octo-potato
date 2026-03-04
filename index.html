@@ -247,8 +247,8 @@ const RELIC_MASTER = [
 {id:601, star:6, name:"絶対統率レリック・オーバーロード", atk:1500000, hp:4500000, desc:"敵HPが自身のATKの100倍以上の時、与ダメージ+8%。"}, {id:602, star:6, name:"魂律解放レリ・クシア", atk:2500000, hp:3500000, desc:"100回攻撃ごとに次の一撃の最終ダメージ+200%。"}, {id:603, star:6, name:"原初核冠レリコア・レガリア", atk:2000000, hp:4000000, desc:"★1〜3遺物のステータス上昇効果を20%増加させる。"}, {id:604, star:6, name:"虚無終焉レリ・ノヴァ", atk:5555555, hp:0, desc:"攻撃時0.1%の確率で与ダメージ+500%。"},
 {id:605, star:6, name:"戦碑累功レリ・エンス", atk:3000000, hp:3000000, desc:"1つにつき獲得経験値+5。"},
 {id:701, star:7, name:"パンドラの箱", atk:155528931, hp:355528931, desc:"神を屠る唯一の条件。災厄の底に希望を宿す。"}, {id:702, star:7, name:"終焉の福音", atk:200000000, hp:450000000, desc:"敵HPが50%以下のとき、与ダメージ+30%。(重複不可)"}, {id:703, star:7, name:"神滅のアカシックレコード", atk:100000000, hp:550000000, desc:"与ダメージの最終倍率にさらに+20%。(重複不可)"},
-{id:704, star:7, name:"災厄の残滓", atk:500000000, hp:500000000, desc:"すべての遺物のステータス上昇値を10倍にする。(効果は重複しない)"},
-{id:801, star:999, name:"秩序のリバランス", atk:0, hp:0, desc:"【超越】低ダメージを敵最大HP割合の絶対ダメージに変換。討伐数に応じて威力が上昇。"}
+{id:704, star:7, name:"災厄の残滓", atk:500000000, hp:500000000, desc:"すべての遺物のステータス上昇値を100倍にする。(効果は重複しない)"},
+{id:801, star:999, name:"秩序のリバランス", atk:0, hp:0, desc:"【救済】低ダメージを敵最大HP割合の絶対ダメージに変換。討伐数に応じて威力が上昇。"}
 ];
 
 function saveGame() { const data = { ...player, baseAtk: player.baseAtk.toString(), baseHP: player.baseHP.toString(), maxDmg: player.maxDmg.toString(), currentBossHP: currentBossHP.toString() }; localStorage.setItem(SAVE_KEY, JSON.stringify(data)); }
@@ -280,7 +280,7 @@ if(!player.storySeen) document.getElementById("story-modal").style.display = "fl
 function showClearStartMsg() {
 isModalOpen = true;
 document.getElementById("clear-modal-title").innerText = "救世主の帰還";
-document.getElementById("clear-modal-msg").innerHTML = `終末神を討ちし者よ、再び世界へようこそ。<br><br>混沌は静まり、災厄のHPは初期状態へリバランスされました。<br><br><span style="color:var(--gold); font-weight:bold;">【特別遺物付与】</span><br><span class="unique-relic-text">秩序のリバランス</span> を魂に刻みました。<br>これより、理外の存在との戦いが始まります。`;
+document.getElementById("clear-modal-msg").innerHTML = `終末神を討ちし者よ、再び世界へようこそ。<br><br>混沌は静まり、災厄はリバランスされました。<br><br><span style="color:var(--gold); font-weight:bold;">【特別遺物付与】</span><br><span class="unique-relic-text">秩序のリバランス</span> を魂に刻みました。<br>これより、理外の存在との戦いが始まります。`;
 document.getElementById("clear-modal").style.display = "flex";
 }
 
@@ -416,11 +416,11 @@ if ((player.inventory[801] || 0) > 0) {
  if (finalDmg < threshold) {
      const scalingMult = Math.log10(player.killCount + 1) + 1.0;
      finalDmg = BigInt(Math.floor(Number(bossMaxHP) * 0.0002 * scalingMult));
-     specialTags += `<span class="c-order">【秩序】</span>`;
+     specialTags += `<span class="c-order">【救済】</span>`;
  }
 }
 
-if (!specialTags.includes("【秩序】")) {
+if (!specialTags.includes("【救済】")) {
 if ((player.inventory[506] || 0) > 0) {
     player.soujinCounter++;
     if (player.soujinCounter >= 150) { finalDmg *= 2n; specialTags += `<span style="color:#00ff00; font-weight:bold;">【双刃】</span>`; player.soujinCounter = 0; }
