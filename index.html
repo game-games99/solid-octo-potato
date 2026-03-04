@@ -815,7 +815,7 @@ document.getElementById("st-maxdmg").textContent = formatV(player.maxDmg);
 document.getElementById("st-dmgmult").textContent = "x" + (calcFinalDmgMult() * b.mult).toFixed(4);
 const rates = getCurrentDropRates(); let maxStar = 1; for(let s in rates) { if(player.maxDmg >= rates[s].cond) maxStar = Math.max(maxStar, parseInt(s)); }
 document.getElementById("st-rank").textContent = `★${maxStar}まで`;
-document.getElementById("st-collection").textContent = `${Object.keys(player.inventory).length}/60`;
+document.getElementById("st-collection").textContent = `${Object.keys(player.inventory).length}/61`;
 document.getElementById("st-comp-count").textContent = b.compCount;
 document.getElementById("st-comp-bonus").textContent = "x" + b.compBonus.toFixed(2);
 document.getElementById("prob-list").innerHTML = Object.entries(rates).map(([s,d])=>`<tr><td class="c${s}">★${s}</td><td style="text-align:right;">${d.p.toFixed(6)}%</td></tr>`).join("");
