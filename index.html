@@ -473,7 +473,7 @@ Object.entries(player.inventory).forEach(([id, count]) => {
 
    if(hasRegalia && r.star <= 3) { bA *= 1.2; bH *= 1.2; }
    if(hasZansai) { bA *= 10; bH *= 10; }
-   atk += bA; hp += bH; if(r.mult) mult *= Math.pow(r.mult, count);
+      atk += bA; hp += bH; if(r.mult) mult *= Math.pow(r.mult, count);
 });
 
 return {
@@ -499,14 +499,6 @@ function applyOmegaCoreLogic(newRelicCount) {
     return ` <span style="color:#fff; text-shadow:0 0 5px #9400d3; font-weight:bold;">【天律崩壊:ATK/HP+${formatV(totalDiff)}】</span>`;
 }
 
-return {
-   atk: BigInt(Math.floor(atk * compBonus)),
-   hp: BigInt(Math.floor(hp * compBonus)),
-   mult,
-   compCount,
-   compBonus
-};
-}
 
 function attack() {
 if(isModalOpen) return;
