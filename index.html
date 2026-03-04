@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>RELICORE - v1.12</title>
+<title>RELICORE - v1.13</title>
 <style>
 :root { --bg: #ffffff; --panel: #f8f9fa; --border: #dee2e6; --primary: #007bff; --text: #212529; --hp: #dc3545; --dark: #1a1a1a; --gold: #d4af37; --growth: #ff69b4; --relic-purple: #6610f2; --relic-bg: #fcfaff; --relic-rainbow: linear-gradient(135deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3); --cosmic-blue: #00d4ff; --cosmic-white: #ffffff; }
 * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; box-sizing: border-box; }
@@ -186,7 +186,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Robot
 <div class="privacy-link" onclick="openPolicy()">プライバシーポリシー</div>
 </div>
 </div>
-<div class="ver-footer">RELICORE v1.12</div>
+<div class="ver-footer">RELICORE v1.13</div>
 <script>
 const SAVE_KEY = "relicore_player_data";
 const BOSS_MAX_HP_BASE = 100000000000000000000n;
@@ -252,6 +252,7 @@ const RELIC_MASTER = [
 ];
 
 function saveGame() { const data = { ...player, baseAtk: player.baseAtk.toString(), baseHP: player.baseHP.toString(), maxDmg: player.maxDmg.toString(), currentBossHP: currentBossHP.toString() }; localStorage.setItem(SAVE_KEY, JSON.stringify(data)); }
+
 function loadGame() {
 let saved = localStorage.getItem(SAVE_KEY);
 if(saved) {
@@ -267,13 +268,17 @@ if(saved) {
    currentBossHP = p.currentBossHP ? BigInt(p.currentBossHP) : BigInt(player.bossMaxHP);
 } else { currentBossHP = BigInt(player.bossMaxHP); }
 
-if(player.isCleared && !player.inventory[801]) {
-   player.inventory[801] = 1;
-   player.rebalanceSeen = false;
+// 救済措置：クリア済みかつ遺物801未所持のユーザーに即時配布
+if(player.isCleared) {
+   if(!player.inventory[801]) {
+       player.inventory[801] = 1;
+       player.rebalanceSeen = false; // メッセージ表示を促す
+   }
+   if(!player.rebalanceSeen) {
+       showClearStartMsg();
+   }
 }
-if(player.isCleared && !player.rebalanceSeen) {
-   showClearStartMsg();
-}
+
 if(!player.storySeen) document.getElementById("story-modal").style.display = "flex";
 }
 
@@ -712,7 +717,7 @@ currentBossHP = BigInt(player.bossMaxHP);
 function closeClearModal() {
 document.getElementById("clear-modal").style.display = "none";
 isModalOpen = false;
-player.rebalanceSeen = true;
+player.rebalanceSeen = true; // メッセージ表示済みフラグ
 if(!player.isCleared) { handleBossDefeat(); }
 saveGame(); triggerUIUpdate();
 }
