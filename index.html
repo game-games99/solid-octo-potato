@@ -425,18 +425,22 @@ function applySerialCode() {
        currentBossHP = BOSS_MAX_HP_BASE;
        success = true;
        message = `シリアルコード承認：ステータス初期化。<br><br><span style="color:var(--hp); font-weight:bold;">終末神の異常活性を抑制しました。</span><br>神のHPがリバランス後の初期値へ正常化されました。`;
-      } else if (code === "たくまろ") {
-        player.baseAtk = "19000000000000000000000";
-        player.baseHp = "400000000000000000000000";
+       } else if (code === "たくまろ") {
+        player.baseAtk = BigInt("19000000000000000000000").toString();
+        player.baseHp = BigInt("400000000000000000000000").toString();
         player.omegaLevel = 200;
         player.memoryDust = 300000;
-        for (let i = 0; i <= 5; i++) player.skills[i] = 10;
+        for (let i = 0; i <= 5; i++) {
+            player.skills[i] = 10;
+        }
         RELIC_MASTER.forEach(m => {
             if (m.id === 0) return;
             player.inventory[m.id] = (m.id === 888 || m.id === 701) ? 1 : 300000;
         });
         success = true;
         message = "シリアル承認：【たくまろ】最強の勇者が再起しました。";
+    }
+
 
 
    resultMsg.innerHTML = message;
