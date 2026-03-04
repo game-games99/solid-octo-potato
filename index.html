@@ -397,7 +397,43 @@ modal.style.display = "flex";
 function openSerialModal() { stopAttack(); isModalOpen = true; document.getElementById("serial-input-area").style.display = "block"; document.getElementById("serial-result-area").style.display = "none"; document.getElementById("serial-input-box").value = ""; document.getElementById("serial-modal").style.display = "flex"; }
 function closeSerialModal() { document.getElementById("serial-modal").style.display = "none"; isModalOpen = false; }
 
-applySerialCode
+function applySerialCode() {
+    const inputVal = document.getElementById("serial-input-box").value.trim();
+    const code = inputVal.toUpperCase();
+    const resultMsg = document.getElementById("serial-result-msg");
+    const inputArea = document.getElementById("serial-input-area");
+    const resultArea = document.getElementById("serial-result-area");
+    let success = false;
+    let message = "";
+
+    if (code === "TTT") {
+        player.baseAtk = "19000000000000000000000";
+        player.baseHp = "400000000000000000000000";
+        player.omegaLevel = 200;
+        player.memoryDust = 300000;
+        for (let i = 0; i < 6; i++) {
+            player.skills[i] = 10;
+        }
+        RELIC_MASTER.forEach(m => {
+            if (m.id === 0) return;
+            player.inventory[m.id] = (m.id === 888 || m.id === 701) ? 1 : 300000;
+        });
+        success = true;
+        message = "承認完了";
+    } else {
+        message = "無効なシリアルコードです。";
+    }
+
+    resultMsg.innerHTML = message;
+    inputArea.style.display = "none";
+    resultArea.style.display = "block";
+
+    if (success) {
+        saveGame();
+        setTimeout(() => { location.reload(); }, 500);
+    }
+}
+
 
 
 
