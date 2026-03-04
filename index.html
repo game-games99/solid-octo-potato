@@ -473,8 +473,7 @@ Object.entries(player.inventory).forEach(([id, count]) => {
 
    if(hasRegalia && r.star <= 3) { bA *= 1.2; bH *= 1.2; }
    if(hasZansai) { bA *= 10; bH *= 10; }
-
-      atk += bA; hp += bH; if(r.mult) mult *= Math.pow(r.mult, count);
+   atk += bA; hp += bH; if(r.mult) mult *= Math.pow(r.mult, count);
 });
 
 return {
