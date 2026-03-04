@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>RELICORE - v1.11</title>
+<title>RELICORE - v1.12</title>
 <style>
 :root { --bg: #ffffff; --panel: #f8f9fa; --border: #dee2e6; --primary: #007bff; --text: #212529; --hp: #dc3545; --dark: #1a1a1a; --gold: #d4af37; --growth: #ff69b4; --relic-purple: #6610f2; --relic-bg: #fcfaff; --relic-rainbow: linear-gradient(135deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3); --cosmic-blue: #00d4ff; --cosmic-white: #ffffff; }
 * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; box-sizing: border-box; }
@@ -61,6 +61,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Robot
 @keyframes heart-beat { 0% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1); opacity: 0.8; } }
 .story-btn { background: none; border: 1px solid gold; color: gold; padding: 12px 40px; font-size: 1em; cursor: pointer; transition: 0.3s; }
 .c1 { color: #888888; font-weight: bold; } .c2 { color: #28a745; font-weight: bold; } .c3 { color: #007bff; font-weight: bold; } .c4 { color: #6610f2; font-weight: bold; } .c5 { color: #e83e8c; font-weight: bold; } .c6 { color: #fd7e14; font-weight: bold; } .c7 { color: #ff0000; font-weight: bold; } .c8 { color: #fff; font-weight: bold; text-shadow: 0 0 5px #fff, 0 0 10px #9400d3; }
+.c-order { color: #ffd700; font-weight: bold; text-shadow: 0 0 5px #000; }
 
 .unique-relic-text { font-weight: bold; background: linear-gradient(to right, #d4af37, #fff, #d4af37); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 5px rgba(212,175,55,0.5); }
 .relic-card.relic-unique { grid-column: span 6; border: 2px solid #d4af37; background: #000; color: #fff; box-shadow: 0 0 15px rgba(212, 175, 55, 0.4); }
@@ -185,7 +186,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Robot
 <div class="privacy-link" onclick="openPolicy()">プライバシーポリシー</div>
 </div>
 </div>
-<div class="ver-footer">RELICORE v1.11</div>
+<div class="ver-footer">RELICORE v1.12</div>
 <script>
 const SAVE_KEY = "relicore_player_data";
 const BOSS_MAX_HP_BASE = 100000000000000000000n;
@@ -266,8 +267,11 @@ if(saved) {
    currentBossHP = p.currentBossHP ? BigInt(p.currentBossHP) : BigInt(player.bossMaxHP);
 } else { currentBossHP = BigInt(player.bossMaxHP); }
 
-if(player.isCleared && !player.rebalanceSeen) {
+if(player.isCleared && !player.inventory[801]) {
    player.inventory[801] = 1;
+   player.rebalanceSeen = false;
+}
+if(player.isCleared && !player.rebalanceSeen) {
    showClearStartMsg();
 }
 if(!player.storySeen) document.getElementById("story-modal").style.display = "flex";
@@ -412,11 +416,11 @@ if ((player.inventory[801] || 0) > 0) {
  if (finalDmg < threshold) {
      const scalingMult = Math.log10(player.killCount + 1) + 1.0;
      finalDmg = BigInt(Math.floor(Number(bossMaxHP) * 0.0002 * scalingMult));
-     specialTags += `<span class="c8">【均衡】</span>`;
+     specialTags += `<span class="c-order">【秩序】</span>`;
  }
 }
 
-if (!specialTags.includes("【均衡】")) {
+if (!specialTags.includes("【秩序】")) {
 if ((player.inventory[506] || 0) > 0) {
     player.soujinCounter++;
     if (player.soujinCounter >= 150) { finalDmg *= 2n; specialTags += `<span style="color:#00ff00; font-weight:bold;">【双刃】</span>`; player.soujinCounter = 0; }
