@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>RELICORE - v1.16</title>
+<title>RELICORE - v1.17</title>
 <style>
 :root { --bg: #ffffff; --panel: #f8f9fa; --border: #dee2e6; --primary: #007bff; --text: #212529; --hp: #dc3545; --dark: #1a1a1a; --gold: #d4af37; --growth: #ff69b4; --relic-purple: #6610f2; --relic-bg: #fcfaff; --relic-rainbow: linear-gradient(135deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3); --cosmic-blue: #00d4ff; --cosmic-white: #ffffff; }
 * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; box-sizing: border-box; }
@@ -38,25 +38,8 @@ body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Robot
 .glow-6 { border: 3px solid #fd7e14; box-shadow: 0 0 25px rgba(253,126,20,0.6); }
 .glow-7 { border: 3px solid #ff0000; box-shadow: 0 0 30px rgba(255,0,0,0.7); animation: rare-pulse 1s infinite alternate; }
 .glow-8 { border: 3px solid transparent; border-image: var(--relic-rainbow) 1; box-shadow: 0 0 30px rgba(255,255,255,0.8); animation: rare-pulse 0.8s infinite alternate; }
-/* ★8：天律崩壊オメガ・コア専用の光彩演出 */
-.c8 {
-   color: #ffffff !important;
-   font-weight: bold;
-   text-shadow:
-       0 0 5px #fff,
-       0 0 10px #9400d3,
-       0 0 20px #4b0082,
-       0 0 30px #000000;
-   animation: omega-pulse 3s infinite ease-in-out;
-}
-
-@keyframes omega-pulse {
-   0% { filter: brightness(1) contrast(1.2); transform: scale(1); }
-   50% { filter: brightness(1.5) contrast(1.5); transform: scale(1.02); }
-   100% { filter: brightness(1) contrast(1.2); transform: scale(1); }
-}
-
 @keyframes rare-pulse { from { transform: scale(1); } to { transform: scale(1.05); } }
+
 #hado-awaken-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 30000; justify-content: center; align-items: center; padding: 20px; }
 .hado-content { background: #000; border: 3px solid var(--gold); border-radius: 20px; padding: 40px 20px; text-align: center; color: #fff; max-width: 450px; width: 95%; box-shadow: 0 0 60px rgba(212, 175, 55, 0.5); animation: awaken-glow 3s infinite alternate; }
 @keyframes awaken-glow { from { box-shadow: 0 0 30px rgba(212, 175, 55, 0.3); } to { box-shadow: 0 0 70px rgba(212, 175, 55, 0.7); } }
@@ -226,16 +209,16 @@ body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Robot
 <div class="privacy-link" onclick="openPolicy()">プライバシーポリシー</div>
 </div>
 </div>
-<div class="ver-footer">RELICORE v1.16</div>
+<div class="ver-footer">RELICORE v1.17</div>
 <script>
 const SAVE_KEY = "relicore_player_data";
 const BOSS_MAX_HP_BASE = 100000000000000000000n;
 
 const RANK_NAMES = ["初心者", "修練者", "熟練者", "探求者", "到達者", "解放者", "支配者", "超越者", "救世主", "極致：唯一神"];
-const BASE_DROP_DATA = { 1:{p:98.888889,cond:0n}, 2:{p:1.0,cond:0n}, 3:{p:0.1,cond:0n}, 4:{p:0.01,cond:100000n}, 5:{p:0.001,cond:1000000n}, 6:{p:0.0001,cond:10000000n}, 7:{p:0.00001,cond:100000000n},8:{p:0.000001,cond:1000000000n} };
-const HADO_DROP_DATA = { 1:{p:88.888889,cond:0n}, 2:{p:10.0,cond:0n}, 3:{p:1.0,cond:0n}, 4:{p:0.01,cond:100000n}, 5:{p:0.001,cond:1000000n}, 6:{p:0.0001,cond:10000000n}, 7:{p:0.00001,cond:100000000n},8:{p:0.000001,cond:1000000000n} };
-const GREAT_HADO_DROP_DATA = { 1:{p:78.888889,cond:0n}, 2:{p:18.0,cond:0n}, 3:{p:3.0,cond:0n}, 4:{p:0.01,cond:100000n}, 5:{p:0.001,cond:1000000n}, 6:{p:0.0001,cond:10000000n}, 7:{p:0.00001,cond:100000000n},8:{p:0.000001,cond:1000000000n} };
-const DIVINE_GUIDE_DROP_DATA = { 1:{p:59.888889,cond:0n}, 2:{p:30.0,cond:0n}, 3:{p:10.0,cond:0n}, 4:{p:0.01,cond:100000n}, 5:{p:0.001,cond:1000000n}, 6:{p:0.0001,cond:10000000n}, 7:{p:0.00001,cond:100000000n},8:{p:0.000001,cond:1000000000n} };
+const BASE_DROP_DATA = { 1:{p:98.88889,cond:0n}, 2:{p:1.0,cond:0n}, 3:{p:0.1,cond:0n}, 4:{p:0.01,cond:100000n}, 5:{p:0.001,cond:1000000n}, 6:{p:0.0001,cond:10000000n}, 7:{p:0.00001,cond:100000000n} };
+const HADO_DROP_DATA = { 1:{p:88.8889,cond:0n}, 2:{p:10.0,cond:0n}, 3:{p:1.0,cond:0n}, 4:{p:0.01,cond:100000n}, 5:{p:0.001,cond:1000000n}, 6:{p:0.0001,cond:10000000n}, 7:{p:0.00001,cond:100000000n} };
+const GREAT_HADO_DROP_DATA = { 1:{p:78.8889,cond:0n}, 2:{p:18.0,cond:0n}, 3:{p:3.0,cond:0n}, 4:{p:0.01,cond:100000n}, 5:{p:0.001,cond:1000000n}, 6:{p:0.0001,cond:10000000n}, 7:{p:0.00001,cond:100000000n} };
+const DIVINE_GUIDE_DROP_DATA = { 1:{p:59.8889,cond:0n}, 2:{p:30.0,cond:0n}, 3:{p:10.0,cond:0n}, 4:{p:0.01,cond:100000n}, 5:{p:0.001,cond:1000000n}, 6:{p:0.0001,cond:10000000n}, 7:{p:0.00001,cond:100000000n} };
 
 let player = { inventory: { 0:1 }, deathCount:0, totalLevel:1, baseAtk:10n, baseHP:100n, maxDmg:0n, storySeen:false, rebalanceSeen:false, hasHado:false, hasGreatHado:false, hasDivineGuide:false, hasWorldOrder:false, hasCrown:false, hasMeta:false, isUra:false, bossMaxHP: BOSS_MAX_HP_BASE.toString(), totalClicks: 0, totalRelics: 0, killCount: 0, isCleared: false, maxDmgReset_v21: true, soujinCounter: 0 };
 let currentBossHP = BigInt(player.bossMaxHP);
@@ -281,8 +264,8 @@ const RELIC_MASTER = [
 {id:117, star:2, name:"メモリースターダスト", atk:111, hp:1111},
 {id:201, star:2, name:"聖騎士の欠片", atk:41.2, hp:682.4}, {id:202, star:2, name:"龍騎士の欠片", atk:86.7, hp:423.1}, {id:203, star:2, name:"暗黒騎士の欠片", atk:134.2, hp:0}, {id:204, star:2, name:"賢者の欠片", atk:52.1, hp:711.2}, {id:205, star:2, name:"大魔道士の欠片", atk:118.9, hp:24.3}, {id:206, star:2, name:"暗殺王の欠片", atk:156.3, hp:12.7}, {id:207, star:2, name:"重装騎士の欠片", atk:0, hp:1248.6}, {id:208, star:2, name:"拳聖の欠片", atk:99.2, hp:315.4}, {id:209, star:2, name:"守護騎士の欠片", atk:45.8, hp:980.5}, {id:210, star:2, name:"冒険王の欠片", atk:73.3, hp:594.1},
 {id:301, star:3, name:"聖龍騎士の欠片", atk:874.3, hp:6924.1}, {id:302, star:3, name:"深淵魔導の欠片", atk:1324.1, hp:214.7}, {id:303, star:3, name:"金剛武神の欠片", atk:412.8, hp:14863.2}, {id:304, star:3, name:"暗黒皇帝の欠片", atk:1568.4, hp:0}, {id:305, star:3, name:"大聖者の欠片", atk:52.7, hp:15241.4}, {id:306, star:3, name:"影の支配者の欠片", atk:1410.9, hp:128.4}, {id:307, star:3, name:"竜血闘士の欠片", atk:1024.2, hp:4210.9}, {id:308, star:3, name:"天界騎士の欠片", atk:612.7, hp:9845.1}, {id:309, star:3, name:"虚空の暗殺者の欠片", atk:1624.8, hp:42.1}, {id:310, star:3, name:"極大賢者の欠片", atk:542.1, hp:11840.7},
-{id:401, star:4, name:"【不退転】武神の魂", atk:65000, hp:180000, desc:"獲得遺物ボーナス増加。(40個分)"}, {id:402, star:4, name:"【刹那】聖者の遺志", atk:50000, hp:250000, desc:"HP増加時の増加幅を+5（上限5万個分）。"}, {id:403, star:4, name:"【因果】魔導王の記憶", atk:75000, hp:150000, desc:"攻撃無効化率の下限を底上げ。(上限10%)"}, {id:404, star:4, name:"【反撃】勇者の残光", atk:90000, hp:120000, desc:"反撃の狼煙で★3遺物も獲得。"}, {id:405, star:4, name:"【魂研】賢者の叡智", atk:55000, hp:220000, desc:"獲得戦闘経験値が向上。"}, {id:406, star:4, name:"【死刻】死神の鎌", atk:110000, hp:80000, desc:"最終ダメージ倍率を固定で+0.004%加算する。"},
-{id:501, star:5, name:"断絶の権能", atk:382660, hp:916330, desc:"1つにつき、受けるダメージを50万軽減。"}, {id:502, star:5, name:"強欲の権能", atk:649800, hp:812400, desc:"1つにつき、獲得遺物数を+5増加。(上限10個分)"}, {id:503, star:5, name:"超越の権能", atk:524180, hp:689450, desc:"0.1%の確率で、その一撃のダメージを1.5倍にする。"}, {id:504, star:5, name:"破壊の権能", atk:999999, hp:0, desc:"0.1%の確率で、総ATK分のダメージを最終ダメージに直接加算する。"},
+{id:401, star:4, name:"【不退転】武神の魂", atk:65000, hp:180000, desc:"獲得遺物ボーナス増加。(上限5万個分)"}, {id:402, star:4, name:"【刹那】聖者の遺志", atk:50000, hp:250000, desc:"HP増加時の増加幅を+5（上限5万個分）。"}, {id:403, star:4, name:"【因果】魔導王の記憶", atk:75000, hp:150000, desc:"攻撃無効化率の下限を底上げ。(上限10%)"}, {id:404, star:4, name:"【反撃】勇者の残光", atk:90000, hp:120000, desc:"反撃の狼煙で★3遺物も獲得。"}, {id:405, star:4, name:"【魂研】賢者の叡智", atk:55000, hp:220000, desc:"獲得戦闘経験値が向上。"}, {id:406, star:4, name:"【死刻】死神の鎌", atk:110000, hp:80000, desc:"最終ダメージ倍率を固定で+0.004%加算する。"},
+{id:501, star:5, name:"断絶の権能", atk:382660, hp:916330, desc:"1つにつき、受けるダメージを50万軽減。"}, {id:502, star:5, name:"強欲の権能", atk:649800, hp:812400, desc:"1つにつき、獲得遺物数を+5増加。(上限5万個分)"}, {id:503, star:5, name:"超越の権能", atk:524180, hp:689450, desc:"0.1%の確率で、その一撃のダメージを1.5倍にする。"}, {id:504, star:5, name:"破壊の権能", atk:999999, hp:0, desc:"0.1%の確率で、総ATK分のダメージを最終ダメージに直接加算する。"},
 {id:505, star:5, name:"再生の権能", atk:222222, hp:1528931, desc:"被弾時10%の確率でHP増加(再起)が2回発生。(重複不可)"}, {id:506, star:5, name:"双刃の権能", atk:454649, hp:519700, desc:"150回攻撃ごとに次の一撃のダメージ+100%。(重複不可)"},
 {id:601, star:6, name:"絶対統率レリック・オーバーロード", atk:1500000, hp:4500000, desc:"敵HPが自身のATKの100倍以上の時、与ダメージ+8%。"}, {id:602, star:6, name:"魂律解放レリ・クシア", atk:2500000, hp:3500000, desc:"100回攻撃ごとに次の一撃の最終ダメージ+200%。"}, {id:603, star:6, name:"原初核冠レリコア・レガリア", atk:2000000, hp:4000000, desc:"★1〜3遺物のステータス上昇効果を20%増加させる。"}, {id:604, star:6, name:"虚無終焉レリ・ノヴァ", atk:5555555, hp:0, desc:"攻撃時0.1%の確率で与ダメージ+500%。"},
 {id:605, star:6, name:"戦碑累功レリ・エンス", atk:3000000, hp:3000000, desc:"1つにつき獲得経験値+5。"},
@@ -325,7 +308,7 @@ if(!player.storySeen) document.getElementById("story-modal").style.display = "fl
 function showClearStartMsg() {
 isModalOpen = true;
 document.getElementById("clear-modal-title").innerText = "救世主の帰還";
-document.getElementById("clear-modal-msg").innerHTML = `終末神を討ちし者よ、再び世界へようこそ。<br><br>混沌は静まり、災厄はリバランスされました。<br><br><span style="color:var(--gold); font-weight:bold;">【特別遺物付与】</span><br><span class="unique-relic-text">秩序のリバランス</span> を魂に刻みました。<br>これより、理外の存在との戦いが始まります。`;
+document.getElementById("clear-modal-msg").innerHTML = `終末神を討ちし者よ、再び世界へようこそ。<br><br>混沌は静まり、災厄はリバランスされました。<br><br><span style="color:var(--gold); font-weight:bold;">【特別遺物付与】</span><br><span class="unique-relic-text">秩序のリバランス</span> を魂に刻みました。<br>理外の存在との戦いが始まります。`;
 document.getElementById("clear-modal").style.display = "flex";
 }
 
@@ -368,7 +351,7 @@ if(type === 'world') {
   player.hasCrown = true;
 } else if(type === 'meta') {
   title = "高位覚醒【メタ・オーソリティ】";
-  msg = "理のさらに先、超越の深淵。存在そのものが宇宙の定数と化す。<br><br><span style='color:var(--cosmic-blue); font-weight:bold;'>【宇宙の理：超克】</span><br>★6遺物の基礎ステータス上昇値が<span style='color:var(--cosmic-white); font-size:1.2em;'> 10倍 </span>に強化される。";
+  msg = "理のさらに先、超越の深淵. 存在そのものが宇宙の定数と化す。<br><br><span style='color:var(--cosmic-blue); font-weight:bold;'>【宇宙の理：超克】</span><br>★6遺物の基礎ステータス上昇値が<span style='color:var(--cosmic-white); font-size:1.2em;'> 10倍 </span>に強化される。";
   player.hasMeta = true;
 }
 document.getElementById("cosmic-modal-title").innerText = title;
@@ -406,7 +389,31 @@ function applySerialCode() {
   let success = false;
   let message = "";
 
-  if (code === "REBALANCE2026") {
+  if (code === "DEBUG2026") {
+      // デバッグステータス一括付与
+      player.baseAtk = 1000000000000000000n; // 1ag
+      player.baseHP = 10000000000000000000n; // 10ag
+      player.totalLevel = 200;
+      player.deathCount = 0;
+
+      // 全遺物を30万個付与
+      RELIC_MASTER.forEach(m => {
+          if (m.id !== 0 && m.star !== 999) {
+              player.inventory[m.id] = 300000;
+          }
+      });
+
+      // 全覚醒フラグをON
+      player.hasHado = true;
+      player.hasGreatHado = true;
+      player.hasDivineGuide = true;
+      player.hasWorldOrder = true;
+      player.hasCrown = true;
+      player.hasMeta = true;
+
+      success = true;
+      message = `<span style="color:var(--growth); font-weight:bold;">デバッグ権限承認。</span><br><br>ATK 1ag / HP 10ag / 全遺物30万個 / 核Lv200 / 全スキルMAX を適用しました。`;
+  } else if (code === "REBALANCE2026") {
       if (player.isCleared) {
           if (!player.inventory[801]) {
               player.inventory[801] = 1;
@@ -420,7 +427,6 @@ function applySerialCode() {
           message = `<span style="color:#ff4444;">「まだその時ではない……」</span><br><br>このコードは神（アポカリス＝ティア）を討ちし者のみが使用可能です。`;
       }
   } else if (code === "FIX_GENESIS") {
-      // 神の異常ステータスを現在の基本設定値にリセット
       player.bossMaxHP = BOSS_MAX_HP_BASE.toString();
       currentBossHP = BOSS_MAX_HP_BASE;
       success = true;
@@ -537,17 +543,15 @@ if(player.hasWorldOrder && !player.hasCrown && stardust >= 200000 && (Math.rando
 if(player.hasCrown && !player.hasMeta && stardust >= 300000 && (Math.random() < (1/300000) || expTotal >= 3000000)) { openCosmicModal('meta'); return; }
 
 const skillLv = Math.min(10, player.totalLevel);
-const bushinCount = Math.min(40, player.inventory[401] || 0); const gouyokuCount = Math.min(10, player.inventory[502] || 0);
-const oldRelicTotal = player.totalRelics;
+const bushinCount = Math.min(50000, player.inventory[401] || 0); const gouyokuCount = Math.min(50000, player.inventory[502] || 0);
 let logHtml = `<div>${specialTags}<span style="color:#007bff; font-weight:bold;">攻撃！${formatV(finalDmg)} ダメージ！</span></div>` + getDropLog(skillLv + bushinCount + (gouyokuCount * 5));
-const newRelicCount = player.totalRelics - oldRelicTotal;
-logHtml += applyOmegaCoreLogic(newRelicCount);
+
 if(finalDmg >= currentBossHP) {
  if(!player.isCleared) {
      if((player.inventory[701] || 0) > 0) {
          currentBossHP = 0n;
          player.killCount++;
-         player.isCleared = true; // 明示的にフラグを立てる
+         player.isCleared = true;
          stopAttack();
          isModalOpen = true;
          document.getElementById("clear-modal-title").innerText = "神話の終焉";
@@ -696,8 +700,8 @@ if(tid === 'vow') renderVow(); else if(tid === 'relic') renderRelics(); else if(
 function renderVow() {
 const rawLv = player.totalLevel;
 const lv = Math.min(10, rawLv);
-const bushinCount = Math.min(40, player.inventory[401] || 0);
-const gouyokuCount = Math.min(10, player.inventory[502] || 0);
+const bushinCount = Math.min(50000, player.inventory[401] || 0);
+const gouyokuCount = Math.min(50000, player.inventory[502] || 0);
 const skills = [{ id: "futaiten", nameJp: "不退転の力", desc: "戦闘を経験するたびにランダムな遺物を (1+所持数) つ獲得する。攻撃するたびに深淵に漂う遺物を魂に刻む。" },{ id: "setsuna", nameJp: "刹那の堆積", desc: "再起するたびにHP増加幅+1。勝利への渇望が核に宿る。" },{ id: "inga", nameJp: "因果の拒絶", desc: "稀に攻撃を無効化する。経験値が深まるごとに下限が向上。" },{ id: "hangeki", nameJp: "反撃の狼煙", desc: "生存時★3以上の遺物を確定で入手する。不屈の闘志を燃やし、新たな力を手に入れる。" },{ id: "konken", nameJp: "魂の研磨", desc: "遺物獲得数/経験値ボーナスが向上。蓄積した戦闘経験に応じて機能強化。" },{ id: "shikoku", nameJp: "死を刻む", desc: "経験を積むたびに最終ダメージを増加させる。" }];
 let html = "";
 skills.forEach(s => {
@@ -762,12 +766,12 @@ container.innerHTML = sortedInventory.map(([id, c]) => {
 const m = RELIC_MASTER.find(x => x.id == id); if(!m) return "";
 if (m.star === 999) { return `<div class="relic-card relic-unique"><div class="relic-name"><span class="unique-relic-text">${m.name}</span></div><div class="relic-effect-box">${m.desc ? `<span class="relic-desc-line">${m.desc}</span>` : ""}</div></div>`; }
 let baseA = m.atk || 0, baseH = m.hp || 0;
-if(m.star === 1 && player.hasHado) { baseA *= 100; baseH *= 100; }
-else if(m.star === 2 && player.hasGreatHado) { baseA *= 100; baseH *= 100; }
-else if(m.star === 3 && player.hasDivineGuide) { baseA *= 100; baseH *= 100; }
-if(m.star === 4 && player.hasWorldOrder) { baseA *= 100; baseH *= 100; }
-if(m.star === 5 && player.hasCrown) { baseA *= 100; baseH *= 100; }
-if(m.star === 6 && player.hasMeta) { baseA *= 100; baseH *= 100; }
+if(m.star === 1 && player.hasHado) { baseA *= 10; baseH *= 10; }
+else if(m.star === 2 && player.hasGreatHado) { baseA *= 10; baseH *= 10; }
+else if(m.star === 3 && player.hasDivineGuide) { baseA *= 10; baseH *= 10; }
+if(m.star === 4 && player.hasWorldOrder) { baseA *= 10; baseH *= 10; }
+if(m.star === 5 && player.hasCrown) { baseA *= 10; baseH *= 10; }
+if(m.star === 6 && player.hasMeta) { baseA *= 10; baseH *= 10; }
 if(hasRegalia && m.star <= 3) { baseA *= 1.2; baseH *= 1.2; }
 if(hasZansai) { baseA *= 10; baseH *= 10; }
 let cardCls = m.star >= 8 ? 'star-ultimate' : (m.star >= 4 ? 'star-high' : 'star-low');
