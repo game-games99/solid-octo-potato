@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>RELICORE - v1.15</title>
+<title>RELICORE - v1.16</title>
 <style>
 :root { --bg: #ffffff; --panel: #f8f9fa; --border: #dee2e6; --primary: #007bff; --text: #212529; --hp: #dc3545; --dark: #1a1a1a; --gold: #d4af37; --growth: #ff69b4; --relic-purple: #6610f2; --relic-bg: #fcfaff; --relic-rainbow: linear-gradient(135deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3); --cosmic-blue: #00d4ff; --cosmic-white: #ffffff; }
 * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; box-sizing: border-box; }
@@ -209,7 +209,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Robot
 <div class="privacy-link" onclick="openPolicy()">プライバシーポリシー</div>
 </div>
 </div>
-<div class="ver-footer">RELICORE v1.15</div>
+<div class="ver-footer">RELICORE v1.16</div>
 <script>
 const SAVE_KEY = "relicore_player_data";
 const BOSS_MAX_HP_BASE = 100000000000000000000n;
@@ -291,7 +291,6 @@ if(saved) {
    currentBossHP = p.currentBossHP ? BigInt(p.currentBossHP) : BigInt(player.bossMaxHP);
 } else { currentBossHP = BigInt(player.bossMaxHP); }
 
-// 救済措置：クリア済みかつ遺物801未所持のユーザーに即時配布
 if(player.isCleared) {
    if(!player.inventory[801]) {
        player.inventory[801] = 1;
@@ -378,7 +377,6 @@ document.getElementById("rare-desc-label").innerHTML = detail + (relic.desc ? `<
 modal.style.display = "flex";
 }
 
-/* Serial Code Functions */
 function openSerialModal() { stopAttack(); isModalOpen = true; document.getElementById("serial-input-area").style.display = "block"; document.getElementById("serial-result-area").style.display = "none"; document.getElementById("serial-input-box").value = ""; document.getElementById("serial-modal").style.display = "flex"; }
 function closeSerialModal() { document.getElementById("serial-modal").style.display = "none"; isModalOpen = false; }
 
@@ -404,6 +402,12 @@ function applySerialCode() {
         } else {
             message = `<span style="color:#ff4444;">「まだその時ではない……」</span><br><br>このコードは神（アポカリス＝ティア）を討ちし者のみが使用可能です。`;
         }
+    } else if (code === "FIX_GENESIS") {
+        // 神の異常ステータスを現在の基本設定値にリセット
+        player.bossMaxHP = BOSS_MAX_HP_BASE.toString();
+        currentBossHP = BOSS_MAX_HP_BASE;
+        success = true;
+        message = `シリアルコード承認：ステータス初期化。<br><br><span style="color:var(--hp); font-weight:bold;">終末神の異常活性を抑制しました。</span><br>神のHPがリバランス後の初期値へ正常化されました。`;
     } else if (code === "") {
         return;
     } else {
@@ -524,6 +528,7 @@ if(finalDmg >= currentBossHP) {
        if((player.inventory[701] || 0) > 0) {
            currentBossHP = 0n;
            player.killCount++;
+           player.isCleared = true; // 明示的にフラグを立てる
            stopAttack();
            isModalOpen = true;
            document.getElementById("clear-modal-title").innerText = "神話の終焉";
@@ -540,7 +545,7 @@ if(finalDmg >= currentBossHP) {
    }
 } else {
    currentBossHP -= finalDmg;
-   if(currentBossHP < 1n && !player.isCleared && !(player.inventory[701] || 0) > 0) {
+   if(currentBossHP < 1n && !player.isCleared) {
        currentBossHP = BigInt(player.bossMaxHP);
        logHtml += `<div><span style="color:#ff0000; font-weight:bold;">終焉の回帰……！ (HP全回復)</span></div>`;
    }
@@ -799,7 +804,6 @@ function closeClearModal() {
 document.getElementById("clear-modal").style.display = "none";
 isModalOpen = false;
 player.rebalanceSeen = true;
-if(!player.isCleared) { handleBossDefeat(); }
 saveGame(); triggerUIUpdate();
 }
 
