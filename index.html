@@ -3,353 +3,401 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>RELICORE - v1.19</title>
+<title>RELICORE - v1.20</title>
 <style>
 :root { --bg: #ffffff; --panel: #f8f9fa; --border: #dee2e6; --primary: #007bff; --text: #212529; --hp: #dc3545; --dark: #1a1a1a; --gold: #d4af37; --growth: #ff69b4; --relic-purple: #6610f2; --relic-bg: #fcfaff; --relic-rainbow: linear-gradient(135deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3); --cosmic-blue: #00d4ff; --cosmic-white: #ffffff; }
 * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; box-sizing: border-box; }
 body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; position: relative; }
 
+/* UI Animations and Effects */
 .rank-display { text-align: center; padding: 10px 15px; border-radius: 12px; margin-bottom: 10px; border: 2px solid #333; transition: all 0.5s ease; background: #000; color: #fff; }
 .rank-lv { font-size: 0.75em; margin-bottom: 4px; font-weight: bold; }
 .rank-title { font-size: 1.25em; font-weight: bold; letter-spacing: 2px; }
 
-.rank-glow-mid { box-shadow: 0 0 15px rgba(102, 16, 242, 0.4); border-color: var(--relic-purple); }
-.rank-glow-high { box-shadow: 0 0 25px rgba(212, 175, 55, 0.6); border-color: var(--gold); animation: rank-pulse 2s infinite alternate; }
-.rank-glow-max { box-shadow: 0 0 40px rgba(255, 255, 255, 0.8); border-color: #fff; background: linear-gradient(135deg, #000 0%, #444 100%); animation: rank-ultra-glow 1.5s infinite alternate; }
+#rank-up-modal, #rare-drop-modal, #hado-awaken-modal, #cosmic-awaken-modal, #story-modal, #clear-modal, #serial-modal { 
+    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 50000; justify-content: center; align-items: center; padding: 20px; 
+}
+#rank-up-modal, #story-modal, #clear-modal, #serial-modal { background: rgba(0,0,0,0.9); }
+#hado-awaken-modal { background: rgba(0,0,0,0.95); }
+#cosmic-awaken-modal { background: radial-gradient(circle, #001a33 0%, #000 100%); }
 
-@keyframes rank-pulse { from { transform: scale(1); } to { transform: scale(1.02); } }
-@keyframes rank-ultra-glow { from { box-shadow: 0 0 20px #fff; } to { box-shadow: 0 0 50px gold, 0 0 20px #fff; } }
+.modal-content, .rank-up-content, .hado-content, .cosmic-content { 
+    background: #000; border: 2px solid var(--gold); border-radius: 20px; padding: 30px 20px; text-align: center; color: #fff; max-width: 450px; width: 95%; box-shadow: 0 0 30px rgba(212,175,55,0.4); 
+}
 
-#rank-up-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 50000; justify-content: center; align-items: center; padding: 20px; }
-.rank-up-content { background: #000; border: 2px solid var(--growth); border-radius: 20px; padding: 40px 20px; text-align: center; color: #fff; max-width: 450px; width: 95%; box-shadow: 0 0 40px rgba(255, 105, 180, 0.4); animation: heartbeat-pulse 2s infinite; }
-@keyframes heartbeat-pulse { 0% { transform: scale(1); box-shadow: 0 0 20px rgba(255,105,180,0.4); } 5% { transform: scale(1.05); box-shadow: 0 0 50px rgba(255,105,180,0.8); } 10% { transform: scale(1); } 15% { transform: scale(1.03); } 20% { transform: scale(1); } 100% { transform: scale(1); } }
-.rank-up-title { color: var(--growth); font-size: 1.6em; font-weight: bold; margin-bottom: 20px; letter-spacing: 4px; }
-.rank-up-msg { font-size: 1.1em; line-height: 1.8; margin-bottom: 30px; color: #fff; }
-.rank-up-sub { font-size: 0.85em; color: #aaa; margin-top: 10px; }
-
-#rare-drop-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 40000; justify-content: center; align-items: center; }
-.rare-card { background: #fff; padding: 30px; border-radius: 15px; width: 85%; max-width: 320px; text-align: center; position: relative; }
-.rare-star { font-size: 1.5em; display: block; margin-bottom: 10px; }
-.rare-name { font-size: 1.4em; font-weight: bold; color: #333; display: block; margin-bottom: 15px; }
-.rare-desc { font-size: 0.9em; color: #666; line-height: 1.5; }
-
-.glow-4 { border: 3px solid #6610f2; box-shadow: 0 0 20px rgba(102,16,242,0.5); }
-.glow-5 { border: 3px solid #e83e8c; box-shadow: 0 0 20px rgba(232,62,140,0.5); }
-.glow-6 { border: 3px solid #fd7e14; box-shadow: 0 0 25px rgba(253,126,20,0.6); }
-.glow-7 { border: 3px solid #ff0000; box-shadow: 0 0 30px rgba(255,0,0,0.7); animation: rare-pulse 1s infinite alternate; }
-.glow-8 { border: 3px solid transparent; border-image: var(--relic-rainbow) 1; box-shadow: 0 0 30px rgba(255,255,255,0.8); animation: rare-pulse 0.8s infinite alternate; }
-@keyframes rare-pulse { from { transform: scale(1); } to { transform: scale(1.05); } }
-
-#hado-awaken-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 30000; justify-content: center; align-items: center; padding: 20px; }
-.hado-content { background: #000; border: 3px solid var(--gold); border-radius: 20px; padding: 40px 20px; text-align: center; color: #fff; max-width: 450px; width: 95%; box-shadow: 0 0 60px rgba(212, 175, 55, 0.5); animation: awaken-glow 3s infinite alternate; }
-@keyframes awaken-glow { from { box-shadow: 0 0 30px rgba(212, 175, 55, 0.3); } to { box-shadow: 0 0 70px rgba(212, 175, 55, 0.7); } }
-.hado-title { color: var(--gold); font-size: 1.8em; font-weight: bold; margin-bottom: 25px; text-shadow: 0 0 15px var(--gold); }
-.hado-msg { font-size: 1.0em; line-height: 2.0; margin-bottom: 35px; color: #eee; text-align: left; background: rgba(255,255,255,0.05); padding: 20px; border-radius: 10px; }
-
-#cosmic-awaken-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, #001a33 0%, #000 100%); z-index: 35000; justify-content: center; align-items: center; padding: 20px; overflow: hidden; }
-.cosmic-content { position: relative; background: rgba(0,0,0,0.8); border: 2px solid var(--cosmic-blue); border-radius: 30px; padding: 40px 20px; text-align: center; color: #fff; max-width: 480px; width: 95%; box-shadow: 0 0 50px rgba(0, 212, 255, 0.6); animation: cosmic-pulse 4s infinite; }
-@keyframes cosmic-pulse { 0% { box-shadow: 0 0 30px rgba(0, 212, 255, 0.4); border-color: #0077ff; } 50% { box-shadow: 0 0 80px rgba(255, 255, 255, 0.8); border-color: #fff; } 100% { box-shadow: 0 0 30px rgba(0, 212, 255, 0.4); border-color: #0077ff; } }
-.cosmic-title { color: var(--cosmic-white); font-size: 2.0em; font-weight: bold; margin-bottom: 25px; text-shadow: 0 0 20px var(--cosmic-blue); letter-spacing: 6px; }
-.cosmic-msg { font-size: 1.1em; line-height: 2.2; margin-bottom: 35px; color: #e0f7ff; }
-.cosmic-btn { background: none; border: 1px solid var(--cosmic-blue); color: var(--cosmic-blue); padding: 12px 50px; font-size: 1.1em; cursor: pointer; transition: 0.5s; border-radius: 50px; }
-.cosmic-btn:hover { background: var(--cosmic-blue); color: #000; box-shadow: 0 0 20px var(--cosmic-blue); }
-
-#story-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 10000; justify-content: center; align-items: center; padding: 20px; }
-.story-content { max-width: 500px; color: #fff; text-align: center; line-height: 2.2; }
-.story-text { margin-bottom: 35px; font-size: 1.05em; text-align: left; letter-spacing: 0.08em; }
-.story-vow { color: gold; font-weight: bold; display: inline-block; animation: heart-beat 1.5s infinite; text-shadow: 0 0 10px rgba(212, 175, 55, 0.8); }
-@keyframes heart-beat { 0% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1); opacity: 0.8; } }
-.story-btn { background: none; border: 1px solid gold; color: gold; padding: 12px 40px; font-size: 1em; cursor: pointer; transition: 0.3s; }
-.c1 { color: #888888; font-weight: bold; } .c2 { color: #28a745; font-weight: bold; } .c3 { color: #007bff; font-weight: bold; } .c4 { color: #6610f2; font-weight: bold; } .c5 { color: #e83e8c; font-weight: bold; } .c6 { color: #fd7e14; font-weight: bold; } .c7 { color: #ff0000; font-weight: bold; } .c8 { color: #fff; font-weight: bold; text-shadow: 0 0 5px #fff, 0 0 10px #9400d3; }
-.c-order { color: #ffd700; font-weight: bold; text-shadow: 0 0 5px #000; }
-
-.unique-relic-text { font-weight: bold; background: linear-gradient(to right, #d4af37, #fff, #d4af37); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 5px rgba(212,175,55,0.5); }
-.relic-card.relic-unique { grid-column: span 6; border: 2px solid #d4af37; background: #000; color: #fff; box-shadow: 0 0 15px rgba(212, 175, 55, 0.4); }
-
+/* Battle Header */
 #header { background: var(--dark); color: #fff; padding: 12px 10px; border-bottom: 2px solid #000; flex-shrink: 0; }
 .boss-area { text-align: center; width: 100%; }
 .boss-name { font-size: 1.0em; font-weight: bold; color: #888; letter-spacing: 2px; margin-bottom: 4px; }
 .hp-bar-container { background: #333; height: 10px; border-radius: 5px; overflow: hidden; margin: 0 auto 8px auto; width: 100%; }
 #hp-bar-fill { height: 100%; background: linear-gradient(90deg, #b02a37, #dc3545); width: 100%; transition: width 0.1s ease-out; }
-.hp-val-display { font-size: 1.45em; font-weight: bold; color: #ff6b6b; font-family: 'Courier New', monospace; word-break: break-all; line-height: 1.2; letter-spacing: -1px; }
+.hp-val-display { font-size: 1.45em; font-weight: bold; color: #ff6b6b; font-family: 'Courier New', monospace; word-break: break-all; }
+
+/* Status Cards */
 .status-box { display: flex; gap: 8px; margin-top: 10px; }
 .stat-card { flex: 1; background: rgba(255,255,255,0.08); padding: 5px 10px; border-radius: 6px; border-left: 3px solid var(--primary); display: flex; flex-direction: column; overflow: hidden; }
 .stat-card.hp-card { border-left-color: var(--hp); }
-.stat-label { font-size: 0.65em; color: #aaa; text-transform: uppercase; margin-bottom: 1px; }
+.stat-label { font-size: 0.65em; color: #aaa; text-transform: uppercase; }
 .stat-val { font-size: 0.95em; font-weight: bold; font-family: monospace; color: #fff; overflow-x: auto; white-space: nowrap; }
+
+/* Navigation */
 .nav { display: flex; background: var(--panel); border-bottom: 1px solid var(--border); flex-shrink: 0; }
 .nav button { flex: 1; padding: 12px 0; border: none; background: none; color: #6c757d; font-weight: bold; font-size: 0.8em; }
 .nav button.active { color: var(--primary); border-bottom: 3px solid var(--primary); background: #fff; }
+
 #content-area { flex-grow: 1; overflow: hidden; background: #fff; }
-.tab { display: none; padding: 10px 10px 150px 10px; height: 100%; width: 100%; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.tab { display: none; padding: 10px 10px 150px 10px; height: 100%; width: 100%; overflow-y: auto; }
 .tab.active { display: block; }
-.btn-attack { width: 100%; padding: 16px; background: var(--primary); color: #fff; font-size: 1.3em; font-weight: bold; border: none; border-radius: 12px; margin-bottom: 10px; box-shadow: 0 4px 0 #0056b3; flex-shrink: 0; touch-action: none; }
-#log { height: 400px; font-size: 0.82em; background: #fafafa; border: 1px solid var(--border); padding: 10px; overflow-y: auto; border-radius: 8px; line-height: 1.4; }
-.log-set { border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 8px; }
 
+/* Buttons */
+.btn-attack { width: 100%; padding: 16px; background: var(--primary); color: #fff; font-size: 1.3em; font-weight: bold; border: none; border-radius: 12px; margin-bottom: 10px; box-shadow: 0 4px 0 #0056b3; cursor: pointer; }
+.story-btn { background: none; border: 1px solid gold; color: gold; padding: 12px 40px; font-size: 1em; cursor: pointer; margin-top: 20px; }
+#log { height: 350px; font-size: 0.82em; background: #fafafa; border: 1px solid var(--border); padding: 10px; overflow-y: auto; border-radius: 8px; }
+
+/* Vows and Relics */
 .vow-list-container { display: grid; grid-template-columns: 1fr; gap: 10px; }
-@media(min-width: 600px) { .vow-list-container { grid-template-columns: 1fr 1fr; } }
-.vow-item { position: relative; background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 10px 10px 10px 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; flex-direction: column; min-height: 100px; }
-.vow-item::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: gold; border-radius: 8px 0 0 8px; }
-.vow-header { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1px solid #f0f0f0; margin-bottom: 6px; padding-bottom: 4px; }
-.vow-name { font-weight: bold; font-size: 0.9em; color: #333; }
-.vow-lv { font-size: 0.75em; font-weight: bold; color: #888; }
-.vow-lv.max { color: var(--gold); text-shadow: 0 0 2px rgba(212,175,55,0.5); }
-.vow-highlight { font-weight: bold; font-size: 0.82em; display: block; line-height: 1.5; color: var(--primary); background: #f0f7ff; padding: 6px; border-radius: 4px; margin-bottom: 6px; word-break: normal; }
-.vow-tag { display: inline-block; white-space: nowrap; margin-right: 4px; }
-.vow-sub { font-size: 0.72em; color: #666; display: block; line-height: 1.4; }
-
-#clear-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; justify-content: center; align-items: center; padding: 20px; }
-.modal-content { background: #000; border: 2px solid var(--gold); border-radius: 20px; padding: 35px 25px; text-align: center; color: #fff; max-width: 450px; width: 95%; box-shadow: 0 0 30px rgba(212,175,55,0.4); }
-.clear-main-msg { font-size: 1.05em; line-height: 1.8; margin: 20px 0; color: #eee; text-align: left; }
+.vow-item { position: relative; background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+.vow-item::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: gold; }
+.vow-name { font-weight: bold; font-size: 0.9em; }
+.vow-highlight { font-weight: bold; color: var(--primary); display: block; margin: 4px 0; font-size: 0.85em; }
 
 .relic-list-container { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
-.relic-card { position: relative; border: 1px solid #e0d5f0; padding: 6px 6px 6px 10px; border-radius: 6px; background: var(--relic-bg); display: flex; flex-direction: column; min-height: 70px; box-shadow: 0 2px 4px rgba(102, 16, 242, 0.05); }
-.relic-card.star-low { grid-column: span 2; }
-.relic-card.star-high { grid-column: span 3; border-width: 2px; background: #fff; }
-.relic-card.star-ultimate { grid-column: span 6; border: 2px solid transparent; border-image: var(--relic-rainbow) 1; background: #fff; box-shadow: 0 0 15px rgba(148,0,211,0.2); }
-.relic-card::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--relic-purple); border-radius: 6px 0 0 6px; }
-.relic-card.star-ultimate::before { background: var(--relic-rainbow); }
-.relic-name { font-weight: bold; font-size: 0.65em; min-height: 2.4em; line-height: 1.2; }
-.relic-effect-box { font-size: 0.6em; color: #444; margin-top: 2px; line-height: 1.3; }
-.relic-desc-line { color: #666; font-style: italic; display: block; margin-top: 4px; border-top: 1px solid #f0f0f0; padding-top: 2px; }
+.relic-card { grid-column: span 3; border: 1px solid #e0d5f0; padding: 8px; border-radius: 6px; background: var(--relic-bg); position: relative; }
+.relic-card.star-rare { grid-column: span 6; border: 2px solid var(--gold); }
+.relic-card.star-ultimate { grid-column: span 6; border: 2px solid transparent; border-image: var(--relic-rainbow) 1; }
 
-.st-box { background: #fff; border: none; border-left: 4px solid #28a745; border-radius: 8px; padding: 8px 10px; margin-bottom: 8px; font-size: 0.82em; line-height: 1.5; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-.clickable-stat { display: inline-block; color: var(--primary); border: 1px solid var(--primary); padding: 2px 8px; border-radius: 12px; font-size: 0.85em; cursor: pointer; text-decoration: none; margin-left: 5px; background: #f0f7ff; }
-.btn-reset { width: 100%; padding: 12px; background: #dc3545; color: #fff; border: none; border-radius: 8px; font-weight: bold; margin-bottom: 10px; }
-.btn-serial { width: 100%; padding: 12px; background: #212529; color: var(--gold); border: 1px solid var(--gold); border-radius: 8px; font-weight: bold; margin-bottom: 10px; cursor: pointer; }
-
-#serial-input-box { background: #1a1a1a; border: 1px solid var(--gold); color: #fff; padding: 10px; width: 100%; text-align: center; font-size: 1.2em; letter-spacing: 2px; margin-bottom: 20px; border-radius: 5px; }
-.ver-footer { position: fixed; bottom: 4px; right: 4px; color: #bbb; font-size: 0.65em; pointer-events: none; z-index: 50; }
+.ver-footer { position: fixed; bottom: 4px; right: 4px; color: #bbb; font-size: 0.65em; z-index: 50; }
 </style>
 </head>
 <body>
-<div id="rank-up-modal"><div class="rank-up-content"><div class="rank-up-title">覚醒</div><div class="rank-up-msg" id="rank-up-msg-text"></div><button class="story-btn" onclick="closeRankUpModal()">高みへ</button></div></div>
-<div id="rare-drop-modal" onclick="closeRareModal()"><div id="rare-card-content" class="rare-card"><span id="rare-star-label" class="rare-star"></span><span id="rare-name-label" class="rare-name"></span><div id="rare-desc-label" class="rare-desc"></div></div></div>
-<div id="hado-awaken-modal"><div class="hado-content"><div class="hado-title" id="hado-modal-title"></div><div class="hado-msg" id="hado-modal-msg"></div><button class="story-btn" onclick="closeHadoModal()">その力を受け入れる</button></div></div>
-<div id="cosmic-awaken-modal"><div class="cosmic-content"><div class="cosmic-title" id="cosmic-modal-title"></div><div class="cosmic-msg" id="cosmic-modal-msg"></div><button class="cosmic-btn" onclick="closeCosmicModal()">宇宙の理を識る</button></div></div>
-<div id="story-modal"><div class="story-content"><div class="story-text"><span class="story-vow">『再起の誓い』</span><span style="color:#d4af37;">が魂を激しく鼓動させる</span><br><br><span style="color:#ff0000; font-weight:bold;">奴を一撃で葬るその日まで、わたしは止まらない。</span></div><button class="story-btn" onclick="closeStory()">魂に刻印する</button></div></div>
-<div id="clear-modal"><div class="modal-content"><h3 id="clear-modal-title" style="color:var(--gold);">神話の終焉</h3><div id="clear-modal-msg" class="clear-main-msg"></div><button class="story-btn" onclick="closeClearModal()">災厄に立ち向かう</button></div></div>
-<div id="serial-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:70000; justify-content:center; align-items:center; padding:20px;"><div class="modal-content" id="serial-modal-content"><h3>シリアルコード</h3><div id="serial-input-area"><input type="text" id="serial-input-box" placeholder="CODE HERE"><div style="display:flex; gap:10px;"><button class="story-btn" style="flex:1;" onclick="applySerialCode()">適用</button><button class="story-btn" style="flex:1; border-color:#666; color:#666;" onclick="closeSerialModal()">戻る</button></div></div><div id="serial-result-area" style="display:none;"><p id="serial-result-msg" class="clear-main-msg"></p><button class="story-btn" onclick="closeSerialModal()">閉じる</button></div></div></div>
 
-<div id="header"><div class="boss-area"><div class="boss-name" id="boss-display-name">終末神アポカリス＝ティア</div><div class="hp-bar-container"><div id="hp-bar-fill"></div></div><div class="hp-val-display" id="bosshp-cur">0</div></div><div class="status-box"><div class="stat-card"><span class="stat-label">ATK</span><div class="stat-val" id="p-atk">0</div></div><div class="stat-card hp-card"><span class="stat-label">HP</span><div class="stat-val" id="p-hp">0</div></div></div></div>
-<div class="nav"><button onclick="showTab('battle')" id="nav-battle" class="active">討伐</button><button onclick="showTab('vow')" id="nav-vow">再起</button><button onclick="showTab('relic')" id="nav-relic">遺物</button><button onclick="showTab('status')" id="nav-status">詳細</button></div>
+<div id="story-modal"><div class="modal-content"><div style="text-align:left; line-height:1.8;">かつて最強だった勇者が世界の人々を救うために自らが盾となり、魔神から呪いを受けて能力を失った。その後死を経験することで再起の誓いが発動し、死ぬたびに新たな力を得て成長していく。</div><button class="story-btn" onclick="closeStory()">魂に刻印する</button></div></div>
+<div id="hado-awaken-modal"><div class="hado-content"><div id="hado-modal-title" style="font-size:1.5em; color:gold; margin-bottom:20px;"></div><div id="hado-modal-msg"></div><button class="story-btn" onclick="closeHadoModal()">その力を受け入れる</button></div></div>
+<div id="cosmic-awaken-modal"><div class="cosmic-content"><div id="cosmic-modal-title" style="font-size:1.5em; color:#fff; text-shadow:0 0 10px cyan; margin-bottom:20px;"></div><div id="cosmic-modal-msg"></div><button class="story-btn" onclick="closeCosmicModal()">宇宙の理を識る</button></div></div>
+<div id="clear-modal"><div class="modal-content"><h2 style="color:gold;">神話の終焉</h2><div id="clear-modal-msg"></div><button class="story-btn" onclick="location.reload()">新たな輪廻へ</button></div></div>
+<div id="serial-modal"><div class="modal-content"><h3>シリアルコード</h3><input type="text" id="serial-input-box" style="width:100%; padding:10px; margin:20px 0; background:#222; color:gold; border:1px solid gold;"><div style="display:flex; gap:10px;"><button class="story-btn" style="flex:1;" onclick="applySerialCode()">適用</button><button class="story-btn" style="flex:1; border-color:#666; color:#666;" onclick="closeSerialModal()">戻る</button></div><div id="serial-result" style="margin-top:20px; color:cyan;"></div></div></div>
+
+<div id="header">
+    <div class="boss-area">
+        <div class="boss-name">終末神アポカリス＝ティア</div>
+        <div class="hp-bar-container"><div id="hp-bar-fill"></div></div>
+        <div class="hp-val-display" id="bosshp-cur">0</div>
+    </div>
+    <div class="status-box">
+        <div class="stat-card"><span class="stat-label">ATK</span><div class="stat-val" id="p-atk">10</div></div>
+        <div class="stat-card hp-card"><span class="stat-label">HP</span><div class="stat-val" id="p-hp">100</div></div>
+    </div>
+</div>
+
+<div class="nav">
+    <button onclick="showTab('battle')" id="nav-battle" class="active">討伐</button>
+    <button onclick="showTab('vow')" id="nav-vow">再起</button>
+    <button onclick="showTab('relic')" id="nav-relic">遺物</button>
+    <button onclick="showTab('status')" id="nav-status">詳細</button>
+</div>
+
 <div id="content-area">
-<div id="battle" class="tab active"><button class="btn-attack" id="attackBtn">こうげき</button><div id="log"></div></div>
-<div id="vow" class="tab"><div id="vow-list" class="vow-list-container"></div></div>
-<div id="relic" class="tab"><div class="relic-list-container" id="relic-list"></div></div>
-<div id="status" class="tab">
-<div class="rank-display" id="st-rank-area"><div class="rank-lv" id="st-rank-lv"></div><div class="rank-title" id="st-rank-title"></div></div>
-<div class="st-box">総攻撃数: <span id="st-totalclicks">0</span><br>経験値: <span id="v-death">0</span><br>累計遺物: <span id="st-totalrelics">0</span><br>最高ダメ: <span id="st-maxdmg">0</span><br>最終倍率: <span id="st-dmgmult">x1.00</span><br>獲得資格: <span id="st-rank" class="clickable-stat" onclick="checkDropEligibility()">★1</span><br>コンプ: <span id="st-comp-count">0</span> (x<span id="st-comp-bonus">1.00</span>)</div>
-<div id="hado-box" class="st-box" style="display:none; border-left-color:gold;"><span id="hado-status-text" style="color:gold; font-weight:bold;"></span><br><span id="hado-status-desc"></span></div>
-<div class="st-box">遺物出現率<table style="width:100%; font-size:0.9em;" id="prob-list"></table></div>
-<button class="btn-serial" onclick="openSerialModal()">シリアルコード入力</button>
-<button class="btn-reset" onclick="resetData()">全データリセット</button>
+    <div id="battle" class="tab active">
+        <button class="btn-attack" id="attackBtn">こうげき</button>
+        <div id="log"></div>
+    </div>
+    <div id="vow" class="tab"><div id="vow-list" class="vow-list-container"></div></div>
+    <div id="relic" class="tab"><div id="relic-list" class="relic-list-container"></div></div>
+    <div id="status" class="tab">
+        <div class="rank-display"><div class="rank-lv" id="st-lv">Lv.1</div><div class="rank-title" id="st-title">初心者</div></div>
+        <div style="background:#f0f0f0; padding:15px; border-radius:8px; line-height:2;">
+            経験値(再起回数): <span id="st-death">0</span><br>
+            累計遺物獲得数: <span id="st-relics">0</span><br>
+            メモリーダスト: <span id="st-dust">0</span><br>
+            メモリースターダスト: <span id="st-sdust">0</span>
+        </div>
+        <button class="story-btn" style="width:100%; border-color:#333; color:#333;" onclick="openSerialModal()">シリアルコード入力</button>
+        <button class="story-btn" style="width:100%; border-color:#dc3545; color:#dc3545;" onclick="resetData()">全リセット</button>
+    </div>
 </div>
-</div>
-<div class="ver-footer">RELICORE v1.19</div>
+
+<div class="ver-footer">RELICORE v1.20</div>
 
 <script>
-const SAVE_KEY = "relicore_v1.19_save";
-const BOSS_MAX_HP_BASE = 100000000000000000000n;
-const RANK_NAMES = ["初心者", "修練者", "熟練者", "探求者", "到達者", "解放者", "支配者", "超越者", "救世主", "極致：唯一神"];
+const SAVE_KEY = "relicore_v1.20_save";
+const BOSS_MAX_HP_BASE = 100000000000000000000n; // 10000京
 
-const BASE_DROP_DATA = { 1:{p:98.888888,cond:0n}, 2:{p:1.0,cond:0n}, 3:{p:0.1,cond:0n}, 4:{p:0.01,cond:100000n}, 5:{p:0.001,cond:1000000n}, 6:{p:0.0001,cond:10000000n}, 7:{p:0.00001,cond:100000000n}, 8:{p:0.000001,cond:100000000n} };
-const HADO_DROP_DATA = { 1:{p:88.888888,cond:0n}, 2:{p:10.0,cond:0n}, 3:{p:1.0,cond:0n}, 4:{p:0.01,cond:100000n}, 5:{p:0.001,cond:1000000n}, 6:{p:0.0001,cond:10000000n}, 7:{p:0.00001,cond:100000000n}, 8:{p:0.000001,cond:100000000n} };
-const GREAT_HADO_DROP_DATA = { 1:{p:78.888888,cond:0n}, 2:{p:15.0,cond:0n}, 3:{p:6.0,cond:0n}, 4:{p:0.01,cond:100000n}, 5:{p:0.001,cond:1000000n}, 6:{p:0.0001,cond:10000000n}, 7:{p:0.00001,cond:100000000n}, 8:{p:0.000001,cond:100000000n} };
-const DIVINE_GUIDE_DROP_DATA = { 1:{p:73.888888,cond:0n}, 2:{p:20.0,cond:0n}, 3:{p:6.0,cond:0n}, 4:{p:0.01,cond:100000n}, 5:{p:0.001,cond:1000000n}, 6:{p:0.0001,cond:10000000n}, 7:{p:0.00001,cond:100000000n}, 8:{p:0.000001,cond:100000000n} };
+let player = {
+    inventory: { 0:1 },
+    deathCount: 0,
+    totalLevel: 1,
+    baseAtk: 10n,
+    baseHP: 100n,
+    totalRelics: 0,
+    storySeen: false,
+    hasHado: false,
+    hasGreatHado: false,
+    hasDivineGuide: false,
+    hasWorldOrder: false,
+    hasCrown: false,
+    hasMeta: false,
+    isCleared: false,
+    extraAtkBonus: "0",
+    extraHpBonus: "0",
+    lastProcessedRelicCount: 0,
+    bossMaxHP: BOSS_MAX_HP_BASE.toString()
+};
 
-let player = { inventory: { 0:1 }, deathCount:0, totalLevel:1, baseAtk:10n, baseHP:100n, maxDmg:0n, storySeen:false, hasHado:false, hasGreatHado:false, hasDivineGuide:false, hasWorldOrder:false, hasCrown:false, hasMeta:false, bossMaxHP: BOSS_MAX_HP_BASE.toString(), totalClicks: 0, totalRelics: 0, killCount: 0, isCleared: false, lastProcessedRelicCount: 0, extraAtkBonus: "0", extraHpBonus: "0", soujinCounter: 0 };
 let currentBossHP = BigInt(player.bossMaxHP);
 let attackInterval = null;
-let isModalOpen = false;
-let needsUIUpdate = false;
-let kushiaCounter = 0;
+
+const RELIC_MASTER = [
+    {id:101, star:1, name:"剣士の欠片", atk:7.4, hp:0},
+    {id:102, star:1, name:"冒険者の靴", atk:0, hp:32.1},
+    {id:106, star:1, name:"衛兵の欠片", atk:0, hp:45.2},
+    {id:116, star:1, name:"メモリーダスト", atk:1.3, hp:10.9},
+    {id:117, star:2, name:"メモリースターダスト", atk:111, hp:1111},
+    {id:201, star:2, name:"聖騎士の欠片", atk:41.2, hp:682.4},
+    {id:301, star:3, name:"聖龍騎士の欠片", atk:874.3, hp:6924.1},
+    {id:401, star:4, name:"【不退転】武神の魂", atk:65000, hp:180000},
+    {id:501, star:5, name:"断絶の権能", atk:382660, hp:916330},
+    {id:601, star:6, name:"絶対統率レリック", atk:1500000, hp:4500000},
+    {id:701, star:7, name:"パンドラの箱", atk:155528931, hp:355528931},
+    {id:801, star:999, name:"秩序のリバランス", atk:0, hp:0},
+    {id:901, star:8, name:"天律崩壊オメガ・コア", atk:0, hp:0}
+];
+
+const VOW_MASTER = [
+    {id:1, name:"不退転の力", desc:"再起するたびに攻撃力増加幅+1。絶望を糧に刃を研ぐ。"},
+    {id:2, name:"刹那の堆積", desc:"再起するたびにHP増加幅+1。勝利への渇望が核に宿る。"},
+    {id:3, name:"因果の拒絶", desc:"受けた呪いを力に変える。再起回数に応じて全能力が底上げされる。"},
+    {id:4, name:"反撃の狼煙", desc:"死は終わりではない。再起の誓いが攻撃の威力を増幅させる。"},
+    {id:5, name:"魂の研磨", desc:"繰り返される死の中で、魂の純度が高まり遺物の共鳴を引き出す。"},
+    {id:6, name:"死を刻む", desc:"死の記憶を力に変え、一撃の重みを極限まで高める。"}
+];
 
 function formatV(val) {
     let n = BigInt(val);
-    if (n < 1000000000000000n) return n.toLocaleString();
-    const units = ["aa", "ab", "ac", "ad", "ae", "af", "ag", "ah", "ai", "aj"];
-    let unitIdx = -1; let base = n / 1000000000000n;
-    while (base >= 1000n && unitIdx < units.length - 1) { base /= 1000n; unitIdx++; }
-    return base.toString() + (unitIdx === -1 ? "" : units[unitIdx]);
+    if (n < 10000n) return n.toString();
+    const units = ["万", "億", "兆", "京", "垓"];
+    let unitIdx = -1;
+    let base = n;
+    while (base >= 10000n && unitIdx < units.length - 1) {
+        base /= 10000n;
+        unitIdx++;
+    }
+    return base.toString() + units[unitIdx];
 }
 
-const RELIC_MASTER = [
-    {id:0, star:999, name:"再起の誓い", atk:0, hp:0, desc:"不屈の魂に刻まれた、再誕の原点。"},
-    {id:101, star:1, name:"剣士の欠片", atk:7.4, hp:0}, {id:106, star:1, name:"衛兵の欠片", atk:0, hp:45.2}, {id:116, star:1, name:"メモリーダスト", atk:1.3, hp:10.9},
-    {id:117, star:2, name:"メモリースターダスト", atk:111, hp:1111},
-    {id:201, star:2, name:"聖騎士の欠片", atk:41.2, hp:682.4}, {id:301, star:3, name:"聖龍騎士の欠片", atk:874.3, hp:6924.1},
-    {id:401, star:4, name:"【不退転】武神の魂", atk:65000, hp:180000, desc:"獲得遺物ボーナス増加。"},
-    {id:501, star:5, name:"断絶の権能", atk:382660, hp:916330, desc:"受けるダメージを軽減。"},
-    {id:601, star:6, name:"絶対統率レリック・オーバーロード", atk:1500000, hp:4500000, desc:"条件付き与ダメ増加。"},
-    {id:701, star:7, name:"パンドラの箱", atk:155528931, hp:355528931, desc:"神を屠る唯一の条件。"},
-    {id:801, star:999, name:"秩序のリバランス", atk:0, hp:0, desc:"【救済】絶対ダメージ変換。"},
-    {id:901, star:8, name:"天律崩壊オメガ・コア", atk:0, hp:0, desc:"遺物獲得ごとに永続成長。"}
-];
-
 function saveGame() {
-    const data = { ...player, baseAtk: player.baseAtk.toString(), baseHP: player.baseHP.toString(), maxDmg: player.maxDmg.toString(), currentBossHP: currentBossHP.toString(), extraAtkBonus: player.extraAtkBonus, extraHpBonus: player.extraHpBonus };
+    const data = { ...player, baseAtk: player.baseAtk.toString(), baseHP: player.baseHP.toString(), bossMaxHP: player.bossMaxHP.toString() };
     localStorage.setItem(SAVE_KEY, JSON.stringify(data));
 }
 
 function loadGame() {
     let saved = localStorage.getItem(SAVE_KEY);
     if(saved) {
-        const p = JSON.parse(saved); Object.assign(player, p);
-        player.baseAtk = BigInt(p.baseAtk); player.baseHP = BigInt(p.baseHP); player.maxDmg = BigInt(p.maxDmg);
-        currentBossHP = BigInt(p.currentBossHP || player.bossMaxHP);
+        const p = JSON.parse(saved);
+        Object.assign(player, p);
+        player.baseAtk = BigInt(p.baseAtk);
+        player.baseHP = BigInt(p.baseHP);
+        currentBossHP = BigInt(player.bossMaxHP);
     }
     if(!player.storySeen) document.getElementById("story-modal").style.display = "flex";
+    refreshUI();
 }
 
-function applySerialCode() {
-    const code = document.getElementById("serial-input-box").value.trim().toUpperCase();
-    const resultMsg = document.getElementById("serial-result-msg");
-    const inputArea = document.getElementById("serial-input-area");
-    const resultArea = document.getElementById("serial-result-area");
-    let success = false; let message = "";
-
-    if (code === "DEBUG_EVOLUTION") {
-        player.hasHado = player.hasGreatHado = player.hasDivineGuide = false;
-        player.hasWorldOrder = player.hasCrown = player.hasMeta = false;
-        player.inventory[116] = 999999;
-        player.inventory[117] = 999999;
-        player.totalLevel = 1000;
-        player.inventory[901] = (player.inventory[901] || 0) + 1;
-        success = true;
-        message = `<span style="color:#00d4ff;">進化検証モード有効化</span><br>攻撃して覚醒を発生させてください。`;
-    } else if (code === "RESET_ALL") {
-        resetData(); return;
-    } else {
-        message = "無効なコードです。";
-    }
-    resultMsg.innerHTML = message; inputArea.style.display = "none"; resultArea.style.display = "block";
-    if(success) { saveGame(); triggerUIUpdate(); }
-}
-
-function getRelicBonus() {
-    let atk = 0, hp = 0, mult = 1.0;
-    const hasOmega = (player.inventory[901] || 0) > 0;
+function getRelicStats() {
+    let atk = 0, hp = 0;
     
-    if (hasOmega) {
+    // ★8オメガ・コアの成長処理
+    if ((player.inventory[901] || 0) > 0) {
         const diff = player.totalRelics - player.lastProcessedRelicCount;
         if (diff > 0) {
-            const boost = Math.sqrt(Number(player.baseAtk) * Number(player.baseHP)) * 0.000001 * diff;
-            player.extraAtkBonus = (BigInt(player.extraAtkBonus || "0") + BigInt(Math.floor(boost))).toString();
-            player.extraHpBonus = (BigInt(player.extraHpBonus || "0") + BigInt(Math.floor(boost * 2))).toString();
+            let growth = BigInt(diff) * (player.baseAtk / 1000n + 1n);
+            player.extraAtkBonus = (BigInt(player.extraAtkBonus) + growth).toString();
+            player.extraHpBonus = (BigInt(player.extraHpBonus) + growth * 2n).toString();
             player.lastProcessedRelicCount = player.totalRelics;
         }
     }
 
-    let compCount = 0;
-    for (let s = 1; s <= 7; s++) {
-        const allOfType = RELIC_MASTER.filter(m => m.star === s && m.id !== 117 && m.id !== 0);
-        if (allOfType.length > 0 && allOfType.every(m => (player.inventory[m.id] || 0) > 0)) compCount++;
-    }
-    const compBonus = Math.pow(2.0, compCount);
-
     Object.entries(player.inventory).forEach(([id, count]) => {
-        const r = RELIC_MASTER.find(m => m.id == id); if(!r || r.star >= 8 && r.star !== 999) return;
-        let bA = (r.atk || 0) * count, bH = (r.hp || 0) * count;
-        if(r.star === 1 && player.hasHado) { bA *= 100; bH *= 100; }
-        if(r.star === 2 && player.hasGreatHado) { bA *= 100; bH *= 100; }
-        if(r.star === 3 && player.hasDivineGuide) { bA *= 100; bH *= 100; }
-        if(r.star === 4 && player.hasWorldOrder) { bA *= 10; bH *= 10; }
-        if(r.star === 5 && player.hasCrown) { bA *= 10; bH *= 10; }
-        if(r.star === 6 && player.hasMeta) { bA *= 10; bH *= 10; }
+        const m = RELIC_MASTER.find(r => r.id == id);
+        if(!m) return;
+        let bA = m.atk * count, bH = m.hp * count;
+        
+        // 覚醒倍率の適用
+        if(m.star === 1 && player.hasHado) { bA *= 100; bH *= 100; }
+        if(m.star === 2 && player.hasGreatHado) { bA *= 100; bH *= 100; }
+        if(m.star === 3 && player.hasDivineGuide) { bA *= 100; bH *= 100; }
+        if(m.star === 4 && player.hasWorldOrder) { bA *= 10; bH *= 10; }
+        if(m.star === 5 && player.hasCrown) { bA *= 10; bH *= 10; }
+        if(m.star === 6 && player.hasMeta) { bA *= 10; bH *= 10; }
+        
         atk += bA; hp += bH;
     });
 
-    return { atk: BigInt(Math.floor(atk * compBonus)) + BigInt(player.extraAtkBonus), hp: BigInt(Math.floor(hp * compBonus)) + BigInt(player.extraHpBonus), mult, compCount, compBonus };
+    return { atk: BigInt(Math.floor(atk)) + BigInt(player.extraAtkBonus), hp: BigInt(Math.floor(hp)) + BigInt(player.extraHpBonus) };
 }
 
 function attack() {
-    if(isModalOpen) return;
-    player.totalClicks++;
-    const bonus = getRelicBonus();
-    const totalAtkVal = BigInt(Math.floor(Number(player.baseAtk + bonus.atk) * bonus.mult));
-    let finalDmg = BigInt(Math.floor(Number(totalAtkVal) * (0.8 + Math.random() * 0.4)));
+    const stats = getRelicStats();
+    const totalAtk = player.baseAtk + stats.atk;
+    let damage = totalAtk;
+    
+    // 神の撃破判定ギミック
+    if (damage >= currentBossHP) {
+        if ((player.inventory[701] || 0) > 0) {
+            currentBossHP = 0n;
+            showClearModal();
+            stopAttack();
+        } else {
+            addLog("<span style='color:red;'>神の加護がダメージを無効化した！(★7遺物が必要)</span>");
+            currentBossHP = BigInt(player.bossMaxHP);
+        }
+    } else {
+        currentBossHP -= damage;
+    }
 
     // 覚醒チェック
-    const dust = player.inventory[116] || 0; const stardust = player.inventory[117] || 0;
-    if(!player.hasHado && dust >= 100000) { openHadoModal('hado'); return; }
-    if(player.hasHado && !player.hasGreatHado && dust >= 200000) { openHadoModal('great'); return; }
-    if(player.hasGreatHado && !player.hasDivineGuide && dust >= 300000) { openHadoModal('divine'); return; }
-    if(player.hasDivineGuide && !player.hasWorldOrder && stardust >= 100000) { openCosmicModal('world'); return; }
-    if(player.hasWorldOrder && !player.hasCrown && stardust >= 200000) { openCosmicModal('crown'); return; }
-    if(player.hasCrown && !player.hasMeta && stardust >= 300000) { openCosmicModal('meta'); return; }
+    const dust = player.inventory[116] || 0;
+    const sdust = player.inventory[117] || 0;
+    if(!player.hasHado && dust >= 100000) openHado('hado');
+    else if(player.hasHado && !player.hasGreatHado && dust >= 200000) openHado('great');
+    else if(player.hasGreatHado && !player.hasDivineGuide && dust >= 300000) openHado('divine');
+    else if(player.hasDivineGuide && !player.hasWorldOrder && sdust >= 100000) openCosmic('world');
+    else if(player.hasWorldOrder && !player.hasCrown && sdust >= 200000) openCosmic('crown');
+    else if(player.hasCrown && !player.hasMeta && sdust >= 300000) openCosmic('meta');
 
-    if(finalDmg >= currentBossHP) {
-        if(!player.isCleared && (player.inventory[701] || 0) > 0) { player.isCleared = true; showClearModal(); }
-        else { currentBossHP = BigInt(player.bossMaxHP); }
-    } else { currentBossHP -= finalDmg; }
-
-    player.baseHP += BigInt(player.totalLevel); // 簡易再起
-    addLog(`<span style="color:#007bff;">${formatV(finalDmg)} ダメージ！</span>`);
-    saveGame(); triggerUIUpdate();
+    // 遺物ドロップ
+    rollDrop();
+    
+    // 再起による成長（攻撃のたびに僅かに加算）
+    player.baseAtk += BigInt(player.deathCount + 1);
+    addLog(`敵に ${formatV(damage)} のダメージ！再起の誓いによって新たなる力を得た`);
+    
+    refreshUI();
 }
 
-function openHadoModal(type) {
-    stopAttack(); isModalOpen = true;
-    let t = "", m = "";
-    if(type==='hado'){ t="破軍の号令"; m="★1遺物の上昇値が100倍に。"; player.hasHado=true; }
-    else if(type==='great'){ t="破軍の大号令"; m="★2遺物の上昇値が100倍に。"; player.hasGreatHado=true; }
-    else if(type==='divine'){ t="天帝の導き"; m="★3遺物の上昇値が100倍に。"; player.hasDivineGuide=true; }
-    document.getElementById("hado-modal-title").innerText = t;
-    document.getElementById("hado-modal-msg").innerHTML = m;
-    document.getElementById("hado-awaken-modal").style.display = "flex";
-}
-function openCosmicModal(type) {
-    stopAttack(); isModalOpen = true;
-    let t = "", m = "";
-    if(type==='world'){ t="ワールドオーダー"; m="★4遺物の上昇値が10倍に。"; player.hasWorldOrder=true; }
-    else if(type==='crown'){ t="クラウン・オブ・オーソリティ"; m="★5遺物の上昇値が10倍に。"; player.hasCrown=true; }
-    else if(type==='meta'){ t="メタ・オーソリティ"; m="★6遺物の上昇値が10倍に。"; player.hasMeta=true; }
-    document.getElementById("cosmic-modal-title").innerText = t;
-    document.getElementById("cosmic-modal-msg").innerHTML = m;
-    document.getElementById("cosmic-awaken-modal").style.display = "flex";
+function rollDrop() {
+    player.totalRelics++;
+    const roll = Math.random() * 100;
+    let star = 1;
+    if (roll < 0.0001) star = 7;
+    else if (roll < 0.001) star = 6;
+    else if (roll < 0.01) star = 5;
+    else if (roll < 0.1) star = 4;
+    else if (roll < 1.0) star = 3;
+    else if (roll < 10.0) star = 2;
+
+    const pool = RELIC_MASTER.filter(r => r.star === star);
+    const item = pool[Math.floor(Math.random() * pool.length)];
+    player.inventory[item.id] = (player.inventory[item.id] || 0) + 1;
 }
 
-function triggerUIUpdate() { if(!needsUIUpdate){ needsUIUpdate=true; requestAnimationFrame(refreshUI); } }
 function refreshUI() {
-    const b = getRelicBonus(); const lv = player.totalLevel;
-    document.getElementById("p-atk").textContent = formatV(player.baseAtk + b.atk);
-    document.getElementById("p-hp").textContent = formatV(player.baseHP + b.hp);
+    const stats = getRelicStats();
+    document.getElementById("p-atk").textContent = formatV(player.baseAtk + stats.atk);
+    document.getElementById("p-hp").textContent = formatV(player.baseHP + stats.hp);
     document.getElementById("bosshp-cur").textContent = formatV(currentBossHP);
     document.getElementById("hp-bar-fill").style.width = `${Number(currentBossHP * 100n / BigInt(player.bossMaxHP))}%`;
-    document.getElementById("st-rank-lv").textContent = `Lv.${lv}`;
-    document.getElementById("st-rank-title").textContent = RANK_NAMES[Math.min(9, Math.floor(lv/100))];
-    needsUIUpdate = false;
+    document.getElementById("st-lv").textContent = `Lv.${player.totalLevel}`;
+    document.getElementById("st-death").textContent = player.deathCount;
+    document.getElementById("st-relics").textContent = player.totalRelics;
+    document.getElementById("st-dust").textContent = player.inventory[116] || 0;
+    document.getElementById("st-sdust").textContent = player.inventory[117] || 0;
+    
+    renderVows();
     renderRelics();
 }
 
+function renderVows() {
+    const list = document.getElementById("vow-list");
+    list.innerHTML = VOW_MASTER.map(v => `
+        <div class="vow-item">
+            <div class="vow-name">${v.name}</div>
+            <div class="vow-highlight">常時発動中</div>
+            <div style="font-size:0.7em; color:#666;">${v.desc}</div>
+        </div>
+    `).join("");
+}
+
 function renderRelics() {
-    const container = document.getElementById("relic-list");
-    container.innerHTML = Object.entries(player.inventory).map(([id, c]) => {
-        const m = RELIC_MASTER.find(x => x.id == id); if(!m || c<=0) return "";
-        let bA = m.atk * c, bH = m.hp * c;
-        if(m.star === 1 && player.hasHado) bA *= 100;
-        if(id == 901) { bA = BigInt(player.extraAtkBonus); bH = BigInt(player.extraHpBonus); }
-        return `<div class="relic-card"><div class="relic-name">★${m.star} ${m.name}×${c}</div><div class="relic-effect-box">ATK+${formatV(bA)}</div></div>`;
+    const list = document.getElementById("relic-list");
+    list.innerHTML = Object.entries(player.inventory).map(([id, count]) => {
+        const m = RELIC_MASTER.find(r => r.id == id);
+        if(!m || count <= 0) return "";
+        let starClass = m.star >= 7 ? "star-ultimate" : (m.star >= 4 ? "star-rare" : "");
+        return `<div class="relic-card ${starClass}"><div style="font-size:0.7em; font-weight:bold;">★${m.star} ${m.name}</div><div style="font-size:0.6em;">所持: ${count}</div></div>`;
     }).join("");
 }
 
-function showTab(id) { document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active")); document.getElementById(id).classList.add("active"); }
-function addLog(h) { const l=document.getElementById("log"); l.innerHTML = `<div>${h}</div>` + l.innerHTML; }
+function openHado(type) {
+    stopAttack();
+    let t = "", m = "";
+    if(type==='hado'){ t="破軍の号令"; m="メモリーダストが共鳴し、★1遺物の効果が100倍になった。"; player.hasHado=true; }
+    if(type==='great'){ t="破軍の大号令"; m="★2遺物の効果が100倍になり、高レアリティのドロップ率が上昇した。"; player.hasGreatHado=true; }
+    if(type==='divine'){ t="天帝の導き"; m="★3遺物の効果が100倍になり、神への道が開かれた。"; player.hasDivineGuide=true; }
+    document.getElementById("hado-modal-title").innerText = t;
+    document.getElementById("hado-modal-msg").innerText = m;
+    document.getElementById("hado-awaken-modal").style.display = "flex";
+}
+
+function openCosmic(type) {
+    stopAttack();
+    let t = "", m = "";
+    if(type==='world'){ t="ワールドオーダー"; m="★4遺物の効果が10倍になり、世界の理が書き換えられた。"; player.hasWorldOrder=true; }
+    if(type==='crown'){ t="クラウン・オブ・オーソリティ"; m="★5遺物の効果が10倍になった。"; player.hasCrown=true; }
+    if(type==='meta'){ t="メタ・オーソリティ"; m="★6遺物の効果が10倍になり、概念を超越した。"; player.hasMeta=true; }
+    document.getElementById("cosmic-modal-title").innerText = t;
+    document.getElementById("cosmic-modal-msg").innerText = m;
+    document.getElementById("cosmic-awaken-modal").style.display = "flex";
+}
+
+function applySerialCode() {
+    const code = document.getElementById("serial-input-box").value.trim().toUpperCase();
+    const res = document.getElementById("serial-result");
+    if (code === "DEBUG_EVOLUTION") {
+        player.inventory[116] = 999999;
+        player.inventory[117] = 999999;
+        player.inventory[901] = 1; // オメガコア
+        player.hasHado = player.hasGreatHado = player.hasDivineGuide = false;
+        player.hasWorldOrder = player.hasCrown = player.hasMeta = false;
+        res.innerText = "進化検証モード：リソースを最大化しました。攻撃して覚醒させてください。";
+    } else {
+        res.innerText = "無効なコードです。";
+    }
+    saveGame(); refreshUI();
+}
+
+function showClearModal() {
+    document.getElementById("clear-modal-msg").innerText = "あなたはついに終末神を討ち果たし、世界を呪いから解放した。再起の誓いはここに果たされた。";
+    document.getElementById("clear-modal").style.display = "flex";
+}
+
+function addLog(msg) {
+    const log = document.getElementById("log");
+    log.innerHTML = `<div>${msg}</div>` + log.innerHTML;
+    if(log.childNodes.length > 50) log.removeChild(log.lastChild);
+}
+
+function showTab(id) {
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+    document.querySelectorAll(".nav button").forEach(b => b.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+    document.getElementById("nav-" + id).classList.add("active");
+}
+
 function stopAttack() { clearInterval(attackInterval); attackInterval = null; }
-function closeHadoModal() { document.getElementById("hado-awaken-modal").style.display="none"; isModalOpen=false; saveGame(); }
-function closeCosmicModal() { document.getElementById("cosmic-awaken-modal").style.display="none"; isModalOpen=false; saveGame(); }
+function closeHadoModal() { document.getElementById("hado-awaken-modal").style.display="none"; }
+function closeCosmicModal() { document.getElementById("cosmic-awaken-modal").style.display="none"; }
 function closeStory() { document.getElementById("story-modal").style.display="none"; player.storySeen=true; saveGame(); }
-function openSerialModal() { stopAttack(); isModalOpen=true; document.getElementById("serial-modal").style.display="flex"; }
-function closeSerialModal() { document.getElementById("serial-modal").style.display="none"; isModalOpen=false; }
+function openSerialModal() { document.getElementById("serial-modal").style.display="flex"; }
+function closeSerialModal() { document.getElementById("serial-modal").style.display="none"; document.getElementById("serial-result").innerText=""; }
 function resetData() { localStorage.clear(); location.reload(); }
 
 const btn = document.getElementById("attackBtn");
-btn.addEventListener("pointerdown", () => { if(!isModalOpen) attackInterval = setInterval(attack, 150); });
-window.addEventListener("pointerup", stopAttack);
+btn.addEventListener("mousedown", () => { attackInterval = setInterval(attack, 150); });
+btn.addEventListener("touchstart", (e) => { e.preventDefault(); attackInterval = setInterval(attack, 150); });
+window.addEventListener("mouseup", stopAttack);
+window.addEventListener("touchend", stopAttack);
 
-loadGame(); triggerUIUpdate();
+loadGame();
 </script>
 </body>
 </html>
