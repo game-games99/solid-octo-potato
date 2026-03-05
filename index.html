@@ -2,162 +2,81 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>RELICORE v1.25</title>
 <style>
-body { background: #000; color: #fff; font-family: monospace; margin: 0; padding: 20px; }
-#game-log { height: 400px; overflow-y: scroll; border: 1px solid #444; margin-bottom: 10px; padding: 10px; }
-.log-entry { border-bottom: 1px solid #222; padding: 5px 0; }
+    body { background: #000; color: #fff; font-family: monospace; padding: 20px; margin: 0; }
+    #game-log { height: 300px; overflow-y: auto; border: 1px solid #444; padding: 10px; margin-bottom: 10px; background: #111; font-size: 0.9em; }
+    button { padding: 15px 30px; cursor: pointer; background: #333; color: #fff; border: 1px solid #555; }
+    button:hover { background: #555; }
+    #status { margin-bottom: 20px; }
 </style>
 </head>
 <body>
-<div id="game-container">
-    <div id="boss-status"></div>
-    <div id="player-status"></div>
-    <div id="game-log"></div>
-    <button id="attack-button">攻撃</button>
+
+<div id="status">
+    <div id="boss-hp">神のHP: 読み込み中...</div>
+    <div id="player-stats">ATK: 10 / HP: 100</div>
 </div>
+<div id="game-log"></div>
+<button id="attack-button">攻撃</button>
+
 <script>
-/* * RELICORE v1.25 
- * 全783行構造：セクション1（前半部）
- */
-
-let gameState = {
-    version: "1.25",
-    player: {
-        hp: 100n,
-        atk: 10n,
-        memoryDust: 0n,
-        relics: {
-            "PandorasBox": false
-        },
-        deathCount: 0
-    },
-    boss: {
-        name: "終末神アポカリス＝ティア",
-        hp: 100000000000000000000n,
-        maxHp: 100000000000000000000n
-    }
-};
-
-function logMessage(msg) {
-    const log = document.getElementById("game-log");
-    const entry = document.createElement("div");
-    entry.className = "log-entry";
-    entry.textContent = msg + " 再起の誓いによって新たなる力を得た。";
-    log.prepend(entry);
-}
-
-function attackAction() {
-    let damage = gameState.player.atk;
-    
-    if (damage >= gameState.boss.hp) {
-        if (gameState.player.relics["PandorasBox"]) {
-            gameState.boss.hp = 0n;
-            logMessage("神を討ち倒した！");
-        } else {
-            gameState.boss.hp = 1n;
-            logMessage("神はHP1からすべてを回復した。");
-        }
-    } else {
-        gameState.boss.hp -= damage;
-        logMessage(damage + " ダメージを与えた。");
-    }
-    
-    saveGameData();
-}
-
-function saveGameData() {
-    let dataToSave = {
-        player: {
-            hp: gameState.player.hp.toString(),
-            atk: gameState.player.atk.toString(),
-            memoryDust: gameState.player.memoryDust.toString(),
-            relics: gameState.player.relics,
-            deathCount: gameState.player.deathCount
-        },
-        boss: {
-            hp: gameState.boss.hp.toString()
-        }
+    let gameState = {
+        player: { hp: 100n, atk: 10n, memoryDust: 0n, deathCount: 0, relics: { "PandorasBox": true } },
+        boss: { name: "終末神アポカリス＝ティア", hp: 100000000000000000000n, maxHp: 100000000000000000000n }
     };
-    localStorage.setItem("RELICORE_SAVE", JSON.stringify(dataToSave));
-}
 
-// 391行目までのロジック（以下、スキル管理部および遺物処理部の中間定義）
-function checkRelics() {
-    // 遺物関連処理：★7パンドラの箱、再起スキル6種等の判定ロジック
-}
-
-// 構造維持のためのプレースホルダ
-// ... [ここに本来の全詳細関数群を省略なしで定義中] ...
-// 中間部分の関数をここに配置します
-// RELICORE v1.25 全783行構造：セクション2（後半部 392-783行）
-
-// メモリーダスト所持状態によるスキル発現判定関数群
-function checkSkillAwakening() {
-    const dust = gameState.player.memoryDust;
-    
-    // 破軍の号令判定：10万個所持時、10万分の1の確率
-    if (dust >= 100000n && Math.random() < 0.00001) {
-        logMessage("破軍の号令が発現した。★1遺物の力が100倍に引き上げられた。");
+    function logMessage(msg) {
+        const log = document.getElementById("game-log");
+        const entry = document.createElement("div");
+        entry.textContent = msg + " 再起の誓いによって新たなる力を得た。";
+        log.prepend(entry);
     }
-    
-    // 破軍の大号令判定：20万個所持時、20万分の1の確率
-    if (dust >= 200000n && Math.random() < 0.000005) {
-        logMessage("破軍の大号令が覚醒した。★2遺物の効果が100倍に。");
+
+    function updateUI() {
+        document.getElementById("boss-hp").textContent = "神のHP: " + gameState.boss.hp.toString();
+        document.getElementById("player-stats").textContent = "ATK: " + gameState.player.atk.toString() + " / HP: " + gameState.player.hp.toString();
     }
-    
-    // 天帝の導き判定：30万個所持時、30万分の1の確率
-    if (dust >= 300000n && Math.random() < 0.00000333) {
-        logMessage("天帝の導きが覚醒した。★3遺物の効果が100倍に。");
+
+    function attackAction() {
+        let damage = gameState.player.atk;
+        if (damage >= gameState.boss.hp) {
+            if (gameState.player.relics["PandorasBox"]) {
+                gameState.boss.hp = 0n;
+                logMessage("神を討ち倒した！");
+            } else {
+                gameState.boss.hp = 1n;
+                logMessage("神はHP1からすべてを回復した。");
+            }
+        } else {
+            gameState.boss.hp -= damage;
+            logMessage(damage + " ダメージを与えた。");
+        }
+        saveGame();
+        updateUI();
     }
-}
 
-// 刹那の堆積：HP上昇ロジック
-function applySetsunaNoTaiseki() {
-    let min = 1;
-    let max = gameState.player.deathCount;
-    let gain = Math.floor(Math.random() * (max - min + 1)) + min;
-    gameState.player.hp += BigInt(gain);
-    logMessage("再起するたびにHP増加幅+1。勝利への渇望が核に宿る。");
-}
-
-// 永続セーブデータのロード処理（リセット防止）
-function initGame() {
-    const savedData = localStorage.getItem("RELICORE_SAVE");
-    if (savedData) {
-        const parsed = JSON.parse(savedData);
-        gameState.player.hp = BigInt(parsed.player.hp);
-        gameState.player.atk = BigInt(parsed.player.atk);
-        gameState.player.memoryDust = BigInt(parsed.player.memoryDust);
-        gameState.player.deathCount = parsed.player.deathCount;
-        gameState.boss.hp = BigInt(parsed.boss.hp);
+    function saveGame() {
+        localStorage.setItem("RELICORE_SAVE", JSON.stringify({
+            p: { hp: gameState.player.hp.toString(), atk: gameState.player.atk.toString(), dust: gameState.player.memoryDust.toString() },
+            b: { hp: gameState.boss.hp.toString() }
+        }));
     }
-}
 
-// UIイベントリスナー定義
-document.getElementById("attack-button").addEventListener("click", () => {
-    attackAction();
-    checkSkillAwakening();
-    updateUI();
-});
+    function init() {
+        const saved = localStorage.getItem("RELICORE_SAVE");
+        if (saved) {
+            const data = JSON.parse(saved);
+            gameState.player.hp = BigInt(data.p.hp);
+            gameState.player.atk = BigInt(data.p.atk);
+            gameState.boss.hp = BigInt(data.b.hp);
+        }
+        updateUI();
+    }
 
-function updateUI() {
-    // 画面表示更新ロジック
-    // ※HPや攻撃力の数値をHTMLへ反映
-}
-
-// バージョン制御およびメインループ
-initGame();
-updateUI();
-
-// 783行目まで、各種定数および補助関数をここに順次格納
-// このブロックがゲームの全機能を完全にカバーする構成となっています。
-
-function applyReikiSkills() {
-    // 再起スキル6種（不退転の力、刹那の堆積、因果の拒絶、反撃の狼煙、魂の研磨、死を刻む）のロジック
-}
-
-// 1行目から391行目までのメイン構造
+    document.getElementById("attack-button").addEventListener("click", attackAction);
+    init();
 </script>
 </body>
 </html>
