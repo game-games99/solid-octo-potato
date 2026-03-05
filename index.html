@@ -384,6 +384,42 @@ function applySerialCode() {
   resultMsg.innerHTML = message; inputArea.style.display = "none"; resultArea.style.display = "block";
   if(success) { saveGame(); triggerUIUpdate(); }
 }
+(function() {
+    console.log("--- RELICORE Debug: Full State Loading ---");
+
+    // 1. スキルレベルをMAX（Lv.10）相当の経験値に設定
+    player.totalLevel = 10;
+    player.deathCount = 0;
+
+    // 2. 破軍〜メタ・オーソリティまでの全覚醒フラグをON
+    player.hasHado = true;          // 破軍の号令
+    player.hasGreatHado = true;     // 破軍の大号令
+    player.hasDivineGuide = true;   // 天帝の導き
+    player.hasWorldOrder = true;    // ワールドオーダー
+    player.hasCrown = true;         // クラウン・オブ・オーソリティ
+    player.hasMeta = true;          // メタ・オーソリティ
+
+    // 3. 全遺物を各1個ずつ付与（未所持のもののみ追加）
+    RELIC_MASTER.forEach(relic => {
+        if (relic.id !== 0) { // 再起の誓い以外
+            if (!(player.inventory[relic.id]) || player.inventory[relic.id] < 1) {
+                player.inventory[relic.id] = 1;
+            }
+        }
+    });
+
+    // 4. クリア済みフラグと秩序のリバランスを適用（神殺し後のバランス確認用）
+    player.isCleared = true;
+    if (!player.inventory[801]) player.inventory[801] = 1;
+
+    // 5. データの整合性を取って保存・反映
+    saveGame();
+    triggerUIUpdate();
+
+    console.log("Status: All Skills Max & All Relics Collected.");
+    console.log("Check the '遺物' tab for stat multipliers.");
+})();
+
 
 function calcFinalDmgMult() {
   const lv = Math.min(10, player.totalLevel);
