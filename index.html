@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>RELICORE - v1.20</title>
+<title>RELICORE - v1.21</title>
 <style>
 :root { --bg: #ffffff; --panel: #f8f9fa; --border: #dee2e6; --primary: #007bff; --text: #212529; --hp: #dc3545; --dark: #1a1a1a; --gold: #d4af37; --growth: #ff69b4; --relic-purple: #6610f2; --relic-bg: #fcfaff; --relic-rainbow: linear-gradient(135deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3); --cosmic-blue: #00d4ff; --cosmic-white: #ffffff; }
 * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; box-sizing: border-box; }
@@ -203,7 +203,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Robot
 <div class="privacy-link" onclick="openPolicy()">プライバシーポリシー</div>
 </div>
 </div>
-<div class="ver-footer">RELICORE v1.20</div>
+<div class="ver-footer">RELICORE v1.21</div>
 <script>
 const SAVE_KEY = "relicore_player_data";
 const BOSS_MAX_HP_BASE = 100000000000000000000n;
@@ -222,18 +222,19 @@ let needsUIUpdate = false;
 let kushiaCounter = 0;
 
 function formatV(val) {
-let n = BigInt(val);
-if (n < 1000000000000000n) return n.toLocaleString();
-const units = ["aa", "ab", "ac", "ad", "ae", "af", "ag", "ah", "ai", "aj", "ak", "al", "am", "an", "ao", "ap", "aq", "ar", "as", "at", "au", "av", "aw", "ax", "ay", "az"];
-let unitIdx = -1;
-let base = n / 1000000000000n;
-while (base >= 1000n && unitIdx < units.length - 1) {
-base /= 1000n;
-unitIdx++;
+  let n = BigInt(val);
+  if (n < 1000000000000000n) return n.toLocaleString();
+  const units = ["aa", "ab", "ac", "ad", "ae", "af", "ag", "ah", "ai", "aj", "ak", "al", "am", "an", "ao", "ap", "aq", "ar", "as", "at", "au", "av", "aw", "ax", "ay", "az"];
+  let unitIdx = -1;
+  let baseVal = Number(n) / 1000000000000;
+  while (baseVal >= 1000 && unitIdx < units.length - 1) {
+    baseVal /= 1000;
+    unitIdx++;
+  }
+  if (unitIdx === -1) return n.toLocaleString();
+  return baseVal.toFixed(2) + units[unitIdx];
 }
-if (unitIdx === -1) return n.toLocaleString();
-return base.toString() + units[unitIdx];
-}
+
 function formatFix(val) { return BigInt(Math.floor(Number(val))).toLocaleString(); }
 
 function getExpThreshold(lv) { return Math.floor(500 * (Math.pow(1.1, lv))); }
@@ -250,7 +251,7 @@ function getCurrentRankIndex() { return Math.min(RANK_NAMES.length - 1, Math.flo
 
 const RELIC_MASTER = [
 {id:0, star:999, name:"再起の誓い", atk:0, hp:0, desc:"不屈の魂に刻まれた、再誕の原点。"},
-{id:101, star:1, name:"剣士の欠片", atk:7.4, hp:0}, {id:102, star:1, name:"狩人の欠片", atk:8.1, hp:0}, {id:103, star:1, name:"暗殺者の欠片", atk:9.6, hp:0}, {id:104, star:1, name:"狂戦士の欠片", atk:10.3, hp:0}, {id:105, star:1, name:"武闘家の欠片", atk:6.7, hp:0}, {id:106, star:1, name:"衛兵の欠片", atk:0, hp:45.2}, {id:107, star:1, name:"騎士の欠片", atk:0, hp:55.9}, {id:108, star:1, name:"重装兵の欠片", atk:0, hp:65.4}, {id:109, star:1, name:"修道士の欠片", atk:0, hp:40.3}, {id:110, star:1, name:"盾持ちの欠片", atk:0, hp:50.8}, {id:111, star:1, name:"魔法使いの欠片", atk:4.2, hp:35.7}, {id:112, star:1, name:"斥候の欠片", atk:3.9, hp:48.1}, {id:113, star:1, name:"冒険者の欠片", atk:5.4, hp:42.6}, {id:114, star:1, name:"見習いの欠片", atk:2.1, hp:30.5}, {id:115, star:1, name:"放浪者の欠片", atk:4.7, hp:44.2}, {id:116, star:1, name:"メモリーダスト", atk:1.3, hp:10.9},
+{id:101, star:1, name:"剣士の欠片", atk:7.4, hp:0}, {id:102, star:1, name:"狩人の欠片", atk:8.1, hp:0}, {id:103, star:1, name:"暗殺者の欠片", atk:9.6, hp:0}, {id:104, star:1, name:"狂戦士の欠片", atk:10.3, hp:0}, {id:105, star:1, name:"武闘家の欠片", atk:6.7, hp:0}, {id:106, star:1, name:"衛兵の欠片", atk:0, hp:45.2}, {id:107, star:1, name:"騎士の欠片", atk:0, hp:55.9}, {id:108, star:1, name:"重装兵の欠片", atk:0, hp:65.4}, {id:109, star:1, name:"修道士の欠片", atk:0, hp:40.3}, {id:110, star:1, name:"盾持ちの欠片", atk:0, hp:50.8}, {id:111, star:1, name:"魔法使いの欠片", atk:4.2, hp:35.7}, {id:112, star:1, name:"斥候の欠片", atk:3.9, hp:48.1}, {id:113, star:1, name:"見習いの欠片", atk:2.1, hp:30.5}, {id:114, star:1, name:"放浪者の欠片", atk:4.7, hp:44.2}, {id:115, star:1, name:"冒険者の欠片", atk:5.4, hp:42.6}, {id:116, star:1, name:"メモリーダスト", atk:1.3, hp:10.9},
 {id:117, star:2, name:"メモリースターダスト", atk:111, hp:1111},
 {id:201, star:2, name:"聖騎士の欠片", atk:41.2, hp:682.4}, {id:202, star:2, name:"龍騎士の欠片", atk:86.7, hp:423.1}, {id:203, star:2, name:"暗黒騎士の欠片", atk:134.2, hp:0}, {id:204, star:2, name:"賢者の欠片", atk:52.1, hp:711.2}, {id:205, star:2, name:"大魔道士の欠片", atk:118.9, hp:24.3}, {id:206, star:2, name:"暗殺王の欠片", atk:156.3, hp:12.7}, {id:207, star:2, name:"重装騎士の欠片", atk:0, hp:1248.6}, {id:208, star:2, name:"拳聖の欠片", atk:99.2, hp:315.4}, {id:209, star:2, name:"守護騎士の欠片", atk:45.8, hp:980.5}, {id:210, star:2, name:"冒険王の欠片", atk:73.3, hp:594.1},
 {id:301, star:3, name:"聖龍騎士の欠片", atk:874.3, hp:6924.1}, {id:302, star:3, name:"深淵魔導の欠片", atk:1324.1, hp:214.7}, {id:303, star:3, name:"金剛武神の欠片", atk:412.8, hp:14863.2}, {id:304, star:3, name:"暗黒皇帝の欠片", atk:1568.4, hp:0}, {id:305, star:3, name:"大聖者の欠片", atk:52.7, hp:15241.4}, {id:306, star:3, name:"影の支配者の欠片", atk:1410.9, hp:128.4}, {id:307, star:3, name:"竜血闘士の欠片", atk:1024.2, hp:4210.9}, {id:308, star:3, name:"天界騎士の欠片", atk:612.7, hp:9845.1}, {id:309, star:3, name:"虚空の暗殺者の欠片", atk:1624.8, hp:42.1}, {id:310, star:3, name:"極大賢者の欠片", atk:542.1, hp:11840.7},
@@ -372,7 +373,6 @@ function applySerialCode() {
   const resultArea = document.getElementById("serial-result-area");
   let success = false; let message = "";
 
-  // --- デバッグ専用コード：全解放 ---
   if (code === "DEBUG_FULL") {
     player.totalLevel = 10;
     player.hasHado = true;
@@ -382,19 +382,16 @@ function applySerialCode() {
     player.hasCrown = true;
     player.hasMeta = true;
     player.isCleared = true;
-    player.maxDmg = 1000000000000n; // ドロップ資格用
-
+    player.maxDmg = 1000000000000n;
     RELIC_MASTER.forEach(relic => {
         if (relic.id !== 0) {
             player.inventory[relic.id] = (player.inventory[relic.id] || 0) + 300000;
         }
     });
-
     if (!player.inventory[801]) player.inventory[801] = 1;
     success = true;
     message = "【開発者権限】全スキル・全遺物を解放し、Lv.10へ調整しました。";
   } 
-  // --- 既存のシリアルコード ---
   else if (code === "REBALANCE2026") {
       if (player.isCleared) {
           if (!player.inventory[801]) { player.inventory[801] = 1; player.rebalanceSeen = true; success = true; message = `シリアルコード承認。<br><br><span style="color:var(--gold); font-weight:bold;">【特別遺物付与】</span><br><span class="unique-relic-text">秩序のリバランス</span> を獲得しました。`; }
@@ -562,7 +559,6 @@ function getDropLog(count) {
     let rv = Math.random()*100, star=1, curP=0;
     for(let s in rates) { curP += rates[s].p; if(rv <= curP) { star=parseInt(s); break; } }
     if (player.maxDmg < rates[star].cond) star=1;
-
     let sel;
     if (star === 8) {
       sel = RELIC_MASTER.find(m => m.id === 901);
@@ -597,8 +593,14 @@ function refreshUI() {
   document.getElementById("p-atk").textContent = formatV(BigInt(Math.floor(Number(player.baseAtk + b.atk) * b.mult * skillMult)));
   document.getElementById("p-hp").textContent = formatV(BigInt(Math.floor(Number(player.baseHP + b.hp) * b.mult)));
   const hpDisp = document.getElementById("bosshp-cur");
-  if (!player.isCleared) { hpDisp.textContent = currentBossHP.toLocaleString(); document.getElementById("boss-display-name").textContent = "終末神アポカリス＝ティア"; }
-  else { hpDisp.textContent = formatV(currentBossHP); document.getElementById("boss-display-name").textContent = "溢れし災厄"; }
+  if (!player.isCleared) { 
+    hpDisp.textContent = currentBossHP.toLocaleString(); 
+    document.getElementById("boss-display-name").textContent = "終末神アポカリス＝ティア"; 
+  }
+  else { 
+    hpDisp.textContent = formatV(currentBossHP); 
+    document.getElementById("boss-display-name").textContent = "溢れし災厄"; 
+  }
   document.getElementById("hp-bar-fill").style.width = `${Number(currentBossHP * 100n / BigInt(player.bossMaxHP))}%`;
   const area = document.getElementById("st-rank-area"); const title = document.getElementById("st-rank-title");
   const rankIdx = getCurrentRankIndex(); document.getElementById("st-rank-lv").textContent = `${RANK_NAMES[rankIdx]} Lv.${lv}`;
@@ -622,7 +624,7 @@ function refreshUI() {
 function renderVow() {
   const rawLv = player.totalLevel; const lv = Math.min(10, rawLv);
   const bushinCount = Math.min(40, player.inventory[401] || 0); const gouyokuCount = Math.min(10, player.inventory[502] || 0);
-  const skills = [{ id: "futaiten", nameJp: "不退転の力", desc: "戦闘を経験するたびにランダムな遺物を (1+所持数) つ獲得する。" },{ id: "setsuna", nameJp: "刹那の堆積", desc: "再起するたびにHP増加幅+1。勝利への渇望が核に宿る。" },{ id: "inga", nameJp: "因果の拒絶", desc: "稀に攻撃を無効化する。" },{ id: "hangeki", nameJp: "反撃の狼煙", desc: "生存時★3以上の遺物を確定で入手する。" },{ id: "konken", nameJp: "魂の研磨", desc: "遺物獲得数/経験値ボーナスが向上。" },{ id: "shikoku", nameJp: "死を刻む", desc: "経験を積むたびに最終ダメージを増加させる。" }];
+  const skills = [{ id: "futaiten", nameJp: "不退転の力", desc: "戦闘を経験するたびにランダムな遺物を (1+所持数) つ獲得する。" },{ id: "setsuna", nameJp: "刹那の堆積", desc: "再起するたびにHP増加幅+1。勝利への渇望が核に宿る。" },{ id: "inga", nameJp: "因果の拒絶", desc: "稀に攻撃を無効化する。" },{ id: "hangeki", nameJp: "反撃の狼煙", desc: "生存時★3以上の遺物を確定で入手する。" },{ id: "konken", nameJp: "魂の研磨", desc: "獲得戦闘経験値が向上。" },{ id: "shikoku", nameJp: "死を刻む", desc: "最終ダメージ倍率を固定で+0.004%加算する。" }];
   let html = "";
   skills.forEach(s => {
     let hlContent = "";
