@@ -386,7 +386,7 @@ function applySerialCode() {
 
     RELIC_MASTER.forEach(relic => {
         if (relic.id !== 0) {
-            player.inventory[relic.id] = (player.inventory[relic.id] || 0) + 1;
+            player.inventory[relic.id] = (player.inventory[relic.id] || 0) + 300000;
         }
     });
 
