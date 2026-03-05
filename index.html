@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>RELICORE - v1.19</title>
+<title>RELICORE - v1.20</title>
 <style>
 :root { --bg: #ffffff; --panel: #f8f9fa; --border: #dee2e6; --primary: #007bff; --text: #212529; --hp: #dc3545; --dark: #1a1a1a; --gold: #d4af37; --growth: #ff69b4; --relic-purple: #6610f2; --relic-bg: #fcfaff; --relic-rainbow: linear-gradient(135deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3); --cosmic-blue: #00d4ff; --cosmic-white: #ffffff; }
 * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; box-sizing: border-box; }
@@ -203,7 +203,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Robot
 <div class="privacy-link" onclick="openPolicy()">プライバシーポリシー</div>
 </div>
 </div>
-<div class="ver-footer">RELICORE v1.19</div>
+<div class="ver-footer">RELICORE v1.20</div>
 <script>
 const SAVE_KEY = "relicore_player_data";
 const BOSS_MAX_HP_BASE = 100000000000000000000n;
@@ -274,14 +274,12 @@ function loadGame() {
   let saved = localStorage.getItem(SAVE_KEY);
   if(saved) {
     const p = JSON.parse(saved);
-    // インベントリの復元を最優先
     if(p.inventory) {
       player.inventory = {};
       Object.entries(p.inventory).forEach(([id, count]) => {
         player.inventory[parseInt(id)] = parseInt(count);
       });
     }
-    // 基本パラメータの復元
     player.deathCount = p.deathCount || 0;
     player.totalLevel = p.totalLevel || 1;
     player.baseAtk = BigInt(p.baseAtk || "10");
@@ -313,7 +311,6 @@ function loadGame() {
     if(player.rebalanceSeen === false) { showClearStartMsg(); }
   }
   if(!player.storySeen) document.getElementById("story-modal").style.display = "flex";
-  // 読み込み後にインベントリが空なら「再起の誓い」を付与
   if (Object.keys(player.inventory).length === 0) { player.inventory[0] = 1; }
 }
 
@@ -374,52 +371,41 @@ function applySerialCode() {
   const inputArea = document.getElementById("serial-input-area");
   const resultArea = document.getElementById("serial-result-area");
   let success = false; let message = "";
-  if (code === "REBALANCE2026") {
+
+  // --- デバッグ専用コード：全解放 ---
+  if (code === "DEBUG_FULL") {
+    player.totalLevel = 10;
+    player.hasHado = true;
+    player.hasGreatHado = true;
+    player.hasDivineGuide = true;
+    player.hasWorldOrder = true;
+    player.hasCrown = true;
+    player.hasMeta = true;
+    player.isCleared = true;
+    player.maxDmg = 1000000000000n; // ドロップ資格用
+
+    RELIC_MASTER.forEach(relic => {
+        if (relic.id !== 0) {
+            player.inventory[relic.id] = (player.inventory[relic.id] || 0) + 1;
+        }
+    });
+
+    if (!player.inventory[801]) player.inventory[801] = 1;
+    success = true;
+    message = "【開発者権限】全スキル・全遺物を解放し、Lv.10へ調整しました。";
+  } 
+  // --- 既存のシリアルコード ---
+  else if (code === "REBALANCE2026") {
       if (player.isCleared) {
           if (!player.inventory[801]) { player.inventory[801] = 1; player.rebalanceSeen = true; success = true; message = `シリアルコード承認。<br><br><span style="color:var(--gold); font-weight:bold;">【特別遺物付与】</span><br><span class="unique-relic-text">秩序のリバランス</span> を獲得しました。`; }
           else { message = "このコードはすでに適用されています。"; }
       } else { message = `<span style="color:#ff4444;">「まだその時ではない……」</span><br><br>このコードは神を屠りし者のみが使用可能です。`; }
   } else if (code === "FIX_GENESIS") { player.bossMaxHP = BOSS_MAX_HP_BASE.toString(); currentBossHP = BOSS_MAX_HP_BASE; success = true; message = `シリアルコード承認：ステータス初期化。`; }
   else if (code !== "") { message = "無効なシリアルコードです。"; }
+  
   resultMsg.innerHTML = message; inputArea.style.display = "none"; resultArea.style.display = "block";
   if(success) { saveGame(); triggerUIUpdate(); }
 }
-(function() {
-    console.log("--- RELICORE Debug: Full State Loading ---");
-
-    // 1. スキルレベルをMAX（Lv.10）相当の経験値に設定
-    player.totalLevel = 10;
-    player.deathCount = 0;
-
-    // 2. 破軍〜メタ・オーソリティまでの全覚醒フラグをON
-    player.hasHado = true;          // 破軍の号令
-    player.hasGreatHado = true;     // 破軍の大号令
-    player.hasDivineGuide = true;   // 天帝の導き
-    player.hasWorldOrder = true;    // ワールドオーダー
-    player.hasCrown = true;         // クラウン・オブ・オーソリティ
-    player.hasMeta = true;          // メタ・オーソリティ
-
-    // 3. 全遺物を各1個ずつ付与（未所持のもののみ追加）
-    RELIC_MASTER.forEach(relic => {
-        if (relic.id !== 0) { // 再起の誓い以外
-            if (!(player.inventory[relic.id]) || player.inventory[relic.id] < 1) {
-                player.inventory[relic.id] = 1;
-            }
-        }
-    });
-
-    // 4. クリア済みフラグと秩序のリバランスを適用（神殺し後のバランス確認用）
-    player.isCleared = true;
-    if (!player.inventory[801]) player.inventory[801] = 1;
-
-    // 5. データの整合性を取って保存・反映
-    saveGame();
-    triggerUIUpdate();
-
-    console.log("Status: All Skills Max & All Relics Collected.");
-    console.log("Check the '遺物' tab for stat multipliers.");
-})();
-
 
 function calcFinalDmgMult() {
   const lv = Math.min(10, player.totalLevel);
