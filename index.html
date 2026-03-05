@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>RELICORE - v1.22</title>
+<title>RELICORE - v1.23</title>
 <style>
-:root { --bg: #ffffff; --panel: #f8f9fa; --border: #dee2e6; --primary: #007bff; --text: #212529; --hp: #dc3545; --dark: #1a1a1a; --gold: #d4af37; --growth: #ff69b4; --relic-purple: #6610f2; --relic-bg: #fcfaff; --relic-rainbow: linear-gradient(135deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3); --cosmic-blue: #00d4ff; --cosmic-white: #ffffff; --gemini-cyan: #00ffff; }
+:root { --bg: #ffffff; --panel: #f8f9fa; --border: #dee2e6; --primary: #007bff; --text: #212529; --hp: #dc3545; --dark: #1a1a1a; --gold: #d4af37; --growth: #ff69b4; --relic-purple: #9370DB; --relic-bg: #fcfaff; --relic-rainbow: linear-gradient(135deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3); --cosmic-blue: #00d4ff; --cosmic-white: #ffffff; --gemini-purple: #9370DB; }
 * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; box-sizing: border-box; }
 body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; position: relative; }
 
@@ -13,7 +13,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Robot
 .rank-lv { font-size: 0.75em; margin-bottom: 4px; font-weight: bold; }
 .rank-title { font-size: 1.25em; font-weight: bold; letter-spacing: 2px; }
 
-.rank-glow-mid { box-shadow: 0 0 15px rgba(102, 16, 242, 0.4); border-color: var(--relic-purple); }
+.rank-glow-mid { box-shadow: 0 0 15px rgba(147, 112, 219, 0.4); border-color: var(--relic-purple); }
 .rank-glow-high { box-shadow: 0 0 25px rgba(212, 175, 55, 0.6); border-color: var(--gold); animation: rank-pulse 2s infinite alternate; }
 .rank-glow-max { box-shadow: 0 0 40px rgba(255, 255, 255, 0.8); border-color: #fff; background: linear-gradient(135deg, #000 0%, #444 100%); animation: rank-ultra-glow 1.5s infinite alternate; }
 
@@ -33,11 +33,11 @@ body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Robot
 .rare-name { font-size: 1.4em; font-weight: bold; color: #333; display: block; margin-bottom: 15px; }
 .rare-desc { font-size: 0.9em; color: #666; line-height: 1.5; }
 
-.glow-4 { border: 3px solid #6610f2; box-shadow: 0 0 20px rgba(102,16,242,0.5); }
+.glow-4 { border: 3px solid #9370DB; box-shadow: 0 0 20px rgba(147,112,219,0.5); }
 .glow-5 { border: 3px solid #e83e8c; box-shadow: 0 0 20px rgba(232,62,140,0.5); }
 .glow-6 { border: 3px solid #fd7e14; box-shadow: 0 0 25px rgba(253,126,20,0.6); }
 .glow-7 { border: 3px solid #ff0000; box-shadow: 0 0 30px rgba(255,0,0,0.7); animation: rare-pulse 1s infinite alternate; }
-.glow-8 { border: 3px solid transparent; border-image: var(--relic-rainbow) 1; box-shadow: 0 0 30px rgba(255,255,255,0.8); animation: rare-pulse 0.8s infinite alternate; }
+.glow-8 { border: 3px solid #9400d3; box-shadow: 0 0 30px rgba(148,0,211,0.4); animation: rare-pulse 0.8s infinite alternate; }
 @keyframes rare-pulse { from { transform: scale(1); } to { transform: scale(1.05); } }
 
 #hado-awaken-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 30000; justify-content: center; align-items: center; padding: 20px; }
@@ -60,9 +60,10 @@ body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Robot
 .story-vow { color: gold; font-weight: bold; display: inline-block; animation: heart-beat 1.5s infinite; text-shadow: 0 0 10px rgba(212, 175, 55, 0.8); }
 @keyframes heart-beat { 0% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1); opacity: 0.8; } }
 .story-btn { background: none; border: 1px solid gold; color: gold; padding: 12px 40px; font-size: 1em; cursor: pointer; transition: 0.3s; }
-.c1 { color: #888888; font-weight: bold; } .c2 { color: #28a745; font-weight: bold; } .c3 { color: #007bff; font-weight: bold; } .c4 { color: #6610f2; font-weight: bold; } .c5 { color: #e83e8c; font-weight: bold; } .c6 { color: #fd7e14; font-weight: bold; } .c7 { color: #ff0000; font-weight: bold; } .c8 { color: #fff; font-weight: bold; text-shadow: 0 0 5px #fff, 0 0 10px #9400d3; }
+.c1 { color: #888888; font-weight: bold; } .c2 { color: #28a745; font-weight: bold; } .c3 { color: #007bff; font-weight: bold; } .c4 { color: #9370DB; font-weight: bold; } .c5 { color: #e83e8c; font-weight: bold; } .c6 { color: #fd7e14; font-weight: bold; } .c7 { color: #ff0000; font-weight: bold; } .c8 { color: #9400d3; font-weight: bold; text-shadow: 1px 1px 0px #000; border-bottom: 1px solid #9400d3; }
 .c-order { color: #ffd700; font-weight: bold; text-shadow: 0 0 5px #000; }
-.c-gemini { color: var(--gemini-cyan); font-weight: bold; text-shadow: 0 0 8px var(--gemini-cyan); }
+.c-gemini { color: var(--gemini-purple); font-weight: bold; text-shadow: 0 0 8px var(--gemini-purple); text-decoration: underline; }
+.error-msg { color: #ff0000; font-weight: bold; background: rgba(255,0,0,0.1); padding: 4px; display: block; border: 1px solid #ff0000; margin: 5px 0; }
 
 .unique-relic-text { font-weight: bold; background: linear-gradient(to right, #d4af37, #fff, #d4af37); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 5px rgba(212,175,55,0.5); }
 .relic-card.relic-unique { grid-column: span 6; border: 2px solid #d4af37; background: #000; color: #fff; box-shadow: 0 0 15px rgba(212, 175, 55, 0.4); }
@@ -113,10 +114,10 @@ body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Robot
 .relic-card { position: relative; border: 1px solid #e0d5f0; padding: 6px 6px 6px 10px; border-radius: 6px; background: var(--relic-bg); display: flex; flex-direction: column; min-height: 70px; box-shadow: 0 2px 4px rgba(102, 16, 242, 0.05); }
 .relic-card.star-low { grid-column: span 2; }
 .relic-card.star-high { grid-column: span 3; border-width: 2px; background: #fff; }
-.relic-card.star-ultimate { grid-column: span 6; border: 2px solid transparent; border-image: var(--relic-rainbow) 1; background: #fff; box-shadow: 0 0 15px rgba(148,0,211,0.2); }
+.relic-card.star-ultimate { grid-column: span 6; border: 2px solid #9400d3; background: #fff; box-shadow: 0 0 15px rgba(148,0,211,0.2); }
 
 .relic-card::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--relic-purple); border-radius: 6px 0 0 6px; }
-.relic-card.star-ultimate::before { background: var(--relic-rainbow); }
+.relic-card.star-ultimate::before { background: #9400d3; }
 .relic-name { font-weight: bold; font-size: 0.65em; min-height: 2.4em; line-height: 1.2; }
 .relic-effect-box { font-size: 0.6em; color: #444; margin-top: 2px; line-height: 1.3; }
 .relic-desc-line { color: #666; font-style: italic; display: block; margin-top: 4px; border-top: 1px solid #f0f0f0; padding-top: 2px; }
@@ -204,7 +205,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Robot
 <div class="privacy-link" onclick="openPolicy()">プライバシーポリシー</div>
 </div>
 </div>
-<div class="ver-footer">RELICORE v1.22</div>
+<div class="ver-footer">RELICORE v1.23</div>
 <script>
 const SAVE_KEY = "relicore_player_data";
 const BOSS_MAX_HP_BASE = 100000000000000000000n;
@@ -736,6 +737,8 @@ function handleBossDefeat() {
     isGeminiBattle = true;
     geminiType = Math.random() < 0.5 ? "α" : "β";
     currentBossHP = BigInt(player.bossMaxHP) * 5n;
+    // システムエラー演出の挿入
+    addLog(`<span class="error-msg">ERROR: UNKNOWN ENTITY 'GEMINI ${geminiType}' DETECTED... SYSTEM OVERRIDE IN PROGRESS.</span>`);
     addLog(`<div><span class="c-gemini">警告：構文破壊機工 Gemini ${geminiType} がシステムに侵入！</span></div>`);
     return;
  }
