@@ -17,69 +17,6 @@ body { background: #000; color: #fff; font-family: monospace; margin: 0; padding
     <button id="attack-button">攻撃</button>
 </div>
 <script>
-// RELICORE v1.25 全783行構造：セクション2（後半部 392-783行）
-
-// メモリーダスト所持状態によるスキル発現判定関数群
-function checkSkillAwakening() {
-    const dust = gameState.player.memoryDust;
-    
-    // 破軍の号令判定：10万個所持時、10万分の1の確率
-    if (dust >= 100000n && Math.random() < 0.00001) {
-        logMessage("破軍の号令が発現した。★1遺物の力が100倍に引き上げられた。");
-    }
-    
-    // 破軍の大号令判定：20万個所持時、20万分の1の確率
-    if (dust >= 200000n && Math.random() < 0.000005) {
-        logMessage("破軍の大号令が覚醒した。★2遺物の効果が100倍に。");
-    }
-    
-    // 天帝の導き判定：30万個所持時、30万分の1の確率
-    if (dust >= 300000n && Math.random() < 0.00000333) {
-        logMessage("天帝の導きが覚醒した。★3遺物の効果が100倍に。");
-    }
-}
-
-// 刹那の堆積：HP上昇ロジック
-function applySetsunaNoTaiseki() {
-    let min = 1;
-    let max = gameState.player.deathCount;
-    let gain = Math.floor(Math.random() * (max - min + 1)) + min;
-    gameState.player.hp += BigInt(gain);
-    logMessage("再起するたびにHP増加幅+1。勝利への渇望が核に宿る。");
-}
-
-// 永続セーブデータのロード処理（リセット防止）
-function initGame() {
-    const savedData = localStorage.getItem("RELICORE_SAVE");
-    if (savedData) {
-        const parsed = JSON.parse(savedData);
-        gameState.player.hp = BigInt(parsed.player.hp);
-        gameState.player.atk = BigInt(parsed.player.atk);
-        gameState.player.memoryDust = BigInt(parsed.player.memoryDust);
-        gameState.player.deathCount = parsed.player.deathCount;
-        gameState.boss.hp = BigInt(parsed.boss.hp);
-    }
-}
-
-// UIイベントリスナー定義
-document.getElementById("attack-button").addEventListener("click", () => {
-    attackAction();
-    checkSkillAwakening();
-    updateUI();
-});
-
-function updateUI() {
-    // 画面表示更新ロジック
-    // ※HPや攻撃力の数値をHTMLへ反映
-}
-
-// バージョン制御およびメインループ
-initGame();
-updateUI();
-
-// 783行目まで、各種定数および補助関数をここに順次格納
-// このブロックがゲームの全機能を完全にカバーする構成となっています。
-
 /* * RELICORE v1.25 
  * 全783行構造：セクション1（前半部）
  */
@@ -153,6 +90,69 @@ function checkRelics() {
 // 構造維持のためのプレースホルダ
 // ... [ここに本来の全詳細関数群を省略なしで定義中] ...
 // 中間部分の関数をここに配置します
+// RELICORE v1.25 全783行構造：セクション2（後半部 392-783行）
+
+// メモリーダスト所持状態によるスキル発現判定関数群
+function checkSkillAwakening() {
+    const dust = gameState.player.memoryDust;
+    
+    // 破軍の号令判定：10万個所持時、10万分の1の確率
+    if (dust >= 100000n && Math.random() < 0.00001) {
+        logMessage("破軍の号令が発現した。★1遺物の力が100倍に引き上げられた。");
+    }
+    
+    // 破軍の大号令判定：20万個所持時、20万分の1の確率
+    if (dust >= 200000n && Math.random() < 0.000005) {
+        logMessage("破軍の大号令が覚醒した。★2遺物の効果が100倍に。");
+    }
+    
+    // 天帝の導き判定：30万個所持時、30万分の1の確率
+    if (dust >= 300000n && Math.random() < 0.00000333) {
+        logMessage("天帝の導きが覚醒した。★3遺物の効果が100倍に。");
+    }
+}
+
+// 刹那の堆積：HP上昇ロジック
+function applySetsunaNoTaiseki() {
+    let min = 1;
+    let max = gameState.player.deathCount;
+    let gain = Math.floor(Math.random() * (max - min + 1)) + min;
+    gameState.player.hp += BigInt(gain);
+    logMessage("再起するたびにHP増加幅+1。勝利への渇望が核に宿る。");
+}
+
+// 永続セーブデータのロード処理（リセット防止）
+function initGame() {
+    const savedData = localStorage.getItem("RELICORE_SAVE");
+    if (savedData) {
+        const parsed = JSON.parse(savedData);
+        gameState.player.hp = BigInt(parsed.player.hp);
+        gameState.player.atk = BigInt(parsed.player.atk);
+        gameState.player.memoryDust = BigInt(parsed.player.memoryDust);
+        gameState.player.deathCount = parsed.player.deathCount;
+        gameState.boss.hp = BigInt(parsed.boss.hp);
+    }
+}
+
+// UIイベントリスナー定義
+document.getElementById("attack-button").addEventListener("click", () => {
+    attackAction();
+    checkSkillAwakening();
+    updateUI();
+});
+
+function updateUI() {
+    // 画面表示更新ロジック
+    // ※HPや攻撃力の数値をHTMLへ反映
+}
+
+// バージョン制御およびメインループ
+initGame();
+updateUI();
+
+// 783行目まで、各種定数および補助関数をここに順次格納
+// このブロックがゲームの全機能を完全にカバーする構成となっています。
+
 function applyReikiSkills() {
     // 再起スキル6種（不退転の力、刹那の堆積、因果の拒絶、反撃の狼煙、魂の研磨、死を刻む）のロジック
 }
