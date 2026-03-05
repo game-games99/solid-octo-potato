@@ -2,43 +2,52 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>RELICORE v1.25</title>
 <style>
-    body { background: #000; color: #fff; font-family: monospace; padding: 20px; margin: 0; }
-    #game-log { height: 300px; overflow-y: auto; border: 1px solid #444; padding: 10px; margin-bottom: 10px; background: #111; font-size: 0.9em; }
-    button { padding: 15px 30px; cursor: pointer; background: #333; color: #fff; border: 1px solid #555; }
-    button:hover { background: #555; }
-    #status { margin-bottom: 20px; }
+    body { background: #000; color: #fff; font-family: monospace; padding: 20px; }
+    #game-log { height: 400px; overflow-y: auto; border: 1px solid #444; padding: 10px; background: #111; }
+    button { padding: 10px 20px; margin: 5px; cursor: pointer; }
 </style>
 </head>
 <body>
-
 <div id="status">
     <div id="boss-hp">神のHP: 読み込み中...</div>
     <div id="player-stats">ATK: 10 / HP: 100</div>
+    <div id="dust">メモリーダスト: 0</div>
 </div>
 <div id="game-log"></div>
 <button id="attack-button">攻撃</button>
-
 <script>
     let gameState = {
-        player: { hp: 100n, atk: 10n, memoryDust: 0n, deathCount: 0, relics: { "PandorasBox": true } },
-        boss: { name: "終末神アポカリス＝ティア", hp: 100000000000000000000n, maxHp: 100000000000000000000n }
+        player: { hp: 100n, atk: 10n, memoryDust: 0n, deathCount: 0, relics: { "PandorasBox": false } },
+        boss: { name: "終末神アポカリス＝ティア", hp: 100000000000000000000n, maxHp: 100000000000000000000n },
+        skills: {
+            "不退転の力": { active: false },
+            "刹那の堆積": { active: false },
+            "因果の拒絶": { active: false },
+            "反撃の狼煙": { active: false },
+            "魂の研磨": { active: false },
+            "死を刻む": { active: false }
+        }
     };
-
     function logMessage(msg) {
         const log = document.getElementById("game-log");
         const entry = document.createElement("div");
         entry.textContent = msg + " 再起の誓いによって新たなる力を得た。";
         log.prepend(entry);
     }
-
     function updateUI() {
         document.getElementById("boss-hp").textContent = "神のHP: " + gameState.boss.hp.toString();
         document.getElementById("player-stats").textContent = "ATK: " + gameState.player.atk.toString() + " / HP: " + gameState.player.hp.toString();
+        document.getElementById("dust").textContent = "メモリーダスト: " + gameState.player.memoryDust.toString();
     }
-
+    function saveGame() {
+        localStorage.setItem("RELICORE_SAVE", JSON.stringify({
+            p: { hp: gameState.player.hp.toString(), atk: gameState.player.atk.toString(), dust: gameState.player.memoryDust.toString() },
+            b: { hp: gameState.boss.hp.toString() },
+            s: gameState.skills
+        }));
+    }
     function attackAction() {
         let damage = gameState.player.atk;
         if (damage >= gameState.boss.hp) {
@@ -56,12 +65,45 @@
         saveGame();
         updateUI();
     }
+    document.getElementById("attack-button").addEventListener("click", attackAction);
+    // ...パート1終了（実際にはこの続きに詳細なスキル処理関数群が配置されます）
+    function checkAwakening() {
+        let dust = gameState.player.memoryDust;
+        if (dust >= 300000n && Math.random() < 1/300000) {
+            logMessage("天帝の導きが覚醒！★3遺物効果100倍。");
+        } else if (dust >= 200000n && Math.random() < 1/200000) {
+            logMessage("破軍の大号令が覚醒！★2遺物効果100倍。");
+        } else if (dust >= 100000n && Math.random() < 1/100000) {
+            logMessage("破軍の号令が発現！★1遺物効果100倍。");
+        }
+    }
 
-    function saveGame() {
-        localStorage.setItem("RELICORE_SAVE", JSON.stringify({
-            p: { hp: gameState.player.hp.toString(), atk: gameState.player.atk.toString(), dust: gameState.player.memoryDust.toString() },
-            b: { hp: gameState.boss.hp.toString() }
-        }));
+    function applySkills() {
+        if (gameState.skills["不退転の力"].active) {
+            gameState.player.hp += 1n;
+            gameState.player.atk += 1n;
+        }
+        if (gameState.skills["刹那の堆積"].active) {
+            let add = BigInt(Math.floor(Math.random() * gameState.player.deathCount) + 1);
+            gameState.player.hp += add;
+            logMessage("刹那の堆積によりHPが" + add + "上昇。再起するたびにHP増加幅+1。勝利への渇望が核に宿る。");
+        }
+        if (gameState.skills["因果の拒絶"].active) {
+            gameState.player.atk += 2n;
+            gameState.player.hp += 5n;
+        }
+        if (gameState.skills["反撃の狼煙"].active) {
+            gameState.player.atk += 1n;
+            gameState.player.hp += 2n;
+        }
+        if (gameState.skills["魂の研磨"].active) {
+            gameState.player.atk += 3n;
+            gameState.player.hp += 6n;
+        }
+        if (gameState.skills["死を刻む"].active) {
+            gameState.player.atk += 5n;
+            gameState.player.hp += 10n;
+        }
     }
 
     function init() {
@@ -70,12 +112,14 @@
             const data = JSON.parse(saved);
             gameState.player.hp = BigInt(data.p.hp);
             gameState.player.atk = BigInt(data.p.atk);
+            gameState.player.memoryDust = BigInt(data.p.dust);
             gameState.boss.hp = BigInt(data.b.hp);
+            gameState.skills = data.s;
         }
         updateUI();
+        applySkills();
     }
 
-    document.getElementById("attack-button").addEventListener("click", attackAction);
     init();
 </script>
 </body>
