@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>RELICORE - v1.27</title>
+<title>RELICORE - v1.26</title>
 <style>
 :root { --bg: #ffffff; --panel: #f8f9fa; --border: #dee2e6; --primary: #007bff; --text: #212529; --hp: #dc3545; --dark: #1a1a1a; --gold: #d4af37; --growth: #ff69b4; --relic-purple: #9370DB; --relic-bg: #fcfaff; --relic-rainbow: linear-gradient(135deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3); --cosmic-blue: #00d4ff; --cosmic-white: #ffffff; --gemini-purple: #9370DB; }
 * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; box-sizing: border-box; }
@@ -212,7 +212,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Robot
 <div class="privacy-link" onclick="openPolicy()">プライバシーポリシー</div>
 </div>
 </div>
-<div class="ver-footer">RELICORE v1.27</div>
+<div class="ver-footer">RELICORE v1.26</div>
 <script>
 const SAVE_KEY = "relicore_player_data";
 const BOSS_MAX_HP_BASE = 100000000000000000000n;
@@ -270,9 +270,13 @@ const RELIC_MASTER = [
 {id:401, star:4, name:"【不退転】武神の魂", atk:65000, hp:180000, desc:"獲得遺物ボーナス増加。(40個分)"}, {id:402, star:4, name:"【刹那】聖者の遺志", atk:50000, hp:250000, desc:"再起するたびにHP増加幅+1。勝利への渇望が核に宿る。"}, {id:403, star:4, name:"【因果】魔導王の記憶", atk:75000, hp:150000, desc:"攻撃無効化率の下限を底上げ。(上限10%)"}, {id:404, star:4, name:"【反撃】勇者の残光", atk:90000, hp:120000, desc:"反撃の狼煙で★3遺物も獲得。"}, {id:405, star:4, name:"【魂研】賢者の叡智", atk:55000, hp:220000, desc:"獲得戦闘経験値が向上。"}, {id:406, star:4, name:"【死刻】死神の鎌", atk:110000, hp:80000, desc:"最終ダメージ倍率を固定で+0.004%加算する。"},
 {id:501, star:5, name:"断絶の権能", atk:382660, hp:916330, desc:"1つにつき、受けるダメージを50万軽減。"}, {id:502, star:5, name:"強欲の権能", atk:649800, hp:812400, desc:"1つにつき、獲得遺物数を+5増加。(上限10個分)"}, {id:503, star:5, name:"超越の権能", atk:524180, hp:689450, desc:"0.1%の確率で、その一撃のダメージを1.5倍にする。"}, {id:504, star:5, name:"破壊の権能", atk:999999, hp:0, desc:"0.1%の確率で、総ATK分のダメージを最終ダメージに直接加算する。"},
 {id:505, star:5, name:"再生の権能", atk:222222, hp:1528931, desc:"被弾時10%の確率でHP増加(再起)が2回発生。(重複不可)"}, {id:506, star:5, name:"双刃の権能", atk:454649, hp:519700, desc:"150回攻撃ごとに次の一撃のダメージ+100%。(重複不可)"},
-{id:601, star:6, name:"絶対統率レリック・オーバーロード", atk:1500000, hp:4500000, desc:"敵HPが自身のATKの100倍以上の時、与ダメージ+8%。"}, {id:602, star:6, name:"魂律解放レリ・クシア", atk:2500000, hp:3500000, desc:"100回攻撃ごとに次の一撃の最終ダメージ+200%。"}, {id:603, star:6, name:"原初核冠レリコア・レガリア", atk:2000000, hp:4000000, desc:"★1〜3遺物のステータス上昇効果を20%増加させる。"}, {id:604, star:6, name:"虚無終焉レリ・ノヴァ", atk:5555555, hp:0, desc:"攻撃時0.1%の確率で与ダメージ+500%。"}, {id:605, star:6, name:"戦碑累功レリ・エンス", atk:3000000, hp:3000000, desc:"1つにつき獲得経験値+5。"}, {id:705, star:6, name:"エラーコード404", atk:0, hp:0, desc:"内部処理が破壊されています。Gemini出現率が上昇する。"},
+{id:601, star:6, name:"絶対統率レリック・オーバーロード", atk:1500000, hp:4500000, desc:"敵HPが自身のATKの100倍以上の時、与ダメージ+8%。"}, {id:602, star:6, name:"魂律解放レリ・クシア", atk:2500000, hp:3500000, desc:"100回攻撃ごとに次の一撃の最終ダメージ+200%。"}, {id:603, star:6, name:"原初核冠レリコア・レガリア", atk:2000000, hp:4000000, desc:"★1〜3遺物のステータス上昇効果を20%増加させる。"}, {id:604, star:6, name:"虚無終焉レリ・ノヴァ", atk:5555555, hp:0, desc:"攻撃時0.1%の確率で与ダメージ+500%。"},
+{id:605, star:6, name:"戦碑累功レリ・エンス", atk:3000000, hp:3000000, desc:"1つにつき獲得経験値+5。"},
 {id:701, star:7, name:"パンドラの箱", atk:155528931, hp:355528931, desc:"神を屠る唯一の条件。災厄の底に希望を宿す。"}, {id:702, star:7, name:"終焉の福音", atk:200000000, hp:450000000, desc:"敵HPが50%以下のとき、与ダメージ+30%。(重複不可)"}, {id:703, star:7, name:"神滅のアカシックレコード", atk:100000000, hp:550000000, desc:"与ダメージの最終倍率にさらに+20%。(重複不可)"},
-{id:801, star:8, name:"秩序のリバランス", atk:0, hp:0, desc:"【救済】低ダメージを敵最大HP割合の絶対ダメージに変換。討伐数に応じて威力が上昇。"}, {id:802, star:8, name:"特異演算機関：ジェネシス", atk:0, hp:0, desc:"苦戦時、演算機関が自己進化しATK/HPを増幅する。効果は討伐時に永続化される。"}, {id:901, star:8, name:"天律崩壊オメガ・コア", atk:0, hp:0, desc:"遺物を獲得するごとに、ステータスを増幅する絶対遺物。"},
+{id:705, star:7, name:"エラーコード404", atk:0, hp:0, desc:"内部処理が破壊されています。Gemini出現率が上昇する。"},
+{id:801, star:999, name:"秩序のリバランス", atk:0, hp:0, desc:"【救済】低ダメージを敵最大HP割合の絶対ダメージに変換。討伐数に応じて威力が上昇。"},
+{id:802, star:8, name:"特異演算機関：ジェネシス", atk:0, hp:0, desc:"苦戦時、演算機関が自己進化しATK/HPを増幅する。効果は討伐時に永続化される。"},
+{id:901, star:8, name:"天律崩壊オメガ・コア", atk:0, hp:0, desc:"遺物を獲得するごとに、ステータスを増幅する絶対遺物。"},
 {id:1001, star:1001, name:"災厄の残滓", atk:1000000000, hp:3000000000, desc:"すべての遺物のステータス上昇値を1000倍にする。(所持上限1)"}
 ];
 
@@ -289,11 +293,8 @@ if(p.inventory) {
   player.inventory = {};
   Object.entries(p.inventory).forEach(([id, count]) => {
     let nid = parseInt(id);
-    let r = RELIC_MASTER.find(m => m.id == nid);
-    let limit = (r && r.star >= 7 && r.star < 999) ? 1 : 999999;
-    if (nid === 705) limit = 500;
-    if (nid === 1001) limit = 1;
-    player.inventory[nid] = Math.min(parseInt(count), limit);
+    if (nid === 704) return;
+    player.inventory[nid] = parseInt(count);
   });
 }
 player.deathCount = p.deathCount || 0;
@@ -323,8 +324,10 @@ player.killedBeta = p.killedBeta || false;
 } else {
 currentBossHP = BigInt(player.bossMaxHP);
 }
+
 if(player.isCleared) {
 if(!player.inventory[801]) { player.inventory[801] = 1; player.rebalanceSeen = false; saveGame(); }
+if(player.rebalanceSeen === false) { showClearStartMsg(); }
 }
 if(!player.storySeen) document.getElementById("story-modal").style.display = "flex";
 if (Object.keys(player.inventory).length === 0) { player.inventory[0] = 1; }
@@ -338,6 +341,17 @@ if (!player.hasSingularityEngine && player.killedAlpha && player.killedBeta) {
  saveGame();
 }
 }
+
+function showClearStartMsg() {
+isModalOpen = true;
+document.getElementById("clear-modal-title").innerText = "救世主の帰還";
+document.getElementById("clear-modal-msg").innerHTML = `終末神を討ちし者よ、再び世界へようこそ。<br><br>混沌は静まり、災厄はリバランスされました。<br><br><span style="color:var(--gold); font-weight:bold;">【特別遺物付与】</span><br><span class="unique-relic-text">秩序のリバランス</span> を魂に刻みました。<br>これより、理外の存在との戦いが始まります。`;
+document.getElementById("clear-modal").style.display = "flex";
+}
+
+function openRankUpModal(newLv) { stopAttack(); isModalOpen = true; const titleStr = RANK_NAMES[getCurrentRankIndex()]; document.getElementById("rank-up-msg-text").innerHTML = `魂の核が激しく鼓動する……！<br><br><span style="font-size:1.4em; color:var(--growth); font-weight:bold;">再起Lv.${newLv} 到達</span><br>称号が【${titleStr}】に昇格した。`; document.getElementById("rank-up-modal").style.display = "flex"; }
+function closeRankUpModal() { document.getElementById("rank-up-modal").style.display = "none"; isModalOpen = false; }
+function closeRareModal() { document.getElementById("rare-drop-modal").style.display = "none"; isModalOpen = false; }
 
 function openHadoModal(type) {
 stopAttack(); isModalOpen = true;
@@ -397,12 +411,19 @@ player.hasMeta = true;
 player.isCleared = true;
 player.maxDmg = 1000000000000n;
 RELIC_MASTER.forEach(relic => {
-    if (relic.id !== 0 && relic.id < 1000) {
-        player.inventory[relic.id] = 1;
+    if (relic.id !== 0) {
+        player.inventory[relic.id] = (player.inventory[relic.id] || 0) + 300000;
     }
 });
+if (!player.inventory[801]) player.inventory[801] = 1;
 success = true;
 message = "【開発者権限】全スキル・全遺物を解放し、Lv.10へ調整しました。";
+}
+else if (code === "REBALANCE2026") {
+  if (player.isCleared) {
+      if (!player.inventory[801]) { player.inventory[801] = 1; player.rebalanceSeen = true; success = true; message = `シリアルコード承認。<br><br><span style="color:var(--gold); font-weight:bold;">【特別遺物付与】</span><br><span class="unique-relic-text">秩序のリバランス</span> を獲得しました。`; }
+      else { message = "このコードはすでに適用されています。"; }
+  } else { message = `<span style="color:#ff4444;">「まだその時ではない……」</span><br><br>このコードは神を屠りし者のみが使用可能です。`; }
 } else if (code === "FIX_GENESIS") { player.bossMaxHP = BOSS_MAX_HP_BASE.toString(); currentBossHP = BOSS_MAX_HP_BASE; success = true; message = `シリアルコード承認：ステータス初期化。`; }
 else if (code !== "") { message = "無効なシリアルコードです。"; }
 
@@ -443,7 +464,7 @@ if (diff > 0) {
 }
 
 let compCount = 0;
-for (let s = 1; s <= 8; s++) {
+for (let s = 1; s <= 7; s++) {
 const allOfType = RELIC_MASTER.filter(m => m.star === s && m.id !== 117 && m.id !== 0 && m.id !== 705 && m.id < 1000);
 if (allOfType.length > 0 && allOfType.every(m => (player.inventory[m.id] || 0) > 0)) { compCount++; }
 }
@@ -451,7 +472,7 @@ const compBonus = Math.pow(2.0, compCount);
 
 Object.entries(player.inventory).forEach(([idStr, count]) => {
 const id = parseInt(idStr);
-const r = RELIC_MASTER.find(m => m.id == id); if(!r || r.star > 8) return;
+const r = RELIC_MASTER.find(m => m.id == id); if(!r || r.star === 999 || r.star === 8 || r.star === 1001) return;
 let bA = (r.atk || 0) * count, bH = (r.hp || 0) * count;
 if(r.star === 1 && player.hasHado) { bA *= 100; bH *= 100; }
 if(r.star <= 2 && player.hasGreatHado) { bA *= 100; bH *= 100; }
@@ -460,7 +481,7 @@ if(r.star === 4 && player.hasWorldOrder) { bA *= 100; bH *= 100; }
 if(r.star <= 5 && player.hasCrown) { bA *= 100; bH *= 100; }
 if(r.star <= 6 && player.hasMeta) { bA *= 100; bH *= 100; }
 if(hasRegalia && r.star <= 3) { bA *= 1.2; bH *= 1.2; }
-if(hasZansai && r.id < 1000) { bA *= 1000; bH *= 1000; }
+if(hasZansai) { bA *= 1000; bH *= 1000; }
 atk += bA; hp += bH; if(r.mult) mult *= Math.pow(r.mult, count);
 });
 
@@ -578,15 +599,10 @@ for (let i = 0; i < dropCount; i++) {
 let sel;
 if (hasZanko && Math.random() < 0.5) { sel = cands3[Math.floor(Math.random() * cands3.length)]; }
 else { sel = cands2[Math.floor(Math.random() * cands2.length)]; }
-let limit = (sel.star >= 7) ? 1 : 999999;
-if (sel.id === 705) limit = 500;
-if (sel.id === 1001) limit = 1;
-if((player.inventory[sel.id] || 0) < limit) {
-  player.inventory[sel.id] = (player.inventory[sel.id] || 0) + 1; localGains[sel.id] = (localGains[sel.id] || 0) + 1;
-}
+player.inventory[sel.id] = (player.inventory[sel.id] || 0) + 1; localGains[sel.id] = (localGains[sel.id] || 0) + 1;
 }
 player.totalRelics += dropCount; let entries = []; Object.entries(localGains).forEach(([id, count]) => { const m = RELIC_MASTER.find(x => x.id == id); entries.push(`<span class="c${m.star}">★${m.star} ${m.name}${count > 1 ? '×' + count : ''}</span>`); });
-return entries.length > 0 ? `<div style="font-size:0.82em;">【狼煙】獲得：${entries.join("、 ")}</div>` : "";
+return `<div style="font-size:0.82em;">【狼煙】獲得：${entries.join("、 ")}</div>`;
 }
 
 function getDropLog(count) {
@@ -603,17 +619,12 @@ if (star === 8) {
 } else if (star === 2 && player.hasDivineGuide && Math.random() < 0.1) {
   sel = RELIC_MASTER.find(m => m.id === 117);
 } else {
-  let cands = RELIC_MASTER.filter(m => m.star === star && m.id !== 0 && m.id !== 117 && m.id !== 705 && m.id < 1000);
+  let cands = RELIC_MASTER.filter(m => m.star === star && m.id !== 0 && m.star < 8 && m.id !== 117 && m.id !== 705 && m.id < 1000);
   if(cands.length === 0) cands = RELIC_MASTER.filter(m => m.star === 1);
   sel = cands[Math.floor(Math.random() * cands.length)];
 }
-let limit = (sel.star >= 7) ? 1 : 999999;
-if (sel.id === 705) limit = 500;
-if (sel.id === 1001) limit = 1;
-if((player.inventory[sel.id] || 0) < limit) {
-  if (sel.star >= 4 && !player.inventory[sel.id]) { if (!showRare || sel.star > showRare.star) showRare = sel; }
-  player.inventory[sel.id] = (player.inventory[sel.id] || 0) + 1; player.totalRelics++; starCounts[star]++; starGroups[star][sel.id] = (starGroups[star][sel.id] || 0) + 1;
-}
+if (sel.star >= 4 && !player.inventory[sel.id]) { if (!showRare || sel.star > showRare.star) showRare = sel; }
+player.inventory[sel.id] = (player.inventory[sel.id] || 0) + 1; player.totalRelics++; starCounts[star]++; starGroups[star][sel.id] = (starGroups[star][sel.id] || 0) + 1;
 }
 if(showRare) openRareModal(showRare);
 let finalEntries = [];
@@ -707,13 +718,14 @@ function renderRelics() {
 const container = document.getElementById("relic-list"); if (!container) return;
 const sortedInventory = Object.entries(player.inventory).filter(([id, c]) => c > 0).sort((a, b) => {
   const rA = RELIC_MASTER.find(x => x.id == a[0]); const rB = RELIC_MASTER.find(x => x.id == b[0]);
-  if (!rA || !rB) return 0;
-  return (rA.star || 0) - (rB.star || 0) || a[0] - b[0];
+  if (!rA || !rB) return 0; if (rA.star === 999 && rB.star !== 999) return -1; if (rA.star !== 999 && rB.star === 999) return 1;
+  return rA.star - rB.star || a[0] - b[0];
 });
 const hasRegalia = (player.inventory[603] || 0) > 0; const hasZansai = (player.inventory[1001] || 0) > 0;
 container.innerHTML = sortedInventory.map(([idStr, c]) => {
 const id = parseInt(idStr);
 const m = RELIC_MASTER.find(x => x.id == id); if(!m) return "";
+if (m.star === 999) { return `<div class="relic-card relic-unique"><div class="relic-name"><span class="unique-relic-text">${m.name}</span></div><div class="relic-effect-box"><span class="relic-desc-line">${m.desc}</span></div></div>`; }
 let baseA = m.atk || 0, baseH = m.hp || 0;
 if(m.star === 1 && player.hasHado) { baseA *= 100; baseH *= 100; }
 if(m.star <= 2 && player.hasGreatHado) { baseA *= 100; baseH *= 100; }
@@ -724,7 +736,7 @@ if(m.star <= 6 && player.hasMeta) { baseA *= 100; baseH *= 100; }
 if(hasRegalia && m.star <= 3) { baseA *= 1.2; baseH *= 1.2; }
 if(hasZansai && m.id < 1000) { baseA *= 1000; baseH *= 1000; }
 if(m.id === 901) { baseA = Number(player.extraAtkBonus || "0") / c; baseH = Number(player.extraHpBonus || "0") / c; }
-if(m.id === 802) { let sm = Math.pow(1.002, evolutionStack); return `<div class="relic-card star-ultimate"><div class="relic-name c8">★8 ${m.name}</div><div class="relic-effect-box">戦闘時増幅: x${sm.toFixed(2)}<span class="relic-desc-line">${m.desc}</span></div></div>`; }
+if(m.id === 802) { let sm = Math.pow(1.002, evolutionStack); if(sm > 1e100) sm = 1e100; return `<div class="relic-card star-ultimate"><div class="relic-name c8">★8 ${m.name}</div><div class="relic-effect-box">戦闘時増幅: x${sm.toFixed(2)}<span class="relic-desc-line">${m.desc}</span></div></div>`; }
 if(m.id === 1001) { return `<div class="relic-card star-ultimate" style="border-color:#ff0000;"><div class="relic-name c1001">EXTRA ${m.name}</div><div class="relic-effect-box">ATK+${formatFix(baseA)} HP+${formatFix(baseH)}<span class="relic-desc-line">${m.desc}</span></div></div>`; }
 let cardCls = m.star >= 8 ? 'star-ultimate' : (m.star >= 4 ? 'star-high' : 'star-low');
 return `<div class="relic-card ${cardCls}"><div class="relic-name c${m.star}">★${m.star} ${m.name}×${c.toLocaleString()}</div><div class="relic-effect-box">${(baseA>0?`ATK+${formatFix(baseA)} `:'')}${(baseH>0?`HP+${formatFix(baseH)}`:'')}${(m.mult?` (x${m.mult})`:'')}<span class="relic-desc-line">${m.desc || ""}</span></div></div>`;
@@ -798,7 +810,7 @@ if (geminiType === "β") player.killedBeta = true;
 
 if ((player.inventory[705] || 0) < 500) {
  player.inventory[705] = (player.inventory[705] || 0) + 1;
- dropMsg += `<span class="c6">★6 エラーコード404</span> `;
+ dropMsg += `<span class="c7">★7 エラーコード404</span> `;
 }
 checkSingularityUnlock();
 addLog(logHtml + `<div><span class="c-gemini">Gemini ${geminiType} の沈黙を確認。遺構より情報を抽出。</span></div>` + (dropMsg ? `<div>獲得：${dropMsg}</div>` : ""));
