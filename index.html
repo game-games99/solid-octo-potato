@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>RELICORE - v1.24</title>
+<title>RELICORE - v1.25</title>
 <style>
 :root { --bg: #ffffff; --panel: #f8f9fa; --border: #dee2e6; --primary: #007bff; --text: #212529; --hp: #dc3545; --dark: #1a1a1a; --gold: #d4af37; --growth: #ff69b4; --relic-purple: #9370DB; --relic-bg: #fcfaff; --relic-rainbow: linear-gradient(135deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3); --cosmic-blue: #00d4ff; --cosmic-white: #ffffff; --gemini-purple: #9370DB; }
 * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; box-sizing: border-box; }
@@ -37,7 +37,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Robot
 .glow-5 { border: 3px solid #e83e8c; box-shadow: 0 0 20px rgba(232,62,140,0.5); }
 .glow-6 { border: 3px solid #fd7e14; box-shadow: 0 0 25px rgba(253,126,20,0.6); }
 .glow-7 { border: 3px solid #ff0000; box-shadow: 0 0 30px rgba(255,0,0,0.7); animation: rare-pulse 1s infinite alternate; }
-.glow-8 { border: 3px solid #bf00ff; box-shadow: 0 0 35px rgba(191,0,255,0.6); animation: rare-pulse 0.8s infinite alternate; }
+.glow-8 { border: 3px solid var(--gold); box-shadow: 0 0 35px rgba(212,175,55,0.6); animation: rare-pulse 0.8s infinite alternate; }
 @keyframes rare-pulse { from { transform: scale(1); } to { transform: scale(1.05); } }
 
 #hado-awaken-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 30000; justify-content: center; align-items: center; padding: 20px; }
@@ -60,7 +60,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Robot
 .story-vow { color: gold; font-weight: bold; display: inline-block; animation: heart-beat 1.5s infinite; text-shadow: 0 0 10px rgba(212, 175, 55, 0.8); }
 @keyframes heart-beat { 0% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1); opacity: 0.8; } }
 .story-btn { background: none; border: 1px solid gold; color: gold; padding: 12px 40px; font-size: 1em; cursor: pointer; transition: 0.3s; }
-.c1 { color: #888888; font-weight: bold; } .c2 { color: #28a745; font-weight: bold; } .c3 { color: #007bff; font-weight: bold; } .c4 { color: #9370DB; font-weight: bold; } .c5 { color: #e83e8c; font-weight: bold; } .c6 { color: #fd7e14; font-weight: bold; } .c7 { color: #ff0000; font-weight: bold; } .c8 { color: #bf00ff; font-weight: bold; text-shadow: 0 0 8px rgba(191,0,255,0.5); border-bottom: 1px solid #bf00ff; }
+.c1 { color: #888888; font-weight: bold; } .c2 { color: #28a745; font-weight: bold; } .c3 { color: #007bff; font-weight: bold; } .c4 { color: #9370DB; font-weight: bold; } .c5 { color: #e83e8c; font-weight: bold; } .c6 { color: #fd7e14; font-weight: bold; } .c7 { color: #ff0000; font-weight: bold; } .c8 { color: var(--gold); font-weight: bold; text-shadow: 0 0 8px rgba(212,175,55,0.6); }
 .c-order { color: #ffd700; font-weight: bold; text-shadow: 0 0 5px #000; }
 .c-gemini { color: var(--gemini-purple); font-weight: bold; text-shadow: 0 0 8px var(--gemini-purple); text-decoration: underline; }
 .error-msg { color: #ff0000; font-weight: bold; background: rgba(255,0,0,0.1); padding: 4px; display: block; border: 1px solid #ff0000; margin: 5px 0; }
@@ -114,16 +114,21 @@ body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Robot
 .relic-card { position: relative; border: 1px solid #e0d5f0; padding: 6px 6px 6px 10px; border-radius: 6px; background: var(--relic-bg); display: flex; flex-direction: column; min-height: 70px; box-shadow: 0 2px 4px rgba(102, 16, 242, 0.05); }
 .relic-card.star-low { grid-column: span 2; }
 .relic-card.star-high { grid-column: span 3; border-width: 2px; background: #fff; }
-.relic-card.star-ultimate { grid-column: span 6; border: 2px solid #bf00ff; background: #fff; box-shadow: 0 0 15px rgba(191, 0, 255, 0.2); }
+.relic-card.star-ultimate { grid-column: span 6; border: 2px solid var(--gold); background: #000; color: #fff; box-shadow: 0 0 15px rgba(212, 175, 55, 0.4); }
 
 .relic-card::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--relic-purple); border-radius: 6px 0 0 6px; }
-.relic-card.star-ultimate::before { background: #bf00ff; }
+.relic-card.star-ultimate::before { background: var(--gold); }
 .relic-name { font-weight: bold; font-size: 0.65em; min-height: 2.4em; line-height: 1.2; }
 .relic-effect-box { font-size: 0.6em; color: #444; margin-top: 2px; line-height: 1.3; }
+.relic-card.star-ultimate .relic-effect-box { color: #eee; }
 .relic-desc-line { color: #666; font-style: italic; display: block; margin-top: 4px; border-top: 1px solid #f0f0f0; padding-top: 2px; }
-.relic-countdown { font-size: 0.85em; color: var(--growth); font-weight: bold; margin-top: 4px; border-top: 1px dashed #ddd; padding-top: 2px; }
+.relic-card.star-ultimate .relic-desc-line { color: #aaa; border-top-color: #333; }
 
 .st-box { background: #fff; border: none; border-left: 4px solid #28a745; border-radius: 8px; padding: 8px 10px; margin-bottom: 8px; font-size: 0.82em; line-height: 1.5; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+.st-box.hado { border-left-color: var(--gold); }
+.st-box.cosmic { border-left-color: var(--cosmic-blue); }
+.st-box.genesis { border-left-color: #ffffff; background: #1a1a1a; color: #fff; }
+
 .clickable-stat { display: inline-block; color: var(--primary); border: 1px solid var(--primary); padding: 2px 8px; border-radius: 12px; font-size: 0.85em; cursor: pointer; text-decoration: none; margin-left: 5px; background: #f0f7ff; transition: 0.2s; }
 .clickable-stat:active { background: var(--primary); color: #fff; transform: scale(0.95); }
 .st-title-flex { display: flex; justify-content: space-between; align-items: baseline; font-weight: bold; }
@@ -135,7 +140,6 @@ body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Robot
 .policy-content { background: #fff; border-radius: 15px; padding: 25px; color: #333; max-width: 500px; width: 95%; max-height: 85vh; overflow-y: auto; text-align: left; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
 .policy-title { font-weight: bold; font-size: 1.2em; margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 8px; text-align: center; }
 .policy-text { font-size: 0.82em; line-height: 1.7; margin-bottom: 20px; color: #444; }
-.policy-divider { border: 0; border-top: 1px solid #ddd; margin: 15px 0; }
 .policy-footer { font-size: 0.75em; color: #777; text-align: right; margin-top: 20px; line-height: 1.4; }
 .ver-footer { position: fixed; bottom: 4px; right: 4px; color: #bbb; font-size: 0.65em; pointer-events: none; z-index: 50; }
 
@@ -198,14 +202,17 @@ body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Robot
 獲得資格: <span id="st-rank" class="clickable-stat" onclick="checkDropEligibility()">★1まで</span><br>
 コンプリート数: <span id="st-comp-count" style="font-weight:bold; color:var(--gold);">0</span> (倍率: <span id="st-comp-bonus" style="font-weight:bold; color:var(--growth);">x1.00</span>)
 </div>
-<div id="hado-box" class="st-box" style="display:none; border:none; border-left: 4px solid gold;"><span id="hado-status-text" style="color:gold; font-weight:bold;"></span><br><span id="hado-status-desc"></span></div>
-<div class="st-box"><div class="st-title-flex"><span>遺物出現率</span><span id="st-collection" style="color:#666; font-size:0.9em;">0/66</span></div><table style="width:100%; font-size:0.9em; margin-top:5px;" id="prob-list"></table></div>
+<div id="hado-box" class="st-box hado" style="display:none;"><span id="hado-status-text" style="color:var(--gold); font-weight:bold;"></span><br><span id="hado-status-desc"></span></div>
+<div id="cosmic-box" class="st-box cosmic" style="display:none;"><span id="cosmic-status-text" style="color:var(--cosmic-blue); font-weight:bold;"></span><br><span id="cosmic-status-desc"></span></div>
+<div id="genesis-box" class="st-box genesis" style="display:none;"><span id="genesis-status-text" style="color:white; font-weight:bold;"></span><br><span id="genesis-status-desc"></span></div>
+
+<div class="st-box"><div class="st-title-flex"><span>遺物出現率</span><span id="st-collection" style="color:#666; font-size:0.9em;">0/64</span></div><table style="width:100%; font-size:0.9em; margin-top:5px;" id="prob-list"></table></div>
 <button class="btn-serial" onclick="openSerialModal()">シリアルコード入力</button>
 <button class="btn-reset" onclick="resetData()">全データリセット</button>
 <div class="privacy-link" onclick="openPolicy()">プライバシーポリシー</div>
 </div>
 </div>
-<div class="ver-footer">RELICORE v1.24</div>
+<div class="ver-footer">RELICORE v1.25</div>
 <script>
 const SAVE_KEY = "relicore_player_data";
 const BOSS_MAX_HP_BASE = 100000000000000000000n;
@@ -269,7 +276,7 @@ const RELIC_MASTER = [
 {id:704, star:7, name:"災厄の残滓", atk:500000000, hp:500000000, desc:"すべての遺物のステータス上昇値を100倍にする。(効果は重複しない)"},
 {id:705, star:7, name:"エラーコード404", atk:0, hp:0, desc:"内部処理が破壊されています。Gemini出現率が上昇する。"},
 {id:801, star:999, name:"秩序のリバランス", atk:0, hp:0, desc:"【救済】低ダメージを敵最大HP割合の絶対ダメージに変換。討伐数に応じて威力が上昇。"},
-{id:802, star:8, name:"特異演算機関：ジェネシス", atk:0, hp:0, desc:"苦戦時、演算機関が自己進化しATKを乗算で増幅する。"},
+{id:802, star:8, name:"特異演算機関：ジェネシス", atk:0, hp:0, desc:"苦戦時、演算機関が自己進化しATK/HPを増幅する。効果は討伐時に永続化される。"},
 {id:901, star:8, name:"天律崩壊オメガ・コア", atk:0, hp:0, desc:"遺物を獲得するごとに、ステータスを増幅する絶対遺物。"}
 ];
 
@@ -312,7 +319,6 @@ if(saved) {
   player.hasSingularityEngine = p.hasSingularityEngine || false;
   player.killedAlpha = p.killedAlpha || false;
   player.killedBeta = p.killedBeta || false;
-  currentBossHP = p.currentBossHP ? BigInt(p.currentBossHP) : BigInt(player.bossMaxHP);
 } else {
   currentBossHP = BigInt(player.bossMaxHP);
 }
@@ -450,7 +456,7 @@ if (hasOmega) {
       const baseH = Number(player.baseHP);
       const boost = Math.sqrt(baseA * baseH) * 0.000001 * diff;
       player.extraAtkBonus = (BigInt(player.extraAtkBonus || "0") + BigInt(Math.floor(boost))).toString();
-      player.extraHpBonus = (BigInt(player.extraHpBonus || "0") + BigInt(Math.floor(boost * 2))).toString();
+      player.extraHpBonus = (BigInt(player.extraHpBonus || "0") + BigInt(Math.floor(boost * 3))).toString();
       player.lastProcessedRelicCount = currentTotal;
   }
 }
@@ -477,9 +483,12 @@ Object.entries(player.inventory).forEach(([idStr, count]) => {
   atk += bA; hp += bH; if(r.mult) mult *= Math.pow(r.mult, count);
 });
 
+let genesisHPBoost = 1.0;
+if(player.hasSingularityEngine) genesisHPBoost = Math.pow(1.002, evolutionStack);
+
 return {
   atk: BigInt(Math.floor(atk * compBonus)) + BigInt(player.extraAtkBonus || "0"),
-  hp: BigInt(Math.floor(hp * compBonus)) + BigInt(player.extraHpBonus || "0"),
+  hp: BigInt(Math.floor(hp * compBonus * genesisHPBoost)) + BigInt(player.extraHpBonus || "0"),
   mult, compCount, compBonus
 };
 }
@@ -650,16 +659,32 @@ title.textContent = RANK_NAMES[rankIdx]; area.className = "rank-display"; title.
 if (rankIdx >= 3 && rankIdx <= 5) { area.classList.add("rank-glow-mid"); title.style.color = "var(--relic-purple)"; }
 else if (rankIdx >= 6 && rankIdx <= 8) { area.classList.add("rank-glow-high"); title.style.color = "var(--gold)"; }
 else if (rankIdx >= 9) { area.classList.add("rank-glow-max"); title.style.color = "gold"; }
+
 let hadoText = "";
-if (player.hasSingularityEngine) hadoText = "特異演算：ジェネシス起動中";
-else if(player.hasMeta) hadoText = "メタ・アクシオム：全理の定義者";
-else if(player.hasCrown) hadoText = "クラウンルール：絶対的権威";
-else if(player.hasWorldOrder) hadoText = "ワールドオーダー：秩序の法";
-else if(player.hasDivineGuide) hadoText = "隠しスキル：天帝の導き";
-else if(player.hasGreatHado) hadoText = "隠しスキル：破軍の大号令";
-else if(player.hasHado) hadoText = "隠しスキル：破軍の号令";
-if(hadoText !== "") { document.getElementById("hado-box").style.display = "block"; document.getElementById("hado-status-text").textContent = hadoText; document.getElementById("hado-status-desc").textContent = "遺物ドロップ率が大幅上昇中"; }
+if(player.hasDivineGuide) hadoText = "天帝の導き：万象を統べる理";
+else if(player.hasGreatHado) hadoText = "破軍の大号令：王者の威光";
+else if(player.hasHado) hadoText = "破軍の号令：覇道の開門";
+
+if(hadoText !== "") { document.getElementById("hado-box").style.display = "block"; document.getElementById("hado-status-text").textContent = hadoText; document.getElementById("hado-status-desc").textContent = "低ランク遺物の性能が100倍に強化中。"; }
 else { document.getElementById("hado-box").style.display = "none"; }
+
+let cosmicText = "";
+if(player.hasMeta) cosmicText = "メタ・アクシオム：全理の定義者";
+else if(player.hasCrown) cosmicText = "クラウン・オブ・オーソリティ：絶対権威";
+else if(player.hasWorldOrder) cosmicText = "ワールドオーダー：秩序の構築";
+
+if(cosmicText !== "") { document.getElementById("cosmic-box").style.display = "block"; document.getElementById("cosmic-status-text").textContent = cosmicText; document.getElementById("cosmic-status-desc").textContent = "高ランク遺物の性能が10倍に強化中。"; }
+else { document.getElementById("cosmic-box").style.display = "none"; }
+
+if(player.hasSingularityEngine) {
+   document.getElementById("genesis-box").style.display = "block";
+   document.getElementById("genesis-status-text").textContent = "特異演算機関：ジェネシス起動中";
+   let sm = Math.pow(1.002, evolutionStack);
+   document.getElementById("genesis-status-desc").textContent = `現在進化倍率: x${sm.toFixed(2)} (討伐時に基礎値へ加算)`;
+} else {
+   document.getElementById("genesis-box").style.display = "none";
+}
+
 const tid = document.querySelector(".tab.active").id;
 if(tid === 'vow') renderVow(); else if(tid === 'relic') renderRelics(); else if(tid === 'status') renderStatus();
 }
@@ -667,7 +692,7 @@ if(tid === 'vow') renderVow(); else if(tid === 'relic') renderRelics(); else if(
 function renderVow() {
 const rawLv = player.totalLevel; const lv = Math.min(10, rawLv);
 const bushinCount = Math.min(40, player.inventory[401] || 0); const gouyokuCount = Math.min(10, player.inventory[502] || 0);
-const skills = [{ id: "futaiten", nameJp: "不退転の力", desc: "戦闘を経験するたびにランダムな遺物を (1+所持数) つ獲得する。" },{ id: "setsuna", nameJp: "刹那の堆積", desc: "再起するたびにHP増加幅+1。勝利への渇望が核に宿る。" },{ id: "inga", nameJp: "因果の拒絶", desc: "稀に攻撃を無効化する。" },{ id: "hangeki", nameJp: "反撃の狼煙", desc: "生存時★3以上の遺物を確定で入手する。" },{ id: "konken", nameJp: "魂の研磨", desc: "獲得戦闘経験値が向上。" },{ id: "shikoku", nameJp: "死を刻む", desc: "最終ダメージ倍率を固定で+0.004%加算する。" }];
+const skills = [{ id: "futaiten", nameJp: "不退転의 力", desc: "戦闘を経験するたびにランダムな遺物を (1+所持数) つ獲得する。" },{ id: "setsuna", nameJp: "刹那의 堆積", desc: "再起するたびにHP増加幅+1。勝利への渇望が核に宿る。" },{ id: "inga", nameJp: "因果의 拒絶", desc: "稀に攻撃を無効化する。" },{ id: "hangeki", nameJp: "反撃의 狼煙", desc: "生存時★3以上の遺物を確定で入手する。" },{ id: "konken", nameJp: "魂의 研磨", desc: "獲得戦闘経験値が向上。" },{ id: "shikoku", nameJp: "死를 刻む", desc: "最終ダメージ倍率を固定で+0.004%加算する。" }];
 let html = "";
 skills.forEach(s => {
   let hlContent = "";
@@ -678,7 +703,7 @@ skills.forEach(s => {
   else if(s.id === "konken") { const ensCount = (player.inventory[605] || 0) * 5; hlContent = `<span class="vow-tag">経験値：+${lv + (player.inventory[405] || 0) + ensCount}</span>`; }
   else if(s.id === "shikoku") { const kamaFixed = (player.inventory[406] || 0) * 0.00004; const totalBonus = (lv * 0.00004) + kamaFixed; hlContent = `<span class="vow-tag">最終ダメ：+${(totalBonus * 100).toFixed(4)}%</span>`; }
   let lvClass = lv >= 10 ? "max" : "";
-  html += `<div class="vow-item"><div class="vow-header"><span class="vow-name">${s.nameJp}</span><span class="vow-lv ${lvClass}">Lv.${lv}</span></div><div><div class="vow-highlight">${hlContent}</div><span class="vow-sub">${s.desc}</span></div></div>`;
+  html += `<div class="vow-item"><div class="vow-header"><span class="vow-name">${s.nameJp.replace(/의/g, 'の')}</span><span class="vow-lv ${lvClass}">Lv.${lv}</span></div><div><div class="vow-highlight">${hlContent}</div><span class="vow-sub">${s.desc}</span></div></div>`;
 });
 document.getElementById('vow-list').innerHTML = html;
 }
@@ -705,7 +730,7 @@ container.innerHTML = sortedInventory.map(([idStr, c]) => {
   if(hasRegalia && m.star <= 3) { baseA *= 1.2; baseH *= 1.2; }
   if(hasZansai) { baseA *= 100; baseH *= 100; }
   if(m.id === 901) { baseA = Number(player.extraAtkBonus || "0") / c; baseH = Number(player.extraHpBonus || "0") / c; }
-  if(m.id === 802) { let sm = Math.pow(1.002, evolutionStack); if(sm > 1e100) sm = 1e100; baseA = 0; baseH = 0; return `<div class="relic-card star-ultimate"><div class="relic-name c8">★8 ${m.name}</div><div class="relic-effect-box">現在倍率: x${sm.toFixed(2)}<span class="relic-desc-line">${m.desc}</span></div></div>`; }
+  if(m.id === 802) { let sm = Math.pow(1.002, evolutionStack); if(sm > 1e100) sm = 1e100; return `<div class="relic-card star-ultimate"><div class="relic-name c8">★8 ${m.name}</div><div class="relic-effect-box">戦闘時増幅: x${sm.toFixed(2)}<span class="relic-desc-line">${m.desc}</span></div></div>`; }
   let cardCls = m.star >= 8 ? 'star-ultimate' : (m.star >= 4 ? 'star-high' : 'star-low');
   return `<div class="relic-card ${cardCls}"><div class="relic-name c${m.star}">★${m.star} ${m.name}×${c.toLocaleString()}</div><div class="relic-effect-box">${(baseA>0?`ATK+${formatFix(baseA)} `:'')}${(baseH>0?`HP+${formatFix(baseH)}`:'')}${(m.mult?` (x${m.mult})`:'')}<span class="relic-desc-line">${m.desc || ""}</span></div></div>`;
 }).join("");
@@ -733,6 +758,19 @@ function addLog(html) { const l = document.getElementById("log"); const d = docu
 function closeStory() { player.storySeen = true; document.getElementById("story-modal").style.display = "none"; saveGame(); }
 
 function handleBossDefeat() {
+const bonus = getRelicBonus();
+const skillMult = calcFinalDmgMult();
+const currentTotalAtk = BigInt(Math.floor(Number(player.baseAtk + bonus.atk) * bonus.mult * skillMult));
+const currentTotalHP = BigInt(Math.floor(Number(player.baseHP + bonus.hp) * bonus.mult));
+
+if (player.hasSingularityEngine && evolutionStack > 0) {
+   let sm = Math.pow(1.002, evolutionStack) - 1.0;
+   let atkGain = BigInt(Math.floor(Number(currentTotalAtk) * sm * 0.1));
+   let hpGain = BigInt(Math.floor(Number(currentTotalHP) * sm * 0.2));
+   player.extraAtkBonus = (BigInt(player.extraAtkBonus || "0") + atkGain).toString();
+   player.extraHpBonus = (BigInt(player.extraHpBonus || "0") + hpGain).toString();
+}
+
 let geminiProb = 0.01 + (Math.min(500, player.inventory[705] || 0) * 0.00002);
 if (Math.random() < geminiProb) {
    isGeminiBattle = true;
