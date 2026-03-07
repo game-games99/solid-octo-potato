@@ -3,167 +3,225 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NecroRise</title>
+<title>NecroRise - Rebirth</title>
 <style>
-body { font-family: sans-serif; background: #111; color: #eee; text-align: center; }
-#game { max-width: 500px; margin: 20px auto; }
-button { padding: 10px 20px; font-size: 18px; margin-top: 10px; }
-.status, .enemy-status { margin: 10px 0; }
-#log { text-align: left; max-height: 300px; overflow-y: auto; background:#222; padding:10px; border-radius:5px; margin-top:10px; font-size:14px;}
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0a0a0a; color: #d1d1d1; text-align: center; margin: 0; }
+    #game { max-width: 500px; margin: 0 auto; padding: 20px; }
+    
+    /* タブメニュー */
+    .tabs { display: flex; justify-content: center; margin-bottom: 20px; border-bottom: 1px solid #444; }
+    .tab-btn { background: none; border: none; color: #888; padding: 10px 20px; cursor: pointer; font-size: 16px; }
+    .tab-btn.active { color: #fff; border-bottom: 2px solid #e74c3c; font-weight: bold; }
+    
+    .tab-content { display: none; min-height: 300px; }
+    .tab-content.active { display: block; }
+
+    /* ステータス表示 */
+    .status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; background: #1a1a1a; padding: 15px; border-radius: 8px; text-align: left; }
+    .status-item { border-bottom: 1px solid #333; padding: 5px 0; }
+    .label { color: #888; font-size: 12px; display: block; }
+    .value { font-size: 18px; color: #fff; }
+
+    /* エネミーエリア */
+    .enemy-area { background: #221111; padding: 20px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #442222; }
+    .enemy-name { font-size: 24px; color: #e74c3c; margin-bottom: 10px; }
+    
+    /* 攻撃ボタン */
+    #attackBtn { 
+        width: 100%; height: 80px; font-size: 24px; font-weight: bold;
+        background: linear-gradient(to bottom, #c0392b, #8e44ad); color: white;
+        border: none; border-radius: 10px; cursor: pointer; touch-action: manipulation;
+        box-shadow: 0 4px 0 #641e16; transition: 0.1s;
+    }
+    #attackBtn:active { transform: translateY(4px); box-shadow: none; background: #c0392b; }
+
+    #log { text-align: left; height: 150px; overflow-y: auto; background:#000; padding:10px; border-radius:5px; margin-top:10px; font-size:12px; color: #aaa; }
+    .highlight { color: #f1c40f; }
 </style>
 </head>
 <body>
+
 <div id="game">
-<h1>NecroRise</h1>
+    <h1>NecroRise</h1>
 
-<div class="status">
-  <div>HP: <span id="playerHP"></span></div>
-  <div>ATK: <span id="playerATK"></span></div>
-  <div>装備ATK: <span id="gearATK"></span></div>
-  <div>装備HP: <span id="gearHP"></span></div>
-  <div>死亡回数: <span id="deathCount"></span></div>
-  <div>現在階: <span id="currentFloor"></span>/30</div>
-  <div>ダンジョン: <span id="dungeonType"></span></div>
-</div>
+    <div class="tabs">
+        <button class="tab-btn active" onclick="showTab('battle')">戦闘</button>
+        <button class="tab-btn" onclick="showTab('status')">詳細ステータス</button>
+    </div>
 
-<div class="enemy-status">
-  <div>敵: <span id="enemyName"></span></div>
-  <div>HP: <span id="enemyHP"></span></div>
-  <div>ATK: <span id="enemyATK"></span></div>
-</div>
+    <div id="battle" class="tab-content active">
+        <div class="enemy-area">
+            <div id="dungeonInfo" style="font-size: 14px; color: #888;"></div>
+            <div id="enemyName" class="enemy-name">---</div>
+            <div>敵HP: <span id="enemyHP" class="value">0</span> / ATK: <span id="enemyATK" class="value">0</span></div>
+        </div>
 
-<button id="attackBtn">こうげき</button>
-<div id="log"></div>
+        <div style="margin-bottom: 15px;">
+            <span>あなたのHP: <span id="playerHP" style="font-size: 24px; color: #2ecc71;">0</span></span>
+        </div>
+
+        <button id="attackBtn">こうげき（長押し可）</button>
+    </div>
+
+    <div id="status" class="tab-content">
+        <div class="status-grid">
+            <div class="status-item"><span class="label">基礎攻撃力</span><span id="pBaseATK" class="value">0</span></div>
+            <div class="status-item"><span class="label">装備攻撃力</span><span id="pGearATK" class="value">0</span></div>
+            <div class="status-item"><span class="label">基礎HP</span><span id="pBaseHP" class="value">0</span></div>
+            <div class="status-item"><span class="label">装備HP</span><span id="pGearHP" class="value">0</span></div>
+            <div class="status-item"><span class="label">死亡回数</span><span id="pDeath" class="value">0</span></div>
+            <div class="status-item"><span class="label">世界レベル</span><span id="pWorld" class="value">0</span></div>
+        </div>
+    </div>
+
+    <div id="log"></div>
 </div>
 
 <script>
-// プレイヤー
+// --- ゲームデータ定義 ---
 let player = {
-  baseATK: 10,
-  baseHP: 100,
-  gearATK: 0,
-  gearHP: 0,
-  deathCount: 0,
-  worldLevel: 1,
-  currentHP: 100
+    baseATK: 10,
+    baseHP: 100,
+    gearATK: 0,
+    gearHP: 0,
+    deathCount: 0,
+    worldLevel: 1,
+    currentHP: 100
 };
 
-// ダンジョン
 let dungeonTypes = ["村", "街", "砦", "城"];
 let dungeon = { type: "", floor: 1, level: 1, maxFloors: 30, enemy: null };
-
-// 形容詞と職業200種
 let adjectives = ["狂気の","闇の","深淵の","虚無の","混沌の","影の"];
-let professions = [];
-for(let i=1;i<=200;i++){ professions.push("職業"+i); }
+let professions = Array.from({length: 200}, (_, i) => `職業${i+1}`);
 
-// 拠点ボーナス
 let dungeonBonuses = {
-  "村": {HP: 40},
-  "街": {HPMultiplier: 0.05},
-  "砦": {ATK: 8},
-  "城": {ATKMultiplier: 0.05}
+    "村": {HP: 40}, "街": {HPMultiplier: 0.05}, "砦": {ATK: 8}, "城": {ATKMultiplier: 0.05}
 };
 
-// 装備ランダム生成（24000パターン想定）
-function generateEquipment() {
-  let atk = Math.floor(Math.random()*20)+1;
-  let hp = Math.floor(Math.random()*46)+5;
-  return {ATK: atk, HP: hp};
+// --- タブ切り替えロジック ---
+function showTab(tabId) {
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    event.currentTarget.classList.add('active');
 }
 
-// UI更新
+// --- システム関数 ---
 function updateUI() {
-  document.getElementById("playerHP").innerText = player.currentHP;
-  document.getElementById("playerATK").innerText = player.baseATK;
-  document.getElementById("gearATK").innerText = player.gearATK;
-  document.getElementById("gearHP").innerText = player.gearHP;
-  document.getElementById("deathCount").innerText = player.deathCount;
-  document.getElementById("currentFloor").innerText = dungeon.floor;
-  document.getElementById("dungeonType").innerText = dungeon.type;
-  document.getElementById("enemyName").innerText = dungeon.enemy.name;
-  document.getElementById("enemyHP").innerText = dungeon.enemy.currentHP;
-  document.getElementById("enemyATK").innerText = dungeon.enemy.ATK;
+    // バトル画面
+    document.getElementById("playerHP").innerText = player.currentHP;
+    document.getElementById("dungeonInfo").innerText = `${dungeon.type} - ${dungeon.floor}/${dungeon.maxFloors}階`;
+    document.getElementById("enemyName").innerText = dungeon.enemy.name;
+    document.getElementById("enemyHP").innerText = dungeon.enemy.currentHP;
+    document.getElementById("enemyATK").innerText = dungeon.enemy.ATK;
+
+    // 詳細ステータス画面
+    document.getElementById("pBaseATK").innerText = player.baseATK;
+    document.getElementById("pGearATK").innerText = player.gearATK;
+    document.getElementById("pBaseHP").innerText = player.baseHP;
+    document.getElementById("pGearHP").innerText = player.gearHP;
+    document.getElementById("pDeath").innerText = player.deathCount;
+    document.getElementById("pWorld").innerText = player.worldLevel;
 }
 
-// ログ表示
 function log(msg) {
-  let logDiv = document.getElementById("log");
-  logDiv.innerHTML = msg + "<br>" + logDiv.innerHTML;
+    let logDiv = document.getElementById("log");
+    logDiv.innerHTML = `<div>${msg}</div>` + logDiv.innerHTML;
+    if (logDiv.children.length > 50) logDiv.lastElementChild.remove();
 }
 
-// 敵生成
 function generateEnemy() {
-  let adj = adjectives[Math.floor(Math.random()*adjectives.length)];
-  let prof = professions[Math.floor(Math.random()*professions.length)];
-  let rankMult = 1 + Math.floor(Math.random()*3);
-  let name = adj + prof;
-  let baseHP = 20 + dungeon.floor*5 + player.baseATK*2;
-  let baseATK = 5 + dungeon.floor*2 + player.baseHP*0.05;
-  log(`階層 ${dungeon.floor} 敵出現: ${name} (HP: ${baseHP}, ATK: ${Math.floor(baseATK)})`);
-  return {name: name, HP: baseHP, currentHP: baseHP, ATK: Math.floor(baseATK), rankMult: rankMult};
+    let adj = adjectives[Math.floor(Math.random()*adjectives.length)];
+    let prof = professions[Math.floor(Math.random()*professions.length)];
+    let name = adj + prof;
+    let baseHP = 20 + dungeon.floor * 5 + player.baseATK * 2;
+    let baseATK = Math.floor(5 + dungeon.floor * 2 + player.baseHP * 0.05);
+    return {name: name, HP: baseHP, currentHP: baseHP, ATK: baseATK};
 }
 
-// ダンジョン生成
 function generateDungeon() {
-  dungeon.type = dungeonTypes[Math.floor(Math.random()*dungeonTypes.length)];
-  dungeon.floor = 1;
-  dungeon.level = player.worldLevel;
-  dungeon.enemy = generateEnemy();
-  player.currentHP = player.baseHP + player.gearHP;
-  log(`新しいダンジョン (${dungeon.type}) が生成されました！`);
-  updateUI();
+    dungeon.type = dungeonTypes[Math.floor(Math.random()*dungeonTypes.length)];
+    dungeon.floor = 1;
+    dungeon.enemy = generateEnemy();
+    player.currentHP = player.baseHP + player.gearHP;
+    log(`<span class="highlight">${dungeon.type}ダンジョンに潜入しました。</span>`);
+    updateUI();
 }
 
-// 戦闘
 function attackEnemy() {
-  let playerDamage = player.baseATK + player.gearATK;
-  dungeon.enemy.currentHP -= playerDamage;
-  log(`プレイヤー攻撃! ダメージ: ${playerDamage} | 敵HP残り: ${Math.max(dungeon.enemy.currentHP,0)}`);
+    if (player.currentHP <= 0) return;
 
-  if(dungeon.enemy.currentHP <= 0) {
-    log(`敵を倒した: ${dungeon.enemy.name}`);
-    let eq = generateEquipment();
-    player.gearATK += eq.ATK;
-    player.gearHP += eq.HP;
-    log(`装備獲得! ATK+${eq.ATK} HP+${eq.HP}`);
+    let playerDamage = player.baseATK + player.gearATK;
+    dungeon.enemy.currentHP -= playerDamage;
 
-    if(dungeon.floor === dungeon.maxFloors) {
-      conquerDungeon();
+    if(dungeon.enemy.currentHP <= 0) {
+        log(`敵を撃破: ${dungeon.enemy.name}`);
+        // 装備獲得
+        let atkPlus = Math.floor(Math.random()*20)+1;
+        let hpPlus = Math.floor(Math.random()*46)+5;
+        player.gearATK += atkPlus;
+        player.gearHP += hpPlus;
+        log(`戦利品: ATK+${atkPlus} / HP+${hpPlus}`);
+
+        if(dungeon.floor === dungeon.maxFloors) {
+            conquerDungeon();
+        } else {
+            dungeon.floor++;
+            dungeon.enemy = generateEnemy();
+        }
     } else {
-      dungeon.floor++;
-      dungeon.enemy = generateEnemy();
-      log("次の階層に進む...");
+        // 敵の反撃
+        player.currentHP -= dungeon.enemy.ATK;
+        if(player.currentHP <= 0) {
+            player.currentHP = 0;
+            playerDies();
+        }
     }
-  } else {
-    player.currentHP -= dungeon.enemy.ATK;
-    log(`敵攻撃! ${dungeon.enemy.name}のダメージ: ${dungeon.enemy.ATK} | プレイヤーHP残り: ${Math.max(player.currentHP,0)}`);
-    if(player.currentHP <= 0) { playerDies(); }
-  }
-  updateUI();
+    updateUI();
 }
 
-// 拠点占領
 function conquerDungeon() {
-  log(`ダンジョン制覇! 拠点ボーナス獲得: ${dungeon.type}`);
-  let bonus = dungeonBonuses[dungeon.type];
-  if(bonus.HP){ player.baseHP += bonus.HP; log(`基礎HP +${bonus.HP}`); }
-  if(bonus.HPMultiplier){ let inc=Math.floor(player.baseHP*bonus.HPMultiplier); player.baseHP += inc; log(`基礎HP +${inc} (倍率)`); }
-  if(bonus.ATK){ player.baseATK += bonus.ATK; log(`基礎ATK +${bonus.ATK}`); }
-  if(bonus.ATKMultiplier){ let inc=Math.floor(player.baseATK*bonus.ATKMultiplier); player.baseATK += inc; log(`基礎ATK +${inc} (倍率)`); }
-  generateDungeon();
+    log(`<span class="highlight">ダンジョン制覇！</span>`);
+    let bonus = dungeonBonuses[dungeon.type];
+    if(bonus.HP) player.baseHP += bonus.HP;
+    if(bonus.HPMultiplier) player.baseHP += Math.floor(player.baseHP * bonus.HPMultiplier);
+    if(bonus.ATK) player.baseATK += bonus.ATK;
+    if(bonus.ATKMultiplier) player.baseATK += Math.floor(player.baseATK * bonus.ATKMultiplier);
+    generateDungeon();
 }
 
-// 死亡
 function playerDies() {
-  player.deathCount++;
-  log(`プレイヤー死亡! 原因: ${dungeon.enemy.name}の攻撃`);
-  generateDungeon();
+    player.deathCount++;
+    log(`<span style="color:red;">敗北... 再起の誓いによって新たなる力を得た。</span>`);
+    generateDungeon();
 }
 
-// 初期化
+// --- 長押し（オート攻撃）の実装 ---
+let attackInterval = null;
+
+const startAttack = (e) => {
+    e.preventDefault(); // ブラウザのデフォルト動作（選択など）を防ぐ
+    if (attackInterval) return;
+    attackEnemy(); // 1回目は即実行
+    attackInterval = setInterval(attackEnemy, 300); // 300ミリ秒ごとに攻撃
+};
+
+const stopAttack = () => {
+    clearInterval(attackInterval);
+    attackInterval = null;
+};
+
+// マウスとタッチの両方に対応
+const btn = document.getElementById("attackBtn");
+btn.addEventListener("mousedown", startAttack);
+btn.addEventListener("mouseup", stopAttack);
+btn.addEventListener("mouseleave", stopAttack);
+btn.addEventListener("touchstart", startAttack);
+btn.addEventListener("touchend", stopAttack);
+
+// --- 初期化 ---
 generateDungeon();
-document.getElementById("attackBtn").addEventListener("click", attackEnemy);
 </script>
+
 </body>
 </html>
