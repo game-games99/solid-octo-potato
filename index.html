@@ -399,12 +399,13 @@ function applySerialCode() {
        player.totalLevel = 10;
        player.inventory[116] = 300000;
        player.inventory[117] = 300000;
+       player.inventory[701] = 1;
        player.totalLevel = 300;
        player.killCount = 1000000;
        
        for (let id in RELIC_MASTER) {
            let rId = RELIC_MASTER[id].id;
-           if (rId !== 701 && rId !== 1) {
+           if (rId !== 701 && rId !== 0) {
                player.inventory[rId] = 100000;
            }
        }
