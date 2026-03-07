@@ -1,487 +1,175 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>Immortal Undead</title>
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NecroRise</title>
 <style>
-
-body{
-background:#111;
-color:white;
-font-family:sans-serif;
-margin:0;
-text-align:center;
-}
-
-h1{
-color:#66ff66;
-margin:10px;
-}
-
-.tabbar{
-display:flex;
-}
-
-.tabbar button{
-flex:1;
-padding:12px;
-background:#333;
-color:white;
-border:none;
-}
-
-.panel{
-padding:10px;
-}
-
-#attack{
-font-size:26px;
-padding:20px;
-width:90%;
-background:#e53935;
-color:white;
-border-radius:10px;
-margin:10px;
-}
-
-#auto{
-font-size:18px;
-padding:14px;
-width:90%;
-background:#1e88e5;
-color:white;
-border-radius:10px;
-}
-
-.item{
-border:1px solid #444;
-padding:6px;
-margin:4px;
-font-size:13px;
-}
-
-.hpbar{
-background:#333;
-height:18px;
-}
-
-.hpfill{
-background:#4caf50;
-height:18px;
-}
-
-.log{
-max-height:150px;
-overflow:auto;
-font-size:12px;
-text-align:left;
-}
-
+body { font-family: sans-serif; background: #111; color: #eee; text-align: center; }
+#game { max-width: 500px; margin: 20px auto; }
+button { padding: 10px 20px; font-size: 18px; margin-top: 10px; }
+.status, .enemy-status { margin: 10px 0; }
 </style>
 </head>
-
 <body>
+<div id="game">
+<h1>NecroRise</h1>
 
-<h1>Immortal Undead</h1>
-
-<div class="tabbar">
-
-<button onclick="openTab('battle')">戦闘</button>
-<button onclick="openTab('inventory')">装備</button>
-<button onclick="openTab('skills')">スキル</button>
-
+<div class="status">
+  <div>HP: <span id="playerHP"></span></div>
+  <div>ATK: <span id="playerATK"></span></div>
+  <div>装備ATK: <span id="gearATK"></span></div>
+  <div>装備HP: <span id="gearHP"></span></div>
+  <div>死亡回数: <span id="deathCount"></span></div>
+  <div>現在階: <span id="currentFloor"></span>/30</div>
+  <div>ダンジョン: <span id="dungeonType"></span></div>
 </div>
 
-<div id="battle" class="panel">
-
-<div id="player"></div>
-
-<div id="enemy"></div>
-
-<div class="hpbar">
-<div id="enemyhp" class="hpfill"></div>
+<div class="enemy-status">
+  <div>敵: <span id="enemyName"></span></div>
+  <div>HP: <span id="enemyHP"></span></div>
+  <div>ATK: <span id="enemyATK"></span></div>
 </div>
 
-<button id="attack" onclick="fight()">こうげき</button>
-<button id="auto" onclick="toggleAuto()">オート戦闘</button>
-
-<div class="log" id="log"></div>
-
-</div>
-
-<div id="inventory" class="panel" style="display:none">
-
-<h3>装備インベントリ</h3>
-
-<div id="items"></div>
-
-</div>
-
-<div id="skills" class="panel" style="display:none">
-
-<h3>スキル</h3>
-
-<div id="skillui"></div>
-
+<button id="attackBtn">こうげき</button>
+<div id="log"></div>
 </div>
 
 <script>
+// プレイヤー
+let player = {
+  baseATK: 10,
+  baseHP: 100,
+  gearATK: 0,
+  gearHP: 0,
+  deathCount: 0,
+  worldLevel: 1,
+  currentHP: 100
+};
 
-/* ---------- データ ---------- */
+// ダンジョン
+let dungeonTypes = ["村", "街", "砦", "城"];
+let dungeon = {
+  type: "",
+  floor: 1,
+  level: 1,
+  maxFloors: 30,
+  enemy: null
+};
 
-let player={
-job:"ゾンビ",
-baseAtk:10,
-baseHp:100,
-hp:100,
-gearAtk:0,
-gearHp:0,
-skillPoint:0
+// 敵生成
+let adjectives = ["狂気の","闇の","深淵の","虚無の","混沌の","影の"];
+let professions = [
+  "村人","農夫","民兵","ハンター","騎士","魔法使い","盗賊","僧侶","暗殺者","忍者",
+  "守護者","村長","王","戦士","魔導士","勇者","聖騎士","竜騎士","死霊術師","狂戦士"
+];
+
+// 拠点ボーナス
+let dungeonBonuses = {
+  "村": {HP: 40},
+  "街": {HPMultiplier: 0.05},
+  "砦": {ATK: 8},
+  "城": {ATKMultiplier: 0.05}
+};
+
+// 更新関数
+function updateUI() {
+  document.getElementById("playerHP").innerText = player.currentHP;
+  document.getElementById("playerATK").innerText = player.baseATK;
+  document.getElementById("gearATK").innerText = player.gearATK;
+  document.getElementById("gearHP").innerText = player.gearHP;
+  document.getElementById("deathCount").innerText = player.deathCount;
+  document.getElementById("currentFloor").innerText = dungeon.floor;
+  document.getElementById("dungeonType").innerText = dungeon.type;
+  document.getElementById("enemyName").innerText = dungeon.enemy.name;
+  document.getElementById("enemyHP").innerText = dungeon.enemy.currentHP;
+  document.getElementById("enemyATK").innerText = dungeon.enemy.ATK;
 }
 
-let inventory=[]
-
-let skills={
-atk:0,
-hp:0,
-loot:0,
-crit:0
+// 敵生成
+function generateEnemy() {
+  let adj = adjectives[Math.floor(Math.random()*adjectives.length)];
+  let prof = professions[Math.floor(Math.random()*professions.length)];
+  let rankMult = 1 + Math.floor(Math.random()*3); // 1〜3倍簡易
+  let name = adj + prof;
+  let baseHP = 20 + dungeon.floor*5 + player.baseATK*2;
+  let baseATK = 5 + dungeon.floor*2 + player.baseHP*0.05;
+  return {name: name, HP: baseHP, currentHP: baseHP, ATK: baseATK, rankMult: rankMult};
 }
 
-let worldLevel=1
-let enemy={}
-let auto=false
-
-/* ---------- 配列 ---------- */
-
-const ranks=[
-{name:"ノーマル",mult:1,color:"white"},
-{name:"強敵",mult:2,color:"cyan"},
-{name:"エリート",mult:5,color:"violet"},
-{name:"ボス",mult:12,color:"orange"},
-{name:"災厄",mult:40,color:"red"}
-]
-
-const adjectives=[
-"狂気の","呪われた","古代の","闇の","混沌の","深淵の"
-]
-
-const jobs=[
-"村人","騎士","魔法使い","忍者","盗賊","勇者",
-"炎戦士","氷魔導士","雷騎士","闇召喚士"
-]
-
-const gearPrefix=[
-"壊れた","鉄の","古代の","闇の","聖なる","伝説の"
-]
-
-const gearType=[
-"剣","斧","鎧","兜","指輪","弓"
-]
-
-const gearSuffix=[
-"力","生命","炎","氷","雷","混沌"
-]
-
-/* ---------- タブ ---------- */
-
-function openTab(id){
-
-document.getElementById("battle").style.display="none"
-document.getElementById("inventory").style.display="none"
-document.getElementById("skills").style.display="none"
-
-document.getElementById(id).style.display="block"
-
+// ダンジョン生成
+function generateDungeon() {
+  dungeon.type = dungeonTypes[Math.floor(Math.random()*dungeonTypes.length)];
+  dungeon.floor = 1;
+  dungeon.level = player.worldLevel;
+  dungeon.enemy = generateEnemy();
+  player.currentHP = player.baseHP + player.gearHP;
+  log("新しいダンジョン ("+dungeon.type+") が生成されました！");
 }
 
-/* ---------- ステ ---------- */
-
-function playerAtk(){
-return player.baseAtk+player.gearAtk+skills.atk*3
+// 戦闘処理
+function attackEnemy() {
+  let playerDamage = player.baseATK + player.gearATK;
+  dungeon.enemy.currentHP -= playerDamage;
+  log("プレイヤーの攻撃: " + playerDamage);
+  if(dungeon.enemy.currentHP <= 0) {
+    log("敵を倒した！");
+    dropEquipment();
+    if(dungeon.floor === dungeon.maxFloors) {
+      conquerDungeon();
+    } else {
+      dungeon.floor++;
+      dungeon.enemy = generateEnemy();
+      log("次の階層に進む...");
+    }
+  } else {
+    player.currentHP -= dungeon.enemy.ATK;
+    log("敵の攻撃: " + dungeon.enemy.ATK);
+    if(player.currentHP <= 0) {
+      playerDies();
+    }
+  }
+  updateUI();
 }
 
-function playerHp(){
-return player.baseHp+player.gearHp+skills.hp*30
+// 装備ドロップ（蓄積）
+function dropEquipment() {
+  let atk = Math.floor(Math.random()*5)+1;
+  let hp = Math.floor(Math.random()*10)+5;
+  player.gearATK += atk;
+  player.gearHP += hp;
+  log("装備を獲得: ATK+"+atk+" HP+"+hp);
 }
 
-/* ---------- 敵 ---------- */
-
-function nextEnemy(){
-
-let rank=ranks[Math.floor(Math.random()*ranks.length)]
-
-enemy={
-name:rank.name+" "+rand(adjectives)+" "+rand(jobs),
-rank:rank,
-hp:Math.floor((50+playerAtk()*2)*(1+worldLevel*0.05)*rank.mult),
-atk:Math.floor((8+playerHp()*0.05)*(1+worldLevel*0.03)*rank.mult)
+// 拠点占領
+function conquerDungeon() {
+  log("ダンジョン制覇！拠点ボーナス獲得！");
+  let bonus = dungeonBonuses[dungeon.type];
+  if(bonus.HP) player.baseHP += bonus.HP;
+  if(bonus.HPMultiplier) player.baseHP += player.baseHP*bonus.HPMultiplier;
+  if(bonus.ATK) player.baseATK += bonus.ATK;
+  if(bonus.ATKMultiplier) player.baseATK += player.baseATK*bonus.ATKMultiplier;
+  generateDungeon();
 }
 
-enemy.maxHp=enemy.hp
-
-if(Math.random()<0.02){
-
-enemy.name="★伝説★ "+enemy.name
-enemy.hp*=3
-enemy.atk*=3
-
-log("伝説の敵出現！")
-
+// 死亡処理
+function playerDies() {
+  player.deathCount++;
+  log("プレイヤーは死亡...");
+  generateDungeon();
 }
 
-draw()
-
+// ログ表示
+function log(msg) {
+  let logDiv = document.getElementById("log");
+  logDiv.innerHTML = msg + "<br>" + logDiv.innerHTML;
 }
 
-function rand(a){
-return a[Math.floor(Math.random()*a.length)]
-}
-
-/* ---------- 戦闘 ---------- */
-
-function fight(){
-
-enemy.hp-=playerAtk()
-player.hp-=enemy.atk
-
-if(enemy.hp<=0){
-victory()
-return
-}
-
-if(player.hp<=0){
-death()
-return
-}
-
-draw()
-
-}
-
-function victory(){
-
-log("敵撃破")
-
-player.skillPoint++
-
-dropGear()
-
-player.hp=playerHp()
-
-worldLevel++
-
-nextEnemy()
-
-}
-
-function death(){
-
-log("死亡")
-
-player.baseAtk+=3
-player.baseHp+=10
-
-player.hp=playerHp()
-
-worldLevel++
-
-nextEnemy()
-
-}
-
-/* ---------- 装備 ---------- */
-
-function dropGear(){
-
-let item={
-name:rand(gearPrefix)+rand(gearType)+"の"+rand(gearSuffix),
-atk:Math.floor(Math.random()*8)+1,
-hp:Math.floor(Math.random()*20)+5
-}
-
-inventory.push(item)
-
-log("装備獲得："+item.name)
-
-drawInventory()
-
-}
-
-function equip(i){
-
-let item=inventory[i]
-
-player.gearAtk+=item.atk
-player.gearHp+=item.hp
-
-inventory.splice(i,1)
-
-drawInventory()
-
-draw()
-
-}
-
-/* ---------- インベントリUI ---------- */
-
-function drawInventory(){
-
-let html=""
-
-inventory.forEach((item,i)=>{
-
-html+=`
-<div class="item">
-
-${item.name}<br>
-ATK+${item.atk} HP+${item.hp}<br>
-
-<button onclick="equip(${i})">装備</button>
-
-</div>
-`
-
-})
-
-document.getElementById("items").innerHTML=html
-
-}
-
-/* ---------- オート ---------- */
-
-function toggleAuto(){
-
-auto=!auto
-
-log("オート："+auto)
-
-}
-
-setInterval(()=>{
-
-if(auto){
-fight()
-}
-
-},600)
-
-/* ---------- スキルUI ---------- */
-
-function drawSkills(){
-
-document.getElementById("skillui").innerHTML=`
-
-攻撃 ${skills.atk}
-<button onclick="up('atk')">+</button><br>
-
-HP ${skills.hp}
-<button onclick="up('hp')">+</button><br>
-
-ドロップ ${skills.loot}
-<button onclick="up('loot')">+</button><br>
-
-回避 ${skills.crit}
-<button onclick="up('crit')">+</button><br>
-
-SP ${player.skillPoint}
-
-`
-
-}
-
-function up(s){
-
-if(player.skillPoint<=0)return
-
-skills[s]++
-
-player.skillPoint--
-
-drawSkills()
-
-}
-
-/* ---------- UI ---------- */
-
-function draw(){
-
-document.getElementById("player").innerHTML=`
-
-職業 ${player.job}<br>
-HP ${player.hp}/${playerHp()}<br>
-攻撃 ${playerAtk()}<br>
-装備ATK ${player.gearAtk}<br>
-装備HP ${player.gearHp}<br>
-世界Lv ${worldLevel}
-
-`
-
-document.getElementById("enemy").innerHTML=`
-<span style="color:${enemy.rank.color}">
-${enemy.name}
-</span><br>
-
-HP ${enemy.hp}/${enemy.maxHp}<br>
-攻撃 ${enemy.atk}
-`
-
-document.getElementById("enemyhp").style.width=
-(enemy.hp/enemy.maxHp*100)+"%"
-
-drawSkills()
-
-}
-
-/* ---------- ログ ---------- */
-
-function log(t){
-
-let l=document.getElementById("log")
-
-l.innerHTML=t+"<br>"+l.innerHTML
-
-}
-
-/* ---------- セーブ ---------- */
-
-function save(){
-
-localStorage.setItem("immortalSave",
-JSON.stringify({player,inventory,skills,worldLevel})
-)
-
-}
-
-function load(){
-
-let s=localStorage.getItem("immortalSave")
-
-if(s){
-
-let d=JSON.parse(s)
-
-player=d.player
-inventory=d.inventory
-skills=d.skills
-worldLevel=d.worldLevel
-
-}
-
-}
-
-setInterval(save,3000)
-
-/* ---------- 起動 ---------- */
-
-load()
-
-nextEnemy()
-
-drawInventory()
-
+// 初期化
+generateDungeon();
+updateUI();
+
+document.getElementById("attackBtn").addEventListener("click", attackEnemy);
 </script>
-
 </body>
 </html>
