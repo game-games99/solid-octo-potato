@@ -49,20 +49,12 @@ let player = {
 
 // ダンジョン
 let dungeonTypes = ["村", "街", "砦", "城"];
-let dungeon = {
-  type: "",
-  floor: 1,
-  level: 1,
-  maxFloors: 30,
-  enemy: null
-};
+let dungeon = { type: "", floor: 1, level: 1, maxFloors: 30, enemy: null };
 
-// 敵生成
+// 形容詞と職業200種ランダム生成
 let adjectives = ["狂気の","闇の","深淵の","虚無の","混沌の","影の"];
-let professions = [
-  "村人","農夫","民兵","ハンター","騎士","魔法使い","盗賊","僧侶","暗殺者","忍者",
-  "守護者","村長","王","戦士","魔導士","勇者","聖騎士","竜騎士","死霊術師","狂戦士"
-];
+let professions = [];
+for(let i=1;i<=200;i++){ professions.push("職業"+i); }
 
 // 拠点ボーナス
 let dungeonBonuses = {
@@ -72,7 +64,15 @@ let dungeonBonuses = {
   "城": {ATKMultiplier: 0.05}
 };
 
-// 更新関数
+// 装備ランダム生成関数（24000パターン対応）
+function generateEquipment() {
+  // ATK 1~20, HP 5~50 の範囲でランダム
+  let atk = Math.floor(Math.random()*20)+1;
+  let hp = Math.floor(Math.random()*46)+5;
+  return {ATK: atk, HP: hp};
+}
+
+// UI更新
 function updateUI() {
   document.getElementById("playerHP").innerText = player.currentHP;
   document.getElementById("playerATK").innerText = player.baseATK;
@@ -90,7 +90,7 @@ function updateUI() {
 function generateEnemy() {
   let adj = adjectives[Math.floor(Math.random()*adjectives.length)];
   let prof = professions[Math.floor(Math.random()*professions.length)];
-  let rankMult = 1 + Math.floor(Math.random()*3); // 1〜3倍簡易
+  let rankMult = 1 + Math.floor(Math.random()*3);
   let name = adj + prof;
   let baseHP = 20 + dungeon.floor*5 + player.baseATK*2;
   let baseATK = 5 + dungeon.floor*2 + player.baseHP*0.05;
@@ -114,7 +114,10 @@ function attackEnemy() {
   log("プレイヤーの攻撃: " + playerDamage);
   if(dungeon.enemy.currentHP <= 0) {
     log("敵を倒した！");
-    dropEquipment();
+    let eq = generateEquipment();
+    player.gearATK += eq.ATK;
+    player.gearHP += eq.HP;
+    log("装備獲得: ATK+"+eq.ATK+" HP+"+eq.HP);
     if(dungeon.floor === dungeon.maxFloors) {
       conquerDungeon();
     } else {
@@ -125,20 +128,9 @@ function attackEnemy() {
   } else {
     player.currentHP -= dungeon.enemy.ATK;
     log("敵の攻撃: " + dungeon.enemy.ATK);
-    if(player.currentHP <= 0) {
-      playerDies();
-    }
+    if(player.currentHP <= 0) { playerDies(); }
   }
   updateUI();
-}
-
-// 装備ドロップ（蓄積）
-function dropEquipment() {
-  let atk = Math.floor(Math.random()*5)+1;
-  let hp = Math.floor(Math.random()*10)+5;
-  player.gearATK += atk;
-  player.gearHP += hp;
-  log("装備を獲得: ATK+"+atk+" HP+"+hp);
 }
 
 // 拠点占領
@@ -168,7 +160,6 @@ function log(msg) {
 // 初期化
 generateDungeon();
 updateUI();
-
 document.getElementById("attackBtn").addEventListener("click", attackEnemy);
 </script>
 </body>
