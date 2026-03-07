@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>RELICORE - v1.17</title>
+<title>RELICORE - v1.18</title>
 <style>
 :root { --bg: #ffffff; --panel: #f8f9fa; --border: #dee2e6; --primary: #007bff; --text: #212529; --hp: #dc3545; --dark: #1a1a1a; --gold: #d4af37; --growth: #ff69b4; --relic-purple: #6610f2; --relic-bg: #fcfaff; --relic-rainbow: linear-gradient(135deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3); --cosmic-blue: #00d4ff; --cosmic-white: #ffffff; }
 * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; box-sizing: border-box; }
@@ -208,7 +208,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Robot
 <div class="privacy-link" onclick="openPolicy()">プライバシーポリシー</div>
 </div>
 </div>
-<div class="ver-footer">RELICORE v1.17</div>
+<div class="ver-footer">RELICORE v1.18</div>
 <script>
 const SAVE_KEY = "relicore_player_data";
 const BOSS_MAX_HP_BASE = 100000000000000000000n;
@@ -395,7 +395,23 @@ function applySerialCode() {
    let success = false;
    let message = "";
 
-   if (code === "REBALANCE2026") {
+   if (code === "DEBUG_READY_2026") {
+       player.totalLevel = 10;
+       player.inventory[116] = 300000;
+       player.inventory[117] = 300000;
+       player.totalLevel = 300;
+       player.killCount = 1000000;
+       
+       for (let id in RELIC_MASTER) {
+           let rId = RELIC_MASTER[id].id;
+           if (rId !== 701 && rId !== 0) {
+               player.inventory[rId] = 100000;
+           }
+       }
+       success = true;
+       message = "再起の誓いによって新たなる力を得た";
+       updateLog("再起の誓いによって新たなる力を得た");
+   } else if (code === "REBALANCE2026") {
        if (player.isCleared) {
            if (!player.inventory[999]) {
                player.inventory[999] = 1;
@@ -799,6 +815,7 @@ function getCurrentDropRates() { if(player.hasDivineGuide) return DIVINE_GUIDE_D
 function checkDropEligibility() { let msg = "【獲得資格詳細】\n"; Object.entries(getCurrentDropRates()).forEach(([s, d]) => { msg += `★${s}: ${player.maxDmg >= d.cond ? '解放済み' : '未解放 (要:' + formatV(d.cond) + ')'}\n`; }); alert(msg); }
 function showTab(id) { document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active")); document.querySelectorAll(".nav button").forEach(b=>b.classList.remove("active")); document.getElementById(id).classList.add("active"); document.getElementById("nav-"+id).classList.add("active"); triggerUIUpdate(); }
 function addLog(html) { const l = document.getElementById("log"); const d = document.createElement("div"); d.className = "log-set"; d.innerHTML = html; l.insertBefore(d, l.firstChild); while (l.children.length > 20) { l.removeChild(l.lastChild); } }
+function updateLog(message) { addLog(`<div>${message}</div>`); }
 function closeStory() { player.storySeen = true; document.getElementById("story-modal").style.display = "none"; saveGame(); }
 
 function handleBossDefeat() {
