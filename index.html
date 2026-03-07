@@ -684,10 +684,9 @@ if(tid === 'vow') renderVow(); else if(tid === 'relic') renderRelics(); else if(
 }
 
 function renderVow() {
-const rawLv = player.totalLevel;
 const lv = Math.min(10, rawLv);
-const bushinCount = Math.min(50000, player.inventory[401] || 0);
-const gouyokuCount = Math.min(50000, player.inventory[502] || 0);
+const bushinCount = Math.min(40, player.inventory[401] || 0);
+const gouyokuCount = Math.min(10, player.inventory[502] || 0);
 const skills = [{ id: "futaiten", nameJp: "不退転の力", desc: "戦闘を経験するたびにランダムな遺物を (1+所持数) つ獲得する。攻撃するたびに深淵に漂う遺物を魂に刻む。" },{ id: "setsuna", nameJp: "刹那の堆積", desc: "再起するたびにHP増加幅+1。勝利への渇望が核に宿る。" },{ id: "inga", nameJp: "因果の拒絶", desc: "稀に攻撃を無効化する。経験値が深まるごとに下限が向上。" },{ id: "hangeki", nameJp: "反撃の狼煙", desc: "生存時★2〜3の遺物を確定で入手する。不屈の闘志を燃やし、新たな力を手に入れる。" },{ id: "konken", nameJp: "魂の研磨", desc: "経験値ボーナスが向上。蓄積した戦闘経験に応じて機能強化。" },{ id: "shikoku", nameJp: "死を刻む", desc: "経験を積むたびに最終ダメージを増加させる。" }];
 let html = "";
 skills.forEach(s => {
