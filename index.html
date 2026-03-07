@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>RELICORE - v1.17</title>
 <style>
-:root { --bg: #ffffff; --panel: #f8f9fa; --border: #dee2e6; --primary: #007bff; --text: #212529; --hp: #dc3545; --dark: #1a1a1a; --gold: #d4af37; --growth: #ff69b4; --relic-purple: #6610f2; --relic-bg: #fcfaff; --relic-rainbow: linear-gradient(135deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3); --cosmic-blue: #00d4ff; --cosmic-white: #ffffff; --omega-gradient: linear-gradient(45deg,#000000,#333333,#000000,#666666,#000000); }
+:root { --bg: #ffffff; --panel: #f8f9fa; --border: #dee2e6; --primary: #007bff; --text: #212529; --hp: #dc3545; --dark: #1a1a1a; --gold: #d4af37; --growth: #ff69b4; --relic-purple: #6610f2; --relic-bg: #fcfaff; --relic-rainbow: linear-gradient(135deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3); --cosmic-blue: #00d4ff; --cosmic-white: #ffffff; }
 * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; box-sizing: border-box; }
 body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; position: relative; }
 
@@ -88,7 +88,6 @@ body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Robot
 .btn-attack { width: 100%; padding: 16px; background: var(--primary); color: #fff; font-size: 1.3em; font-weight: bold; border: none; border-radius: 12px; margin-bottom: 10px; box-shadow: 0 4px 0 #0056b3; flex-shrink: 0; touch-action: none; }
 #log { height: 400px; font-size: 0.82em; background: #fafafa; border: 1px solid var(--border); padding: 10px; overflow-y: auto; border-radius: 8px; line-height: 1.4; }
 .log-set { border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 8px; }
-.omega-log { background: var(--omega-gradient); color: #fff; padding: 10px; border-radius: 8px; margin: 5px 0; font-size: 0.9em; }
 
 .vow-list-container { display: grid; grid-template-columns: 1fr; gap: 10px; }
 @media(min-width: 600px) { .vow-list-container { grid-template-columns: 1fr 1fr; } }
@@ -215,10 +214,10 @@ const SAVE_KEY = "relicore_player_data";
 const BOSS_MAX_HP_BASE = 100000000000000000000n;
 
 const RANK_NAMES = ["初心者", "修練者", "熟練者", "探求者", "到達者", "解放者", "支配者", "超越者", "救世主", "極致：唯一神"];
-const BASE_DROP_DATA = { 1:{p:98.88889,cond:0n}, 2:{p:1.0,cond:0n}, 3:{p:0.1,cond:0n}, 4:{p:0.01,cond:100000n}, 5:{p:0.001,cond:1000000n}, 6:{p:0.0001,cond:10000000n}, 7:{p:0.00001,cond:100000000n} };
-const HADO_DROP_DATA = { 1:{p:88.8889,cond:0n}, 2:{p:10.0,cond:0n}, 3:{p:1.0,cond:0n}, 4:{p:0.01,cond:100000n}, 5:{p:0.001,cond:1000000n}, 6:{p:0.0001,cond:10000000n}, 7:{p:0.00001,cond:100000000n} };
-const GREAT_HADO_DROP_DATA = { 1:{p:78.8889,cond:0n}, 2:{p:18.0,cond:0n}, 3:{p:3.0,cond:0n}, 4:{p:0.01,cond:100000n}, 5:{p:0.001,cond:1000000n}, 6:{p:0.0001,cond:10000000n}, 7:{p:0.00001,cond:100000000n} };
-const DIVINE_GUIDE_DROP_DATA = { 1:{p:59.8889,cond:0n}, 2:{p:30.0,cond:0n}, 3:{p:10.0,cond:0n}, 4:{p:0.01,cond:100000n}, 5:{p:0.001,cond:1000000n}, 6:{p:0.0001,cond:10000000n}, 7:{p:0.00001,cond:100000000n} };
+const BASE_DROP_DATA = { 1:{p:98.88888,cond:0n}, 2:{p:1.0,cond:0n}, 3:{p:0.1,cond:0n}, 4:{p:0.01,cond:100000n}, 5:{p:0.001,cond:1000000n}, 6:{p:0.0001,cond:10000000n}, 7:{p:0.000009,cond:100000000n}, 8:{p:0.000001,cond:1000000000n} };
+const HADO_DROP_DATA = { 1:{p:88.8888,cond:0n}, 2:{p:10.0,cond:0n}, 3:{p:1.0,cond:0n}, 4:{p:0.01,cond:100000n}, 5:{p:0.001,cond:1000000n}, 6:{p:0.0001,cond:10000000n}, 7:{p:0.000009,cond:100000000n}, 8:{p:0.000001,cond:1000000000n} };
+const GREAT_HADO_DROP_DATA = { 1:{p:78.8888,cond:0n}, 2:{p:18.0,cond:0n}, 3:{p:3.0,cond:0n}, 4:{p:0.01,cond:100000n}, 5:{p:0.001,cond:1000000n}, 6:{p:0.0001,cond:10000000n}, 7:{p:0.000009,cond:100000000n}, 8:{p:0.000001,cond:1000000000n} };
+const DIVINE_GUIDE_DROP_DATA = { 1:{p:59.8888,cond:0n}, 2:{p:30.0,cond:0n}, 3:{p:10.0,cond:0n}, 4:{p:0.01,cond:100000n}, 5:{p:0.001,cond:1000000n}, 6:{p:0.0001,cond:10000000n}, 7:{p:0.000009,cond:100000000n}, 8:{p:0.000001,cond:1000000000n} };
 
 let player = { inventory: { 0:1 }, deathCount:0, totalLevel:1, baseAtk:10n, baseHP:100n, maxDmg:0n, storySeen:false, rebalanceSeen:false, hasHado:false, hasGreatHado:false, hasDivineGuide:false, hasWorldOrder:false, hasCrown:false, hasMeta:false, isUra:false, bossMaxHP: BOSS_MAX_HP_BASE.toString(), totalClicks: 0, totalRelics: 0, killCount: 0, isCleared: false, maxDmgReset_v21: true, soujinCounter: 0 };
 let currentBossHP = BigInt(player.bossMaxHP);
@@ -271,28 +270,14 @@ const RELIC_MASTER = [
 {id:605, star:6, name:"戦碑累功レリ・エンス", atk:3000000, hp:3000000, desc:"1つにつき獲得経験値+5。"},
 {id:701, star:7, name:"パンドラの箱", atk:155528931, hp:355528931, desc:"神を屠る唯一の条件。災厄の底に希望を宿す。"}, {id:702, star:7, name:"終焉の福音", atk:200000000, hp:450000000, desc:"敵HPが50%以下のとき、与ダメージ+30%。(重複不可)"}, {id:703, star:7, name:"神滅のアカシックレコード", atk:100000000, hp:550000000, desc:"与ダメージの最終倍率にさらに+20%。(重複不可)"},
 {id:704, star:7, name:"災厄の残滓", atk:500000000, hp:500000000, desc:"すべての遺物のステータス上昇値を100倍にする。(効果は重複しない)"},
-{id:801, star:999, name:"秩序のリバランス", atk:0, hp:0, desc:"【救済】低ダメージを敵最大HP割合の絶対ダメージに変換。討伐数に応じて威力が上昇。"},
-{id:901, star:8, name:"天律崩壊オメガ・コア", atk:0, hp:0, desc:"100個の遺物効果を一度統合し、天律演算によりATKとHPへ超倍率変換する禁断のコア。"}
+{id:801, star:8, name:"天律崩壊オメガ・コア", atk:1000000000, hp:1000000000, desc:"統合・乗算コア：計算ロジックを最適化し、ステータスを乗算強化する。"},
+{id:999, star:999, name:"秩序のリバランス", atk:0, hp:0, desc:"【救済】低ダメージを敵最大HP割合の絶対ダメージに変換。討伐数に応じて威力が上昇。"}
 ];
 
-function applyOmegaCore(sumEffect, enemyHP){
-    const relicEnergy = sumEffect * 100;
-    const compressedEnergy = Math.log10(1 + relicEnergy);
-    let omegaMultiplier = 1 + (compressedEnergy * 3);
-    if(omegaMultiplier > 10){ omegaMultiplier = 10 + Math.sqrt(omegaMultiplier - 10); }
-    omegaMultiplier = Math.min(omegaMultiplier, 50);
-    
-    const bonus = getRelicBonus();
-    const skillMult = calcFinalDmgMult();
-    let calculatedATK = Number(player.baseAtk + bonus.atk) * bonus.mult * skillMult * omegaMultiplier;
-    let calculatedHP = Number(player.baseHP + bonus.hp) * bonus.mult * omegaMultiplier;
-    
-    const maxDamage = Number(enemyHP) * 0.05;
-    if(calculatedATK > maxDamage){ calculatedATK = maxDamage; }
-    
-    addLog(`<div class="omega-log">【天律崩壊オメガ・コア】<br>統合エネルギー: ${relicEnergy.toFixed(2)}<br>圧縮演算: ${compressedEnergy.toFixed(4)}<br>オメガ倍率: ×${omegaMultiplier.toFixed(2)}<br>ATK / HP 上昇</div>`);
-    
-    return { atk: BigInt(Math.floor(calculatedATK)), hp: BigInt(Math.floor(calculatedHP)), mult: omegaMultiplier };
+function applyOmegaCore(baseAtk, baseHp) {
+    if ((player.inventory[801] || 0) <= 0) return { atk: baseAtk, hp: baseHp };
+    let omegaMult = BigInt(player.inventory[801]) * 2n;
+    return { atk: baseAtk * omegaMult, hp: baseHp * omegaMult };
 }
 
 function saveGame() { const data = { ...player, baseAtk: player.baseAtk.toString(), baseHP: player.baseHP.toString(), maxDmg: player.maxDmg.toString(), currentBossHP: currentBossHP.toString() }; localStorage.setItem(SAVE_KEY, JSON.stringify(data)); }
@@ -313,8 +298,8 @@ if(saved) {
 } else { currentBossHP = BigInt(player.bossMaxHP); }
 
 if(player.isCleared) {
-  if(!player.inventory[801]) {
-      player.inventory[801] = 1;
+  if(!player.inventory[999]) {
+      player.inventory[999] = 1;
       player.rebalanceSeen = false;
       saveGame();
   }
@@ -412,8 +397,8 @@ function applySerialCode() {
 
    if (code === "REBALANCE2026") {
        if (player.isCleared) {
-           if (!player.inventory[801]) {
-               player.inventory[801] = 1;
+           if (!player.inventory[999]) {
+               player.inventory[999] = 1;
                player.rebalanceSeen = true;
                success = true;
                message = `シリアルコード承認。<br><br><span style="color:var(--gold); font-weight:bold;">【特別遺物付与】</span><br><span class="unique-relic-text">秩序のリバランス</span> を獲得しました。<br>理の崩壊を止める力としてお使いください。`;
@@ -455,7 +440,7 @@ const hasZansai = (player.inventory[704] || 0) > 0;
 
 let compCount = 0;
 for (let s = 1; s <= 7; s++) {
-   const allOfType = RELIC_MASTER.filter(m => m.star === s && m.id !== 117 && m.id !== 0 && m.id !== 901);
+   const allOfType = RELIC_MASTER.filter(m => m.star === s && m.id !== 117 && m.id !== 0);
    if (allOfType.length > 0 && allOfType.every(m => (player.inventory[m.id] || 0) > 0)) {
        compCount++;
    }
@@ -464,7 +449,7 @@ const compBonus = Math.pow(2.0, compCount);
 
 Object.entries(player.inventory).forEach(([id, count]) => {
    const r = RELIC_MASTER.find(m => m.id == id); if(!r) return;
-   if(r.star === 999 || r.star === 8) return;
+   if(r.star === 999) return;
    let bA = (r.atk || 0) * count, bH = (r.hp || 0) * count;
 
    if(r.star === 1 && player.hasHado) { bA *= 100; bH *= 100; }
@@ -494,14 +479,8 @@ if(isModalOpen) return;
 player.totalClicks++;
 const bonus = getRelicBonus();
 const skillMult = calcFinalDmgMult();
-let totalAtkVal = BigInt(Math.floor(Number(player.baseAtk + bonus.atk) * bonus.mult * skillMult));
-
-if(player.inventory[901] > 0){
-    let sumEffect = 0;
-    Object.entries(player.inventory).forEach(([id, c]) => { const r = RELIC_MASTER.find(m => m.id == id); if(r && r.star < 8) sumEffect += (r.atk || 0) * c / 1000; });
-    const omega = applyOmegaCore(sumEffect, currentBossHP);
-    totalAtkVal = omega.atk;
-}
+const totalBase = applyOmegaCore(player.baseAtk + bonus.atk, player.baseHP + bonus.hp);
+const totalAtkVal = BigInt(Math.floor(Number(totalBase.atk) * bonus.mult * skillMult));
 
 let rawDmg = BigInt(Math.floor(Number(totalAtkVal) * (0.8 + Math.random() * 0.4)));
 let finalDmg = rawDmg;
@@ -509,7 +488,7 @@ let specialTags = "";
 
 const bossMaxHP = BigInt(player.bossMaxHP);
 
-if ((player.inventory[801] || 0) > 0) {
+if ((player.inventory[999] || 0) > 0) {
 const threshold = bossMaxHP / 10000n;
 if (finalDmg < threshold) {
     const scalingMult = Math.log10(player.killCount + 1) + 1.0;
@@ -579,7 +558,7 @@ if(finalDmg >= currentBossHP) {
 }
 
 if(currentBossHP > 0n) {
-const currentTotalHP = BigInt(Math.floor(Number(player.baseHP + bonus.hp) * bonus.mult));
+const currentTotalHP = totalBase.hp * BigInt(Math.floor(bonus.mult));
 let baseCut = Math.min(20, Math.floor(skillLv/5) * 5);
 let ingaVal = Math.min(10, player.inventory[403] || 0);
 let minCut = baseCut + (ingaVal * 2);
@@ -619,7 +598,7 @@ return `<div style="font-size:0.82em;">【狼煙】獲得：${entries.join("、 
 }
 
 function getDropLog(count) {
-let starCounts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0 }; let starGroups = { 1: {}, 2: {}, 3: {}, 4: {}, 5: {}, 6: {}, 7: {} };
+let starCounts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0 }; let starGroups = { 1: {}, 2: {}, 3: {}, 4: {}, 5: {}, 6: {}, 7: {}, 8: {} };
 const rates = getCurrentDropRates(); let showRare = null;
 for(let i=0; i < count; i++) {
  let rv = Math.random()*100, star=1, curP=0; for(let s in rates) { curP += rates[s].p; if(rv <= curP) { star=parseInt(s); break; } }
@@ -629,7 +608,7 @@ for(let i=0; i < count; i++) {
  if (star === 2 && player.hasDivineGuide && Math.random() < 0.1) {
      sel = RELIC_MASTER.find(m => m.id === 117);
  } else {
-     let cands = RELIC_MASTER.filter(m => m.star === star && m.id !== 0 && m.star < 8 && m.id !== 117);
+     let cands = RELIC_MASTER.filter(m => m.star === star && m.id !== 0 && m.star < 9 && m.id !== 117);
      if(cands.length === 0) cands = RELIC_MASTER.filter(m => m.star === 1);
      sel = cands[Math.floor(Math.random() * cands.length)];
 
@@ -646,7 +625,7 @@ for(let i=0; i < count; i++) {
 }
 if(showRare) openRareModal(showRare);
 let finalEntries = [];
-for (let s = 1; s <= 7; s++) {
+for (let s = 1; s <= 8; s++) {
  if (starCounts[s] === 0) continue;
  if (starCounts[s] > 30) { finalEntries.push(`<span class="c${s}">★${s}遺物 合計${starCounts[s]}個</span>`); }
  else { Object.entries(starGroups[s]).forEach(([id, c]) => { const m = RELIC_MASTER.find(x => x.id == id); finalEntries.push(`<span class="c${s}">★${s} ${m.name}${c > 1 ? '×' + c : ''}</span>`); }); }
@@ -658,9 +637,10 @@ function triggerUIUpdate() { if (!needsUIUpdate) { needsUIUpdate = true; request
 function updateUIFrame() { refreshUI(); needsUIUpdate = false; }
 
 function refreshUI() {
-const b = getRelicBonus(); const skillMult = calcFinalDmgMult(); const lv = player.totalLevel;
-document.getElementById("p-atk").textContent = formatV(BigInt(Math.floor(Number(player.baseAtk + b.atk) * b.mult * skillMult)));
-document.getElementById("p-hp").textContent = formatV(BigInt(Math.floor(Number(player.baseHP + b.hp) * b.mult)));
+const b = getRelicBonus(); const skillMult = calcFinalDmgMult();
+const totalBase = applyOmegaCore(player.baseAtk + b.atk, player.baseHP + b.hp);
+document.getElementById("p-atk").textContent = formatV(BigInt(Math.floor(Number(totalBase.atk) * b.mult * skillMult)));
+document.getElementById("p-hp").textContent = formatV(BigInt(Math.floor(Number(totalBase.hp) * b.mult)));
 
 const hpDisp = document.getElementById("bosshp-cur");
 if (!player.isCleared) {
@@ -674,7 +654,7 @@ if (!player.isCleared) {
 document.getElementById("hp-bar-fill").style.width = `${Number(currentBossHP * 100n / BigInt(player.bossMaxHP))}%`;
 const area = document.getElementById("st-rank-area"); const title = document.getElementById("st-rank-title");
 const rankIdx = getCurrentRankIndex();
-document.getElementById("st-rank-lv").textContent = `${RANK_NAMES[rankIdx]} Lv.${lv}`;
+document.getElementById("st-rank-lv").textContent = `${RANK_NAMES[rankIdx]} Lv.${player.totalLevel}`;
 title.textContent = RANK_NAMES[rankIdx];
 area.className = "rank-display"; title.style.color = "#fff";
 if (rankIdx >= 3 && rankIdx <= 5) { area.classList.add("rank-glow-mid"); title.style.color = "var(--relic-purple)"; }
