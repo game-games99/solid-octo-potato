@@ -3,253 +3,191 @@
 <head>
 <meta charset="UTF-8">
 <title>ゾンビアタック</title>
-
 <style>
-body{
-font-family:sans-serif;
-background:#111;
-color:#eee;
-text-align:center;
+body {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    background: #1a1a1a;
+    color: #e0e0e0;
+    text-align: center;
+    padding: 20px;
 }
 
-button{
-font-size:18px;
-padding:10px 20px;
-margin:10px;
+.card {
+    background: #2d2d2d;
+    border: 1px solid #444;
+    border-radius: 8px;
+    padding: 15px;
+    margin: 15px auto;
+    max-width: 400px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
 }
 
-#enemy{
-font-size:24px;
-margin:10px;
+button {
+    font-size: 24px;
+    padding: 20px 40px;
+    margin: 20px;
+    background: #d32f2f;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    width: 80%;
+    max-width: 300px;
 }
 
-.bar{
-width:300px;
-height:20px;
-background:#333;
-margin:auto;
+button:active {
+    background: #b71c1c;
 }
 
-.hp{
-height:20px;
-background:red;
+#enemy {
+    font-size: 28px;
+    font-weight: bold;
+    margin: 10px;
+    color: #ff5252;
 }
 
+.bar {
+    width: 80%;
+    max-width: 300px;
+    height: 25px;
+    background: #444;
+    margin: 10px auto;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.hp {
+    height: 100%;
+    background: #ff5252;
+    transition: width 0.3s ease;
+}
+
+#log {
+    margin-top: 20px;
+    font-size: 14px;
+    color: #aaa;
+}
 </style>
 </head>
-
 <body>
 
-<h1>🧟ゾンビアタック</h1>
+<h1>🧟 ゾンビアタック</h1>
 
-<div>
-街: <span id="town">荒れた村</span><br>
-階層: <span id="floor">1</span>/30
+<div class="card">
+    街: <span id="town">荒れた村</span><br>
+    階層: <span id="floor">1</span>/30
 </div>
 
-<hr>
-
-<div id="enemy">敵</div>
-
-<div class="bar">
-<div id="enemyHP" class="hp"></div>
+<div class="card">
+    <div id="enemy">敵</div>
+    <div class="bar">
+        <div id="enemyHP" class="hp"></div>
+    </div>
+    HP: <span id="enemyHPtext"></span>
 </div>
-
-HP: <span id="enemyHPtext"></span>
-
-<hr>
 
 <button onclick="attack()">攻撃</button>
 
-<hr>
-
-<h3>プレイヤー</h3>
-
-ATK: <span id="atk"></span><br>
-HP: <span id="hp"></span><br>
-
-街占領数: <span id="towns"></span>
+<div class="card">
+    <h3>プレイヤー</h3>
+    ATK: <span id="atk"></span><br>
+    HP: <span id="hp"></span><br>
+    街占領数: <span id="towns"></span>
+</div>
 
 <div id="log"></div>
 
 <script>
-
+/* 既存のロジックは変更なし */
 let player = {
-
-baseATK:10,
-baseHP:100,
-
-atk:10,
-hp:100,
-maxHP:100
-
+    baseATK:10,
+    baseHP:100,
+    atk:10,
+    hp:100,
+    maxHP:100
 }
-
 let townCount = 0
 let floor = 1
-
-const townNames = [
-"荒れた村",
-"霧の町",
-"血塗られた城",
-"忘れられた都市",
-"静寂の聖都"
-]
-
+const townNames = ["荒れた村", "霧の町", "血塗られた城", "忘れられた都市", "静寂の聖都"]
 const jobs = [
-{name:"村人",mult:1},
-{name:"農夫",mult:1.2},
-{name:"盗賊",mult:1.5},
-{name:"兵士",mult:2},
-{name:"騎士",mult:3},
-{name:"魔法使い",mult:3},
-{name:"勇者",mult:6}
+    {name:"村人",mult:1}, {name:"農夫",mult:1.2}, {name:"盗賊",mult:1.5},
+    {name:"兵士",mult:2}, {name:"騎士",mult:3}, {name:"魔法使い",mult:3}, {name:"勇者",mult:6}
 ]
-
 const traits = [
-{name:"ただの",mult:1},
-{name:"つよい",mult:1.5},
-{name:"巨大な",mult:2.5},
-{name:"狂気の",mult:4},
-{name:"伝説の",mult:10}
+    {name:"ただの",mult:1}, {name:"つよい",mult:1.5}, {name:"巨大な",mult:2.5},
+    {name:"狂気の",mult:4}, {name:"伝説の",mult:10}
 ]
-
 let enemy = {}
 
-function random(arr){
-return arr[Math.floor(Math.random()*arr.length)]
-}
+function random(arr){ return arr[Math.floor(Math.random()*arr.length)] }
 
 function createEnemy(){
-
-let job = random(jobs)
-let trait = random(traits)
-
-let base = 30 * Math.pow(1.18,floor)
-
-let hp = Math.floor(base * job.mult * trait.mult)
-
-enemy = {
-
-name: trait.name + job.name,
-hp: hp,
-maxHP: hp,
-atk: Math.floor(5 * job.mult * trait.mult)
-
-}
-
-updateEnemy()
+    let job = random(jobs)
+    let trait = random(traits)
+    let base = 30 * Math.pow(1.18,floor)
+    let hp = Math.floor(base * job.mult * trait.mult)
+    enemy = { name: trait.name + job.name, hp: hp, maxHP: hp, atk: Math.floor(5 * job.mult * trait.mult) }
+    updateEnemy()
 }
 
 function updateEnemy(){
-
-document.getElementById("enemy").innerText = enemy.name
-
-let ratio = enemy.hp / enemy.maxHP * 100
-
-document.getElementById("enemyHP").style.width = ratio+"%"
-
-document.getElementById("enemyHPtext").innerText =
-enemy.hp + " / " + enemy.maxHP
+    document.getElementById("enemy").innerText = enemy.name
+    let ratio = enemy.hp / enemy.maxHP * 100
+    document.getElementById("enemyHP").style.width = ratio+"%"
+    document.getElementById("enemyHPtext").innerText = enemy.hp + " / " + enemy.maxHP
 }
 
 function updatePlayer(){
-
-player.atk = Math.floor(player.baseATK * (1 + townCount*0.2))
-player.maxHP = Math.floor(player.baseHP * (1 + townCount*0.2))
-
-document.getElementById("atk").innerText = player.atk
-document.getElementById("hp").innerText = player.hp + " / " + player.maxHP
-document.getElementById("towns").innerText = townCount
-document.getElementById("floor").innerText = floor
-
+    player.atk = Math.floor(player.baseATK * (1 + townCount*0.2))
+    player.maxHP = Math.floor(player.baseHP * (1 + townCount*0.2))
+    document.getElementById("atk").innerText = player.atk
+    document.getElementById("hp").innerText = player.hp + " / " + player.maxHP
+    document.getElementById("towns").innerText = townCount
+    document.getElementById("floor").innerText = floor
 }
 
 function attack(){
-
-enemy.hp -= player.atk
-
-if(enemy.hp < 0) enemy.hp = 0
-
-if(enemy.hp <= 0){
-
-log("敵を倒した: "+enemy.name)
-
-floor++
-
-if(floor > 30){
-
-townClear()
-return
-
-}
-
-createEnemy()
-
-}else{
-
-player.hp -= enemy.atk
-
-if(player.hp <= 0){
-
-playerDeath()
-return
-
-}
-
-}
-
-updateEnemy()
-updatePlayer()
-
+    enemy.hp -= player.atk
+    if(enemy.hp < 0) enemy.hp = 0
+    if(enemy.hp <= 0){
+        log("敵を倒した: "+enemy.name)
+        floor++
+        if(floor > 30){ townClear(); return }
+        createEnemy()
+    }else{
+        player.hp -= enemy.atk
+        if(player.hp <= 0){ playerDeath(); return }
+    }
+    updateEnemy()
+    updatePlayer()
 }
 
 function playerDeath(){
-
-log("死亡…転生する")
-
-player.baseATK += 2
-player.baseHP += 10
-
-player.hp = player.baseHP
-
-floor = 1
-
-createEnemy()
-
-updatePlayer()
-
+    log("死亡…転生する")
+    player.baseATK += 2
+    player.baseHP += 10
+    player.hp = player.baseHP
+    floor = 1
+    createEnemy()
+    updatePlayer()
 }
 
 function townClear(){
-
-townCount++
-
-log("街を占領した！")
-
-floor = 1
-
-player.hp = player.maxHP
-
-document.getElementById("town").innerText = random(townNames)
-
-createEnemy()
-
-updatePlayer()
-
+    townCount++
+    log("街を占領した！")
+    floor = 1
+    player.hp = player.maxHP
+    document.getElementById("town").innerText = random(townNames)
+    createEnemy()
+    updatePlayer()
 }
 
 function log(text){
-
-document.getElementById("log").innerHTML =
-text + "<br>" + document.getElementById("log").innerHTML
-
+    document.getElementById("log").innerHTML = text + "<br>" + document.getElementById("log").innerHTML
 }
 
 createEnemy()
 updatePlayer()
-
 </script>
-
 </body>
 </html>
