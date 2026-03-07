@@ -3,25 +3,76 @@
 <head>
 <meta charset="UTF-8">
 <title>Immortal Undead</title>
+
 <style>
+
 body{
-background:#111;
-color:#eee;
-font-family:monospace;
+background:#0f0f0f;
+color:white;
+font-family:sans-serif;
 text-align:center;
+margin:0;
+}
+
+h1{
+color:#66ff66;
+margin-top:10px;
+}
+
+.panel{
+border:1px solid #444;
+margin:8px;
+padding:10px;
+border-radius:8px;
 }
 
 button{
-padding:10px;
-margin:5px;
-font-size:16px;
+border:none;
+border-radius:10px;
 }
 
-.box{
-border:1px solid #555;
-padding:10px;
+#attack{
+font-size:28px;
+padding:22px;
+width:90%;
+background:#e53935;
+color:white;
 margin:10px;
 }
+
+#auto{
+font-size:20px;
+padding:16px;
+width:90%;
+background:#1e88e5;
+color:white;
+}
+
+#skill{
+font-size:16px;
+padding:10px;
+background:#8e24aa;
+color:white;
+}
+
+.hpbar{
+background:#333;
+height:18px;
+margin-top:5px;
+}
+
+.hpfill{
+background:#4caf50;
+height:18px;
+}
+
+.log{
+text-align:left;
+max-height:180px;
+overflow:auto;
+font-size:13px;
+}
+
 </style>
 </head>
 
@@ -29,117 +80,183 @@ margin:10px;
 
 <h1>Immortal Undead</h1>
 
-<div class="box">
-<h3>Player</h3>
+<div class="panel">
 <div id="player"></div>
 </div>
 
-<div class="box">
-<h3>Enemy</h3>
+<div class="panel">
 <div id="enemy"></div>
+
+<div class="hpbar">
+<div id="enemyhp" class="hpfill"></div>
 </div>
 
-<div class="box">
-<button onclick="fight()">Fight</button>
-<button onclick="nextEnemy()">Next Enemy</button>
 </div>
 
-<div class="box">
-<h3>Log</h3>
-<div id="log"></div>
+<button id="attack" onclick="fight()">こうげき</button>
+<button id="auto" onclick="toggleAuto()">オート戦闘</button>
+<button id="skill" onclick="openSkill()">スキル</button>
+
+<div class="panel">
+<div class="log" id="log"></div>
 </div>
 
 <script>
 
-let player = {
+let player={
+job:"ゾンビ",
 baseAtk:10,
 baseHp:100,
 gearAtk:0,
 gearHp:0,
 hp:100,
-job:"Zombie",
-deaths:0,
-bases:0
+death:0,
+bases:0,
+skillPoint:0
 }
 
 let worldLevel=1
+let enemy={}
+let auto=false
+
+/* ---------- スキルツリー ---------- */
+
+let skills={
+atk:0,
+hp:0,
+loot:0,
+crit:0
+}
+
+/* ---------- 敵職業200生成 ---------- */
+
+const jobBase=[
+"村人","農夫","兵士","騎士","盗賊","暗殺者","狩人","司祭",
+"魔法使い","召喚士","錬金術師","狂戦士","傭兵","忍者","勇者"
+]
+
+const jobExtra=[
+"炎","氷","雷","闇","光","毒","影","深淵","古代","呪術",
+"精霊","死霊","機械","魔導","竜"
+]
+
+let jobs=[]
+for(let a of jobExtra){
+for(let b of jobBase){
+jobs.push(a+b)
+}
+}
+
+/* ---------- 形容詞 ---------- */
 
 const adjectives=[
-"Mad","Cursed","Ancient","Dark","Bloody","Chaos","Void",
-"Abyss","Fallen","Savage","Doom","Infernal","Shadow",
-"Forgotten","Raging","Night","Phantom","Dread"
+"狂気の","呪われた","古代の","闇の","血塗られた","深淵の",
+"虚無の","暴虐の","影の","混沌の","支配する","滅びの"
 ]
 
-const jobs=[
-"Villager","Farmer","Thief","Assassin","Knight",
-"Soldier","Mage","Priest","Hunter","Mercenary",
-"Dark Knight","Paladin","Warrior","Bandit",
-"Summoner","Alchemist","Berserker","Hero"
+/* ---------- 拠点 ---------- */
+
+const bases=[
+{name:"村",hp:40},
+{name:"街",hp:70},
+{name:"砦",atk:6},
+{name:"城",atk:12}
 ]
 
-const places=[
-"Village","Town","Fort","Castle","Ruins"
+/* ---------- 装備生成（24000パターン以上） ---------- */
+
+const gearPrefix=[
+"壊れた","錆びた","鉄の","鋼鉄の","古代の","騎士の",
+"闇の","聖なる","虚無の","呪われた","王の","伝説の"
 ]
+
+const gearType=[
+"剣","斧","槍","短剣","鎧","兜","盾","指輪","首飾り","弓"
+]
+
+const gearSuffix=[
+"力","生命","破壊","終焉","夜","炎","氷","雷","毒","混沌"
+]
+
+/* ---------- ランク ---------- */
 
 const ranks=[
-{n:"Normal",m:1},
-{n:"Strong",m:2},
-{n:"Elite",m:5},
-{n:"Boss",m:15},
-{n:"Catastrophe",m:50}
+{name:"ノーマル",mult:1,color:"white"},
+{name:"強敵",mult:2,color:"cyan"},
+{name:"エリート",mult:5,color:"violet"},
+{name:"ボス",mult:12,color:"orange"},
+{name:"災厄",mult:40,color:"red"}
 ]
-
-let enemy={}
 
 function rand(a){
 return a[Math.floor(Math.random()*a.length)]
 }
 
+function playerAtk(){
+return player.baseAtk+player.gearAtk+skills.atk*3
+}
+
+function playerHp(){
+return player.baseHp+player.gearHp+skills.hp*30
+}
+
+/* ---------- 敵生成 ---------- */
+
 function nextEnemy(){
 
-let adj=rand(adjectives)
-let job=rand(jobs)
-let place=rand(places)
 let rank=rand(ranks)
+let job=rand(jobs)
+let adj=rand(adjectives)
 
-let baseHp=50+Math.random()*50
-let baseAtk=5+Math.random()*10
-
-let pAtk=getPlayerAtk()
-let pHp=getPlayerHp()
+let pAtk=playerAtk()
+let pHp=playerHp()
 
 enemy={
-name:rank.n+" "+adj+" "+job+" ("+place+")",
-job:job,
-hp:Math.floor((baseHp+pAtk*2)*(1+worldLevel*0.05)*rank.m),
-atk:Math.floor((baseAtk+pHp*0.05)*(1+worldLevel*0.03)*rank.m),
-maxHp:0
+name:rank.name+" "+adj+job,
+rank:rank,
+hp:Math.floor((60+pAtk*2)*(1+worldLevel*0.05)*rank.mult),
+atk:Math.floor((8+pHp*0.05)*(1+worldLevel*0.03)*rank.mult),
+job:job
 }
 
 enemy.maxHp=enemy.hp
+
+rareCheck()
 
 draw()
 
 }
 
-function getPlayerAtk(){
-return player.baseAtk+player.gearAtk
+/* ---------- レア敵演出 ---------- */
+
+function rareCheck(){
+
+if(Math.random()<0.02){
+
+enemy.name="★伝説★ "+enemy.name
+enemy.hp*=3
+enemy.atk*=3
+
+log("伝説の敵が出現！！")
+
 }
 
-function getPlayerHp(){
-return player.baseHp+player.gearHp
 }
+
+/* ---------- 戦闘 ---------- */
 
 function fight(){
 
-let pAtk=getPlayerAtk()
+enemy.hp-=playerAtk()
 
-enemy.hp-=pAtk
+let dmg=enemy.atk
 
-player.hp-=enemy.atk
+if(Math.random()<skills.crit*0.02){
+dmg=0
+log("回避！")
+}
 
-log("You hit "+pAtk)
-log(enemy.name+" hits "+enemy.atk)
+player.hp-=dmg
 
 if(enemy.hp<=0){
 victory()
@@ -155,49 +272,79 @@ draw()
 
 }
 
+/* ---------- 勝利 ---------- */
+
 function victory(){
 
-log("Enemy defeated!")
+log("敵撃破")
 
 player.job=enemy.job
 
 dropGear()
 
 if(Math.random()<0.2){
-player.bases++
-log("Base captured!")
+captureBase()
 }
+
+player.skillPoint++
 
 worldLevel++
 
-player.hp=getPlayerHp()
+player.hp=playerHp()
 
 nextEnemy()
 
 }
 
+/* ---------- 装備 ---------- */
+
 function dropGear(){
 
-let atk=Math.floor(Math.random()*10)+1
+let name=rand(gearPrefix)+rand(gearType)+"の"+rand(gearSuffix)
+
+let atk=Math.floor(Math.random()*8)+1
 let hp=Math.floor(Math.random()*20)+5
+
+if(Math.random()<skills.loot*0.05){
+atk*=2
+hp*=2
+log("レアドロップ！")
+}
 
 player.gearAtk+=atk
 player.gearHp+=hp
 
-log("Gear absorbed +ATK "+atk+" +HP "+hp)
+log("装備："+name+" ATK+"+atk+" HP+"+hp)
 
 }
 
+/* ---------- 拠点 ---------- */
+
+function captureBase(){
+
+let b=rand(bases)
+
+player.bases++
+
+if(b.hp) player.baseHp+=b.hp
+if(b.atk) player.baseAtk+=b.atk
+
+log("拠点占領："+b.name)
+
+}
+
+/* ---------- 死亡 ---------- */
+
 function death(){
 
-log("You died")
+log("あなたは死亡")
 
-player.deaths++
+player.death++
 
-player.baseAtk+=2
-player.baseHp+=10
+player.baseAtk+=3
+player.baseHp+=15
 
-player.hp=getPlayerHp()
+player.hp=playerHp()
 
 worldLevel++
 
@@ -205,34 +352,119 @@ nextEnemy()
 
 }
 
+/* ---------- オート戦闘 ---------- */
+
+function toggleAuto(){
+
+auto=!auto
+
+if(auto){
+log("オート戦闘ON")
+}
+
+}
+
+setInterval(()=>{
+
+if(auto){
+fight()
+}
+
+},500)
+
+/* ---------- スキル ---------- */
+
+function openSkill(){
+
+if(player.skillPoint<=0){
+alert("スキルポイントなし")
+return
+}
+
+let c=prompt(
+"スキル選択\n1 攻撃\n2 HP\n3 ドロップ\n4 回避"
+)
+
+if(c==1) skills.atk++
+if(c==2) skills.hp++
+if(c==3) skills.loot++
+if(c==4) skills.crit++
+
+player.skillPoint--
+
+draw()
+
+}
+
+/* ---------- セーブ ---------- */
+
+function save(){
+
+localStorage.setItem("undeadSave",
+JSON.stringify({player,worldLevel,skills})
+)
+
+}
+
+function load(){
+
+let s=localStorage.getItem("undeadSave")
+
+if(s){
+
+let d=JSON.parse(s)
+
+player=d.player
+worldLevel=d.worldLevel
+skills=d.skills
+
+}
+
+}
+
+setInterval(save,3000)
+
+/* ---------- UI ---------- */
+
 function draw(){
 
-document.getElementById("player").innerHTML=
-`
-Job: ${player.job}<br>
-HP: ${player.hp}/${getPlayerHp()}<br>
-ATK: ${getPlayerAtk()}<br>
-Base ATK: ${player.baseAtk}<br>
-Base HP: ${player.baseHp}<br>
-Gear ATK: ${player.gearAtk}<br>
-Gear HP: ${player.gearHp}<br>
-Deaths: ${player.deaths}<br>
-Bases: ${player.bases}<br>
-World Level: ${worldLevel}
+document.getElementById("player").innerHTML=`
+職業：${player.job}<br>
+HP：${player.hp}/${playerHp()}<br>
+攻撃：${playerAtk()}<br>
+基礎ATK：${player.baseAtk}<br>
+基礎HP：${player.baseHp}<br>
+装備ATK：${player.gearAtk}<br>
+装備HP：${player.gearHp}<br>
+死亡：${player.death}<br>
+拠点：${player.bases}<br>
+スキルP：${player.skillPoint}<br>
+世界Lv：${worldLevel}
 `
 
 document.getElementById("enemy").innerHTML=
-`
-${enemy.name}<br>
-HP: ${enemy.hp}/${enemy.maxHp}<br>
-ATK: ${enemy.atk}
-`
+`<span style="color:${enemy.rank.color}">
+${enemy.name}
+</span><br>
+HP：${enemy.hp}/${enemy.maxHp}<br>
+攻撃：${enemy.atk}`
+
+document.getElementById("enemyhp").style.width=
+(enemy.hp/enemy.maxHp*100)+"%"
 
 }
 
 function log(t){
-document.getElementById("log").innerHTML=t+"<br>"+document.getElementById("log").innerHTML
+
+let l=document.getElementById("log")
+
+l.innerHTML=t+"<br>"+l.innerHTML
+
 }
+
+/* ---------- 起動 ---------- */
+
+load()
 
 nextEnemy()
 
