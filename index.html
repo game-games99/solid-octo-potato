@@ -1,159 +1,242 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ゾンビアタック - 激闘</title>
+<title>Immortal Undead</title>
 <style>
-    body {
-        font-family: 'Segoe UI', sans-serif;
-        background: #121212;
-        color: #e0e0e0;
-        margin: 0;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        min-height: 100vh;
-        padding: 10px;
-        box-sizing: border-box;
-    }
+body{
+background:#111;
+color:#eee;
+font-family:monospace;
+text-align:center;
+}
 
-    .card {
-        background: #1e1e1e;
-        border: 1px solid #333;
-        border-radius: 12px;
-        padding: 15px;
-        margin: 10px 0;
-        width: 100%;
-        max-width: 400px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-    }
+button{
+padding:10px;
+margin:5px;
+font-size:16px;
+}
 
-    .enemy-area { border-color: #550000; }
-
-    h1 { font-size: 20px; margin: 10px 0; color: #ff5252; }
-
-    .bar { width: 100%; height: 20px; background: #333; border-radius: 10px; overflow: hidden; margin: 10px 0; }
-    .hp { height: 100%; background: #ff5252; width: 100%; transition: width 0.1s; }
-
-    #attackBtn {
-        width: 100%;
-        max-width: 400px;
-        padding: 20px;
-        font-size: 24px;
-        font-weight: bold;
-        background: #b71c1c;
-        color: white;
-        border: none;
-        border-radius: 12px;
-        cursor: pointer;
-        touch-action: manipulation;
-    }
-    #attackBtn:active { background: #d32f2f; transform: scale(0.98); }
-
-    #log { font-size: 12px; color: #888; max-height: 150px; overflow-y: auto; text-align: left; }
+.box{
+border:1px solid #555;
+padding:10px;
+margin:10px;
+}
 </style>
 </head>
+
 <body>
 
-<h1>🧟 ゾンビアタック</h1>
+<h1>Immortal Undead</h1>
 
-<div class="card">
-    街: <span id="town">荒れた村</span> | 階層: <span id="floor">1</span>/30
+<div class="box">
+<h3>Player</h3>
+<div id="player"></div>
 </div>
 
-<div class="card enemy-area">
-    <div id="enemy" style="font-size: 20px; font-weight: bold;">敵</div>
-    <div class="bar"><div id="enemyHP" class="hp"></div></div>
-    HP: <span id="enemyHPtext"></span>
+<div class="box">
+<h3>Enemy</h3>
+<div id="enemy"></div>
 </div>
 
-<button id="attackBtn">攻撃 (長押し対応)</button>
-
-<div class="card">
-    <h3>プレイヤー</h3>
-    ATK: <span id="atk"></span> | HP: <span id="hp"></span><br>
-    街占領数: <span id="towns"></span>
+<div class="box">
+<button onclick="fight()">Fight</button>
+<button onclick="nextEnemy()">Next Enemy</button>
 </div>
 
-<div id="log" class="card"></div>
+<div class="box">
+<h3>Log</h3>
+<div id="log"></div>
+</div>
 
 <script>
-    let player = { baseATK:10, baseHP:100, atk:10, hp:100, maxHP:100 };
-    let townCount = 0, floor = 1;
-    let enemy = {}, attackTimer = null;
 
-    const townNames = ["荒れた村", "霧の町", "血塗られた城", "忘れられた都市", "静寂の聖都"];
-    const jobs = [{name:"村人",mult:1},{name:"農夫",mult:1.2},{name:"盗賊",mult:1.5},{name:"兵士",mult:2},{name:"騎士",mult:3},{name:"魔法使い",mult:3},{name:"勇者",mult:6}];
-    const traits = [{name:"ただの",mult:1},{name:"つよい",mult:1.5},{name:"巨大な",mult:2.5},{name:"狂気の",mult:4},{name:"伝説の",mult:10}];
+let player = {
+baseAtk:10,
+baseHp:100,
+gearAtk:0,
+gearHp:0,
+hp:100,
+job:"Zombie",
+deaths:0,
+bases:0
+}
 
-    function random(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+let worldLevel=1
 
-    function createEnemy(){
-        let job = random(jobs), trait = random(traits);
-        let base = 30 * Math.pow(1.18, floor);
-        let hp = Math.floor(base * job.mult * trait.mult);
-        enemy = { name: trait.name + job.name, hp: hp, maxHP: hp, atk: Math.floor(5 * job.mult * trait.mult) };
-        updateEnemy();
-    }
+const adjectives=[
+"Mad","Cursed","Ancient","Dark","Bloody","Chaos","Void",
+"Abyss","Fallen","Savage","Doom","Infernal","Shadow",
+"Forgotten","Raging","Night","Phantom","Dread"
+]
 
-    function updateEnemy(){
-        document.getElementById("enemy").innerText = enemy.name;
-        let ratio = (enemy.hp / enemy.maxHP) * 100;
-        document.getElementById("enemyHP").style.width = ratio + "%";
-        document.getElementById("enemyHPtext").innerText = enemy.hp + " / " + enemy.maxHP;
-    }
+const jobs=[
+"Villager","Farmer","Thief","Assassin","Knight",
+"Soldier","Mage","Priest","Hunter","Mercenary",
+"Dark Knight","Paladin","Warrior","Bandit",
+"Summoner","Alchemist","Berserker","Hero"
+]
 
-    function updatePlayer(){
-        player.atk = Math.floor(player.baseATK * (1 + townCount * 0.2));
-        player.maxHP = Math.floor(player.baseHP * (1 + townCount * 0.2));
-        document.getElementById("atk").innerText = player.atk;
-        document.getElementById("hp").innerText = player.hp + " / " + player.maxHP;
-        document.getElementById("towns").innerText = townCount;
-        document.getElementById("floor").innerText = floor;
-    }
+const places=[
+"Village","Town","Fort","Castle","Ruins"
+]
 
-    function attack(){
-        enemy.hp -= player.atk;
-        if(enemy.hp <= 0){
-            log("敵を倒した: " + enemy.name);
-            floor++;
-            if(floor > 30) townClear();
-            else createEnemy();
-        } else {
-            player.hp -= enemy.atk;
-            if(player.hp <= 0) playerDeath();
-        }
-        updateEnemy();
-        updatePlayer();
-    }
+const ranks=[
+{n:"Normal",m:1},
+{n:"Strong",m:2},
+{n:"Elite",m:5},
+{n:"Boss",m:15},
+{n:"Catastrophe",m:50}
+]
 
-    const btn = document.getElementById("attackBtn");
-    btn.addEventListener("mousedown", () => attackTimer = setInterval(attack, 100));
-    btn.addEventListener("touchstart", (e) => { e.preventDefault(); attackTimer = setInterval(attack, 100); });
-    btn.addEventListener("mouseup", () => clearInterval(attackTimer));
-    btn.addEventListener("touchend", () => clearInterval(attackTimer));
-    btn.addEventListener("mouseleave", () => clearInterval(attackTimer));
+let enemy={}
 
-    function playerDeath(){
-        log("死亡…転生する");
-        player.baseATK += 2; player.baseHP += 10; player.hp = player.baseHP;
-        floor = 1; createEnemy();
-    }
+function rand(a){
+return a[Math.floor(Math.random()*a.length)]
+}
 
-    function townClear(){
-        townCount++; log("街を占領した！");
-        floor = 1; player.hp = player.maxHP;
-        document.getElementById("town").innerText = random(townNames);
-        createEnemy();
-    }
+function nextEnemy(){
 
-    function log(text){
-        document.getElementById("log").innerHTML = text + "<br>" + document.getElementById("log").innerHTML;
-    }
+let adj=rand(adjectives)
+let job=rand(jobs)
+let place=rand(places)
+let rank=rand(ranks)
 
-    createEnemy();
-    updatePlayer();
+let baseHp=50+Math.random()*50
+let baseAtk=5+Math.random()*10
+
+let pAtk=getPlayerAtk()
+let pHp=getPlayerHp()
+
+enemy={
+name:rank.n+" "+adj+" "+job+" ("+place+")",
+job:job,
+hp:Math.floor((baseHp+pAtk*2)*(1+worldLevel*0.05)*rank.m),
+atk:Math.floor((baseAtk+pHp*0.05)*(1+worldLevel*0.03)*rank.m),
+maxHp:0
+}
+
+enemy.maxHp=enemy.hp
+
+draw()
+
+}
+
+function getPlayerAtk(){
+return player.baseAtk+player.gearAtk
+}
+
+function getPlayerHp(){
+return player.baseHp+player.gearHp
+}
+
+function fight(){
+
+let pAtk=getPlayerAtk()
+
+enemy.hp-=pAtk
+
+player.hp-=enemy.atk
+
+log("You hit "+pAtk)
+log(enemy.name+" hits "+enemy.atk)
+
+if(enemy.hp<=0){
+victory()
+return
+}
+
+if(player.hp<=0){
+death()
+return
+}
+
+draw()
+
+}
+
+function victory(){
+
+log("Enemy defeated!")
+
+player.job=enemy.job
+
+dropGear()
+
+if(Math.random()<0.2){
+player.bases++
+log("Base captured!")
+}
+
+worldLevel++
+
+player.hp=getPlayerHp()
+
+nextEnemy()
+
+}
+
+function dropGear(){
+
+let atk=Math.floor(Math.random()*10)+1
+let hp=Math.floor(Math.random()*20)+5
+
+player.gearAtk+=atk
+player.gearHp+=hp
+
+log("Gear absorbed +ATK "+atk+" +HP "+hp)
+
+}
+
+function death(){
+
+log("You died")
+
+player.deaths++
+
+player.baseAtk+=2
+player.baseHp+=10
+
+player.hp=getPlayerHp()
+
+worldLevel++
+
+nextEnemy()
+
+}
+
+function draw(){
+
+document.getElementById("player").innerHTML=
+`
+Job: ${player.job}<br>
+HP: ${player.hp}/${getPlayerHp()}<br>
+ATK: ${getPlayerAtk()}<br>
+Base ATK: ${player.baseAtk}<br>
+Base HP: ${player.baseHp}<br>
+Gear ATK: ${player.gearAtk}<br>
+Gear HP: ${player.gearHp}<br>
+Deaths: ${player.deaths}<br>
+Bases: ${player.bases}<br>
+World Level: ${worldLevel}
+`
+
+document.getElementById("enemy").innerHTML=
+`
+${enemy.name}<br>
+HP: ${enemy.hp}/${enemy.maxHp}<br>
+ATK: ${enemy.atk}
+`
+
+}
+
+function log(t){
+document.getElementById("log").innerHTML=t+"<br>"+document.getElementById("log").innerHTML
+}
+
+nextEnemy()
+
 </script>
+
 </body>
 </html>
