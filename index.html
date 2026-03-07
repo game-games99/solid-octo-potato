@@ -9,6 +9,7 @@ body { font-family: sans-serif; background: #111; color: #eee; text-align: cente
 #game { max-width: 500px; margin: 20px auto; }
 button { padding: 10px 20px; font-size: 18px; margin-top: 10px; }
 .status, .enemy-status { margin: 10px 0; }
+#log { text-align: left; max-height: 300px; overflow-y: auto; background:#222; padding:10px; border-radius:5px; margin-top:10px; font-size:14px;}
 </style>
 </head>
 <body>
@@ -51,7 +52,7 @@ let player = {
 let dungeonTypes = ["村", "街", "砦", "城"];
 let dungeon = { type: "", floor: 1, level: 1, maxFloors: 30, enemy: null };
 
-// 形容詞と職業200種ランダム生成
+// 形容詞と職業200種
 let adjectives = ["狂気の","闇の","深淵の","虚無の","混沌の","影の"];
 let professions = [];
 for(let i=1;i<=200;i++){ professions.push("職業"+i); }
@@ -64,9 +65,8 @@ let dungeonBonuses = {
   "城": {ATKMultiplier: 0.05}
 };
 
-// 装備ランダム生成関数（24000パターン対応）
+// 装備ランダム生成（24000パターン想定）
 function generateEquipment() {
-  // ATK 1~20, HP 5~50 の範囲でランダム
   let atk = Math.floor(Math.random()*20)+1;
   let hp = Math.floor(Math.random()*46)+5;
   return {ATK: atk, HP: hp};
@@ -86,6 +86,12 @@ function updateUI() {
   document.getElementById("enemyATK").innerText = dungeon.enemy.ATK;
 }
 
+// ログ表示
+function log(msg) {
+  let logDiv = document.getElementById("log");
+  logDiv.innerHTML = msg + "<br>" + logDiv.innerHTML;
+}
+
 // 敵生成
 function generateEnemy() {
   let adj = adjectives[Math.floor(Math.random()*adjectives.length)];
@@ -94,7 +100,8 @@ function generateEnemy() {
   let name = adj + prof;
   let baseHP = 20 + dungeon.floor*5 + player.baseATK*2;
   let baseATK = 5 + dungeon.floor*2 + player.baseHP*0.05;
-  return {name: name, HP: baseHP, currentHP: baseHP, ATK: baseATK, rankMult: rankMult};
+  log(`階層 ${dungeon.floor} 敵出現: ${name} (HP: ${baseHP}, ATK: ${Math.floor(baseATK)})`);
+  return {name: name, HP: baseHP, currentHP: baseHP, ATK: Math.floor(baseATK), rankMult: rankMult};
 }
 
 // ダンジョン生成
@@ -104,20 +111,23 @@ function generateDungeon() {
   dungeon.level = player.worldLevel;
   dungeon.enemy = generateEnemy();
   player.currentHP = player.baseHP + player.gearHP;
-  log("新しいダンジョン ("+dungeon.type+") が生成されました！");
+  log(`新しいダンジョン (${dungeon.type}) が生成されました！`);
+  updateUI();
 }
 
-// 戦闘処理
+// 戦闘
 function attackEnemy() {
   let playerDamage = player.baseATK + player.gearATK;
   dungeon.enemy.currentHP -= playerDamage;
-  log("プレイヤーの攻撃: " + playerDamage);
+  log(`プレイヤー攻撃! ダメージ: ${playerDamage} | 敵HP残り: ${Math.max(dungeon.enemy.currentHP,0)}`);
+
   if(dungeon.enemy.currentHP <= 0) {
-    log("敵を倒した！");
+    log(`敵を倒した: ${dungeon.enemy.name}`);
     let eq = generateEquipment();
     player.gearATK += eq.ATK;
     player.gearHP += eq.HP;
-    log("装備獲得: ATK+"+eq.ATK+" HP+"+eq.HP);
+    log(`装備獲得! ATK+${eq.ATK} HP+${eq.HP}`);
+
     if(dungeon.floor === dungeon.maxFloors) {
       conquerDungeon();
     } else {
@@ -127,7 +137,7 @@ function attackEnemy() {
     }
   } else {
     player.currentHP -= dungeon.enemy.ATK;
-    log("敵の攻撃: " + dungeon.enemy.ATK);
+    log(`敵攻撃! ${dungeon.enemy.name}のダメージ: ${dungeon.enemy.ATK} | プレイヤーHP残り: ${Math.max(player.currentHP,0)}`);
     if(player.currentHP <= 0) { playerDies(); }
   }
   updateUI();
@@ -135,31 +145,24 @@ function attackEnemy() {
 
 // 拠点占領
 function conquerDungeon() {
-  log("ダンジョン制覇！拠点ボーナス獲得！");
+  log(`ダンジョン制覇! 拠点ボーナス獲得: ${dungeon.type}`);
   let bonus = dungeonBonuses[dungeon.type];
-  if(bonus.HP) player.baseHP += bonus.HP;
-  if(bonus.HPMultiplier) player.baseHP += player.baseHP*bonus.HPMultiplier;
-  if(bonus.ATK) player.baseATK += bonus.ATK;
-  if(bonus.ATKMultiplier) player.baseATK += player.baseATK*bonus.ATKMultiplier;
+  if(bonus.HP){ player.baseHP += bonus.HP; log(`基礎HP +${bonus.HP}`); }
+  if(bonus.HPMultiplier){ let inc=Math.floor(player.baseHP*bonus.HPMultiplier); player.baseHP += inc; log(`基礎HP +${inc} (倍率)`); }
+  if(bonus.ATK){ player.baseATK += bonus.ATK; log(`基礎ATK +${bonus.ATK}`); }
+  if(bonus.ATKMultiplier){ let inc=Math.floor(player.baseATK*bonus.ATKMultiplier); player.baseATK += inc; log(`基礎ATK +${inc} (倍率)`); }
   generateDungeon();
 }
 
-// 死亡処理
+// 死亡
 function playerDies() {
   player.deathCount++;
-  log("プレイヤーは死亡...");
+  log(`プレイヤー死亡! 原因: ${dungeon.enemy.name}の攻撃`);
   generateDungeon();
-}
-
-// ログ表示
-function log(msg) {
-  let logDiv = document.getElementById("log");
-  logDiv.innerHTML = msg + "<br>" + logDiv.innerHTML;
 }
 
 // 初期化
 generateDungeon();
-updateUI();
 document.getElementById("attackBtn").addEventListener("click", attackEnemy);
 </script>
 </body>
