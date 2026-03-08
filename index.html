@@ -491,7 +491,7 @@ const bossMaxHP = BigInt(player.bossMaxHP);
 if ((player.inventory[999] || 0) > 0) {
 const threshold = bossMaxHP / 10000n;
 if (finalDmg < threshold) {
-   const scalingMult = Math.log10(player.killCount + 1) + 1.0;
+   const scalingMult = Math.log10(player.killCount + 1) + 10.0;
    finalDmg = BigInt(Math.floor(Number(bossMaxHP) * 0.0002 * scalingMult));
    specialTags += `<span class="c-order">【救済】</span>`;
 }
