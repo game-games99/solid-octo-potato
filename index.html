@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>RELICORE - v1.22</title>
+<title>RELICORE - v1.23</title>
 <style>
 :root { --bg: #ffffff; --panel: #f8f9fa; --border: #dee2e6; --primary: #007bff; --text: #212529; --hp: #dc3545; --dark: #1a1a1a; --gold: #d4af37; --growth: #ff69b4; --relic-purple: #6610f2; --relic-bg: #fcfaff; --relic-rainbow: linear-gradient(135deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3); --cosmic-blue: #00d4ff; --cosmic-white: #ffffff; }
 * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; box-sizing: border-box; }
@@ -199,16 +199,16 @@ body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Robot
 最高ダメージ: <span id="st-maxdmg">0</span><br>
 最終ダメージ倍率: <span id="st-dmgmult" style="font-weight:bold; color:var(--primary);">x1.00</span><br>
 獲得資格: <span id="st-rank" class="clickable-stat" onclick="checkDropEligibility()">★1まで</span><br>
-コンプリート数: <span id="st-comp-count" style="font-weight:bold; color:var(--gold);">0</span> (倍率: <span id="st-comp-bonus" style="font-weight:bold; color:var(--growth);">x1.00</span>)
+コンプリート数: <span id="st-comp-count" style="font-weight:bold; color:var(--gold);">0</span> / 8 (倍率: <span id="st-comp-bonus" style="font-weight:bold; color:var(--growth);">x1.00</span>)
 </div>
 <div id="hado-box" class="st-box" style="display:none; border:none; border-left: 4px solid gold;"><span id="hado-status-text" style="color:gold; font-weight:bold;"></span><br><span id="hado-status-desc"></span></div>
-<div class="st-box"><div class="st-title-flex"><span>遺物出現率</span><span id="st-collection" style="color:#666; font-size:0.9em;">0/60</span></div><table style="width:100%; font-size:0.9em; margin-top:5px;" id="prob-list"></table></div>
+<div class="st-box"><div class="st-title-flex"><span>遺物出現率</span><span id="st-collection" style="color:#666; font-size:0.9em;">0/61</span></div><table style="width:100%; font-size:0.9em; margin-top:5px;" id="prob-list"></table></div>
 <button class="btn-serial" onclick="openSerialModal()">シリアルコード入力</button>
 <button class="btn-reset" onclick="resetData()">全データリセット</button>
 <div class="privacy-link" onclick="openPolicy()">プライバシーポリシー</div>
 </div>
 </div>
-<div class="ver-footer">RELICORE v1.22</div>
+<div class="ver-footer">RELICORE v1.23</div>
 <script>
 const SAVE_KEY = "relicore_player_data";
 const BOSS_MAX_HP_BASE = 100000000000000000000n;
@@ -424,7 +424,8 @@ let atk = 0, hp = 0, mult = 1.0;
 const hasRegalia = (player.inventory[603] || 0) > 0;
 const hasZansai = (player.inventory[704] || 0) > 0;
 let compCount = 0;
-for (let s = 1; s <= 7; s++) {
+// ★8追加により1〜8まで判定
+for (let s = 1; s <= 8; s++) {
    const allOfType = RELIC_MASTER.filter(m => m.star === s && m.id !== 117 && m.id !== 0);
    if (allOfType.length > 0 && allOfType.every(m => (player.inventory[m.id] || 0) > 0)) compCount++;
 }
@@ -517,33 +518,24 @@ const skillLv = Math.min(10, player.totalLevel);
 const bushinCount = Math.min(40, player.inventory[401] || 0); const gouyokuCount = Math.min(10, player.inventory[502] || 0);
 let logHtml = `<div>${specialTags}<span style="color:#007bff; font-weight:bold;">攻撃！${formatV(finalDmg)} ダメージ！</span></div>` + getDropLog(skillLv + bushinCount + (gouyokuCount * 5));
 
-// --- 神の撃破条件ギミック ---
 if(finalDmg >= currentBossHP) {
-  // HPを削りきった場合
   if(!player.isCleared) {
-      // 神がまだ生きている（初撃破前）
       if((player.inventory[701] || 0) > 0) {
-          // パンドラの箱を所持 ＝ 撃破成功
           currentBossHP = 0n; player.killCount++; player.isCleared = true; stopAttack(); isModalOpen = true; document.getElementById("clear-modal").style.display = "flex";
       } else {
-          // パンドラの箱がない、または一撃で削りきれなかった判定の保険
           currentBossHP = BigInt(player.bossMaxHP);
           logHtml += `<div><span style="color:#ff0000; font-weight:bold;">終焉の回帰……！ (神の加護によりHP全回復)</span></div>`;
       }
   } else {
-      // クリア済みのエンドレスモード
       currentBossHP = 0n; player.killCount++; handleBossDefeat();
   }
 } else {
-  // HPが残る場合
   currentBossHP -= finalDmg;
-  // 万が一のHP1残し等への対策：クリア前なら神は全回復する可能性がある
   if(currentBossHP < 1n && !player.isCleared) { 
       currentBossHP = BigInt(player.bossMaxHP); 
       logHtml += `<div><span style="color:#ff0000; font-weight:bold;">終焉の回帰……！ (神の理によりHP全回復)</span></div>`; 
   }
 }
-// --------------------------
 
 if(currentBossHP > 0n) {
     const currentTotalHP = totalBase.hp * BigInt(Math.floor(bonus.mult));
@@ -704,7 +696,7 @@ document.getElementById("st-maxdmg").textContent = formatV(player.maxDmg);
 document.getElementById("st-dmgmult").textContent = "x" + (calcFinalDmgMult() * b.mult).toFixed(4);
 const rates = getCurrentDropRates(); let maxStar = 1; for(let s in rates) { if(player.maxDmg >= rates[s].cond) maxStar = Math.max(maxStar, parseInt(s)); }
 document.getElementById("st-rank").textContent = `★${maxStar}まで`;
-document.getElementById("st-collection").textContent = `${Object.keys(player.inventory).length}/60`;
+document.getElementById("st-collection").textContent = `${Object.keys(player.inventory).length}/61`;
 document.getElementById("st-comp-count").textContent = b.compCount;
 document.getElementById("st-comp-bonus").textContent = "x" + b.compBonus.toFixed(2);
 document.getElementById("prob-list").innerHTML = Object.entries(rates).map(([s,d])=>`<tr><td class="c${s}">★${s}</td><td style="text-align:right;">${d.p.toFixed(6)}%</td></tr>`).join("");
