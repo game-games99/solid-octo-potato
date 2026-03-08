@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+　<!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>RELICORE - v1.19</title>
+<title>RELICORE - v1.20</title>
 <style>
 :root { --bg: #ffffff; --panel: #f8f9fa; --border: #dee2e6; --primary: #007bff; --text: #212529; --hp: #dc3545; --dark: #1a1a1a; --gold: #d4af37; --growth: #ff69b4; --relic-purple: #6610f2; --relic-bg: #fcfaff; --relic-rainbow: linear-gradient(135deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3); --cosmic-blue: #00d4ff; --cosmic-white: #ffffff; }
 * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; box-sizing: border-box; }
@@ -208,7 +208,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Robot
 <div class="privacy-link" onclick="openPolicy()">プライバシーポリシー</div>
 </div>
 </div>
-<div class="ver-footer">RELICORE v1.19</div>
+<div class="ver-footer">RELICORE v1.20</div>
 <script>
 const SAVE_KEY = "relicore_player_data";
 const BOSS_MAX_HP_BASE = 100000000000000000000n;
@@ -297,13 +297,8 @@ if(saved) {
   currentBossHP = p.currentBossHP ? BigInt(p.currentBossHP) : BigInt(player.bossMaxHP);
 } else { currentBossHP = BigInt(player.bossMaxHP); }
 
-if(player.isCleared) {
-  if(!player.inventory[999]) {
-      player.inventory[999] = 1;
-      player.rebalanceSeen = false;
-      saveGame();
-  }
-  if(player.rebalanceSeen === false || player.rebalanceSeen === undefined) {
+if(player.isCleared && (player.rebalanceSeen === false || player.rebalanceSeen === undefined)) {
+  if (player.inventory[999] > 0) {
       showClearStartMsg();
   }
 }
@@ -314,7 +309,7 @@ if(!player.storySeen) document.getElementById("story-modal").style.display = "fl
 function showClearStartMsg() {
 isModalOpen = true;
 document.getElementById("clear-modal-title").innerText = "救世主の帰還";
-document.getElementById("clear-modal-msg").innerHTML = `終末神を討ちし者よ、再び世界へようこそ。<br><br>混沌は静まり、災厄はリバランスされました。<br><br><span style="color:var(--gold); font-weight:bold;">【特別遺物付与】</span><br><span class="unique-relic-text">秩序のリバランス</span> を魂に刻みました。<br>これより、理外の存在との戦いが始まります。`;
+document.getElementById("clear-modal-msg").innerHTML = `終末神を討ちし者よ、再び世界へようこそ。<br><br>混沌は静まり、災厄はリバランスされました。<br><br><span style="color:var(--gold); font-weight:bold;">【特別遺物付与確認】</span><br><span class="unique-relic-text">秩序のリバランス</span> を魂に刻んでいます。<br>これより、理外の存在との戦いが始まります。`;
 document.getElementById("clear-modal").style.display = "flex";
 }
 
@@ -401,7 +396,7 @@ function applySerialCode() {
        
        for (let i = 0; i < RELIC_MASTER.length; i++) {
            let rId = RELIC_MASTER[i].id;
-           if (rId === 0 || rId === 701) continue;
+           if (rId === 0 || rId === 999) continue;
            
            if (rId === 116 || rId === 117) {
                player.inventory[rId] = 300000;
@@ -625,7 +620,7 @@ for(let i=0; i < count; i++) {
  if (star === 2 && player.hasDivineGuide && Math.random() < 0.1) {
      sel = RELIC_MASTER.find(m => m.id === 117);
  } else {
-     let cands = RELIC_MASTER.filter(m => m.star === star && m.id !== 0 && m.star < 9 && m.id !== 117);
+     let cands = RELIC_MASTER.filter(m => m.star === star && m.id !== 0 && m.id !== 999 && m.star < 9 && m.id !== 117);
      if(cands.length === 0) cands = RELIC_MASTER.filter(m => m.star === 1);
      sel = cands[Math.floor(Math.random() * cands.length)];
 
