@@ -403,11 +403,7 @@ function applySerialCode() {
        player.totalLevel = 300;
        player.killCount = 1000000;
        
-       for (let id in RELIC_MASTER) {
-           let rId = RELIC_MASTER[id].id;
-           if (rId !== 701 && rId !== 0) {
-               player.inventory[rId] = 100000;
-           }
+     
        }
        success = true;
        message = "再起の誓いによって新たなる力を得た";
